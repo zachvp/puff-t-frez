@@ -19,10 +19,16 @@ public class PlayerMotor : MonoBehaviour
 
 	private Stack<Vector2> controlDirections;
 
+	private PlayerMotorData motorData;
+
 	public void Awake() {
 		controller = GetComponent<CharacterController2D> ();
 		controlDirections = new Stack<Vector2> ();
+		motorData = ScriptableObject.CreateInstance<PlayerMotorData> ();
 	}
+
+	// TODO: Variable jump height based on how long up input is pressed for
+	// TODO: Air directional influence
 
 	public void Update() {
 		// Horizontal control
@@ -59,52 +65,44 @@ public class PlayerMotor : MonoBehaviour
 
 		controlDirections.Push (controlDirection);
 
-		Debug.Assert (controlDirection.magnitude <= Mathf.Sqrt (2), "Magnitude of control direction exceeded maximum");
+		Debug.AssertFormat (Mathf.Abs (controlDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
+		Debug.AssertFormat (Mathf.Abs (controlDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
+
 //		CoreDebug.LogCollection ("ControlDirections", controlDirections);
 
 		if (controller.isGrounded) {
-			// Horizontal movement
-			if (Mathf.Abs(velocity.x) < 220)
-			{
-				velocity.x += controlDirection.x * 60;
-			}
-
-			// Horizontal deceleration
-			if (Mathf.Abs (velocity.x) < 25) {
-				velocity.x = 0;
+			// Horizontal movement.
+			if (Mathf.Abs (controlDirection.x) > 0) {
+				// There is some directional input applied.
+				velocity.x = controlDirection.x * motorData.walkVelocityMax;
 			} else {
-				velocity.x -= 30 * Mathf.Sign (velocity.x);
+				// No directional input applied or input cancels itself out.
+				velocity.x = 0;
 			}
 
 			if (controlDirection.y > 0) {
+				// Perform jump.
 				// TODO: Move to InputJump function
-				velocity.y = 1200;
-				velocity.x += controlDirection.x * 160;
+				velocity.y = motorData.jumpVelocity;
+				velocity.x = controlDirection.x * motorData.jumpHorizontalVelocity;
 			} else {
+				// Controller is grounded and no vertical control direction applied. Zero out Y velocity.
 				velocity.y = 0;
 			}
 		} else {
+			// Not grounded.
+
 			// Air directional influence
-			if (Mathf.Abs(velocity.x) < 220)
-			{
-//				Debug.LogFormat ("Applying air directional influence");
-				velocity.x += controlDirection.x * 60;
-//				if (isHorizontalDirectionChanged ()) {
-//					Debug.LogFormat ("Horizontal direction changed");
-//					velocity.x += controlDirection.x * 120;
-//				}
-//				Debug.LogFormat ("Apply air directional influence. Velocity: {0}", velocity);
-			}
+			if (Mathf.Abs (controlDirection.x) > 0) {
+				// There is some directional input applied in the air.
+				// TODO: Magic value here for air DI amount
+				if (Mathf.Abs (velocity.x) < 600) {
+					velocity.x += controlDirection.x * 50;
+				}
+			} 
 
 			// Apply gravity
-			velocity.y -= 60; // TODO: Make this a constant
-		}
-
-		// Apply limits
-		if (controller.isGrounded) {
-			velocity.x = Mathf.Clamp (velocity.x, -500, 500);
-		} else {
-			velocity.x = Mathf.Clamp (velocity.x, -2000, 2000);
+			velocity.y -= motorData.gravity;
 		}
 
 		// Set the motor direction based on the velocty.

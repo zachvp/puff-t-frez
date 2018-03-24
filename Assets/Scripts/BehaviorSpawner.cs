@@ -10,8 +10,7 @@ public class BehaviorSpawner : MonoBehaviour {
 	public void Awake() {
 		// Spawn all behaviors
 		foreach (MonoBehaviour behavior in behaviors) {
-			var instance = Instantiate (behavior) as MonoBehaviour;
-			instance.transform.SetParent (transform);
+			Instantiate (behavior, transform);
 		}
 	}
 }
