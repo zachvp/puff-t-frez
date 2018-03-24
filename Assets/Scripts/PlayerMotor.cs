@@ -17,16 +17,15 @@ public class PlayerMotor : MonoBehaviour
 
 	private Stack<Vector2> controlDirections;
 
-	public void Awake()
-	{
+	public void Awake() {
 		controller = GetComponent<CharacterController2D> ();
 		controlDirections = new Stack<Vector2> ();
 	}
-		
 
-	public void Update()
-	{
+	public void Update() {
 		// Horizontal control
+		Debug.LogFormat ("Frame number: {0}", FrameCounter.Instance.count);
+
 		if (Input.GetKey (KeyCode.RightArrow)) {
 			InputRight ();
 		}
@@ -43,8 +42,7 @@ public class PlayerMotor : MonoBehaviour
 			InputDown ();
 		}
 
-		Debug.LogFormat ("Control direction: {0}", controlDirection);
-
+		// Check if the input direction should be neutralized
 		Boolean isNoHorizontalInput = !Input.GetKey (KeyCode.RightArrow) && !Input.GetKey (KeyCode.LeftArrow);
 		Boolean isConcurrentHorizontalInput = Input.GetKey (KeyCode.RightArrow) && Input.GetKey (KeyCode.LeftArrow);
 
@@ -85,8 +83,10 @@ public class PlayerMotor : MonoBehaviour
 			// Air directional influence
 			if (Mathf.Abs(velocity.x) < 220)
 			{
+				Debug.LogFormat ("Applying air directional influence");
 				velocity.x += controlDirection.x * 60;
 				if (isHorizontalDirectionChanged ()) {
+					Debug.LogFormat ("Horizontal direction changed");
 					velocity.x += controlDirection.x * 120;
 				}
 //				Debug.LogFormat ("Apply air directional influence. Velocity: {0}", velocity);
@@ -94,6 +94,10 @@ public class PlayerMotor : MonoBehaviour
 
 			// Apply gravity
 			velocity.y -= 60; // TODO: Make this a constant
+		}
+
+		if (!controller.isGrounded) {
+			Debug.LogFormat ("Player is NOT grounded");
 		}
 
 		// Apply limits
