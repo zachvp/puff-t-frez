@@ -15,6 +15,8 @@ public class PlayerMotor : MonoBehaviour
 
 	private Vector2 controlDirection;
 
+	private Vector2 motorDirection;
+
 	private Stack<Vector2> controlDirections;
 
 	public void Awake() {
@@ -24,8 +26,6 @@ public class PlayerMotor : MonoBehaviour
 
 	public void Update() {
 		// Horizontal control
-		Debug.LogFormat ("Frame number: {0}", FrameCounter.Instance.count);
-
 		if (Input.GetKey (KeyCode.RightArrow)) {
 			InputRight ();
 		}
@@ -41,6 +41,8 @@ public class PlayerMotor : MonoBehaviour
 		if (Input.GetKeyDown (KeyCode.DownArrow)) {
 			InputDown ();
 		}
+
+//		Debug.LogFormat ("{0} ControlDirection: {1}", FrameCounter.Instance.count, controlDirection);
 
 		// Check if the input direction should be neutralized
 		Boolean isNoHorizontalInput = !Input.GetKey (KeyCode.RightArrow) && !Input.GetKey (KeyCode.LeftArrow);
@@ -75,29 +77,27 @@ public class PlayerMotor : MonoBehaviour
 			}
 
 			if (controlDirection.y > 0) {
-				// TODO: Move to ApplyJump function
+				// TODO: Move to InputJump function
 				velocity.y = 1200;
 				velocity.x += controlDirection.x * 160;
+			} else {
+				velocity.y = 0;
 			}
 		} else {
 			// Air directional influence
 			if (Mathf.Abs(velocity.x) < 220)
 			{
-				Debug.LogFormat ("Applying air directional influence");
+//				Debug.LogFormat ("Applying air directional influence");
 				velocity.x += controlDirection.x * 60;
-				if (isHorizontalDirectionChanged ()) {
-					Debug.LogFormat ("Horizontal direction changed");
-					velocity.x += controlDirection.x * 120;
-				}
+//				if (isHorizontalDirectionChanged ()) {
+//					Debug.LogFormat ("Horizontal direction changed");
+//					velocity.x += controlDirection.x * 120;
+//				}
 //				Debug.LogFormat ("Apply air directional influence. Velocity: {0}", velocity);
 			}
 
 			// Apply gravity
 			velocity.y -= 60; // TODO: Make this a constant
-		}
-
-		if (!controller.isGrounded) {
-			Debug.LogFormat ("Player is NOT grounded");
 		}
 
 		// Apply limits
@@ -107,7 +107,21 @@ public class PlayerMotor : MonoBehaviour
 			velocity.x = Mathf.Clamp (velocity.x, -2000, 2000);
 		}
 
+		// Set the motor direction based on the velocty.
+		// TODO: Can be moved to subroutine
+		// Check for nonzero velocity
+		if (Mathf.Abs (velocity.x) > 1) {
+			// Motor direction should be 1 for positive velocity and 0 for negative velocity.
+			motorDirection.x = velocity.x > 0 ? 1 : -1;
+		}
+		if (Mathf.Abs (velocity.y) > 1) {
+			motorDirection.y = velocity.y > 0 ? 1 : -1;
+		}
+
+		// Update the controller with the computed velocity.
 		controller.move(Time.deltaTime * velocity);
+
+		// Update the motor's velocity reference.
 		velocity = controller.velocity;
 
 //		Debug.LogFormat ("Velocity: {0}", velocity);
@@ -138,15 +152,42 @@ public class PlayerMotor : MonoBehaviour
 		controlDirection.y = 0;
 	}
 
-	private Boolean isHorizontalDirectionChanged () {
-		if (controlDirections.Count > 1) {
-			var controlStateCurrent = controlDirections.Pop ();
-			var controlStatePrevious = controlDirections.Pop ();
+	private bool isHorizontalControlDirectionFlippedInFrameWindow (int frameWindowSize) {
+		if (controlDirections.Count > frameWindowSize) {
+			List<Vector2> window = new List<Vector2> ();
 
-			controlDirections.Push (controlStatePrevious);
-			controlDirections.Push (controlStateCurrent);
+			// Build a window of the last n frames
+			for (int i = 0; i < frameWindowSize; ++i) {
+				window.Add (controlDirections.Pop ());
+			}
 
-			return controlStateCurrent.x != controlStatePrevious.x;
+//			CoreDebug.LogCollection ("frameWindow", window);
+//			Debug.LogFormat ("Frame window: {0}", window.ToString ());
+
+			// Iterate through the window, store first nonzero direction, then see if it's the negative of the next
+			// nonzero direction.
+			Vector2 initialDirection = Vector2.zero;
+			Vector2 finalDirection = Vector2.zero;
+
+			foreach (Vector2 direction in window) {
+				if (Mathf.Abs (direction.x) > 0) {
+					if (Mathf.Abs (initialDirection.x) > 0) {
+						// We have an initial direction, see if the current direction is opposite of that.
+						if (initialDirection.x == -direction.x) {
+							return true;
+						}
+					} else {
+						// Store the first nonzero direction
+						initialDirection = direction;
+					}
+				}
+			}
+
+			// Add directions back to the stack.
+//			controlDirections.Push (controlStatePrevious);
+//			controlDirections.Push (controlStateCurrent);
+
+//			return controlStateCurrent.x == -controlStatePrevious.x;
 		}
 
 		return false;
