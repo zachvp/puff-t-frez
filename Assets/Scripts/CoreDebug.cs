@@ -10,13 +10,15 @@ public class CoreDebug {
 		var i = 0;
 		var collection = (ICollection) blob;
 
-		logString.AppendFormat ("---Begin collection: {0}", name);
+		Debug.Assert (collection != null, "Expected parameter to be of type ICollection");
+
+		logString.AppendFormat ("---Begin collection: {0}\n", name);
 
 		foreach (System.Object element in collection) {
 			if (element is ICollection) {
 				LogCollection (name, element);
 			} else {
-				logString.AppendFormat ("\nelement {0}: {1}", i, element.ToString ());
+				logString.AppendFormat ("[{0}]: {1}\n", i, element.ToString ());
 			}
 			i++;
 		}
