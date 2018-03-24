@@ -1,0 +1,6 @@
+# Unity
+*.csproj
+*.sln
+obj/
+Library/
+Temp/
