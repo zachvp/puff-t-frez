@@ -22,6 +22,9 @@ public class PlayerMotor : MonoBehaviour
 
 	private PlayerMotorData motorData;
 
+	private bool shouldApplyAdditiveJump;
+	private int additiveJumpAmount;
+
 	public void Awake() {
 		engine = GetComponent<CharacterController2D> ();
 		inputDirectionBuffer = new Stack<Vector2> ();
@@ -31,35 +34,7 @@ public class PlayerMotor : MonoBehaviour
 	// TODO: Variable jump height based on how long up input is pressed for
 
 	public void Update() {
-		// Horizontal control
-		if (Input.GetKey (KeyCode.RightArrow)) {
-			InputRight ();
-		}
-
-		if (Input.GetKey (KeyCode.LeftArrow)) {
-			InputLeft ();
-		}
-
-		// Vertical control
-		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			InputUp ();
-		}
-		if (Input.GetKeyDown (KeyCode.DownArrow)) {
-			InputDown ();
-		}
-
-//		Debug.LogFormat ("{0} ControlDirection: {1}", FrameCounter.Instance.count, controlDirection);
-
-		// Check if the input direction should be neutralized
-		Boolean isNoHorizontalInput = !Input.GetKey (KeyCode.RightArrow) && !Input.GetKey (KeyCode.LeftArrow);
-		Boolean isConcurrentHorizontalInput = Input.GetKey (KeyCode.RightArrow) && Input.GetKey (KeyCode.LeftArrow);
-
-		if (isNoHorizontalInput || isConcurrentHorizontalInput) {
-			InputHorizontalNone ();
-		}
-		if ((!Input.GetKey (KeyCode.UpArrow) && !Input.GetKey (KeyCode.DownArrow))) {
-			InputVerticalNone ();
-		}
+		UpdateInput ();
 
 		inputDirectionBuffer.Push (inputDirection);
 
@@ -78,10 +53,20 @@ public class PlayerMotor : MonoBehaviour
 				velocity.x = 0;
 			}
 
+			if (shouldApplyAdditiveJump) {
+				shouldApplyAdditiveJump = false;
+				additiveJumpAmount = 0;
+			}
+
 			if (inputDirection.y > 0) {
 				// Perform jump.
-				// TODO: Move to InputJump function
-				velocity.y = motorData.velocityVerticalJump;
+				// TODO: Move to PerformJump function
+				if (!shouldApplyAdditiveJump) {
+					// Apply a small amount of velocity for the first part of the jump.
+					// The rest of the jump velocity will be added as vertical input is applied to the motor in the air.
+					velocity.y = 400;
+					shouldApplyAdditiveJump = true;
+				}
 			} else if (inputDirection.y < 0) {
 				// TODO: Perform crouch
 			} else {
@@ -91,11 +76,16 @@ public class PlayerMotor : MonoBehaviour
 		} else {
 			// Not grounded.
 
+			if (shouldApplyAdditiveJump && inputDirection.y > 0 && additiveJumpAmount < 1200) {
+				velocity.y += 120;
+				additiveJumpAmount += 120;
+				velocity.y = Mathf.Clamp (velocity.y, -800, 800);
+			}
+
 			// Air directional influence
-			// There is some directional input applied in the air.
-			// TODO: Magic value
 			velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
 
+			// Clamp horizontal velocity so it doesn't get out of control.
 			velocity.x = Mathf.Clamp (velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
 
 			// Apply gravity
@@ -121,7 +111,9 @@ public class PlayerMotor : MonoBehaviour
 //		Debug.LogFormat ("Velocity: {0}", velocity);
 	}
 
+
 	// Input functions
+	// TODO: These should be interface-implemented methods.
 	public void InputRight () {
 		inputDirection.x = Mathf.Clamp (inputDirection.x + 1, 0, 1);
 	}
@@ -144,6 +136,39 @@ public class PlayerMotor : MonoBehaviour
 
 	public void InputVerticalNone () {
 		inputDirection.y = 0;
+	}
+
+	// TODO: Move this to a separate component.
+	private void UpdateInput() {
+		// Horizontal control
+		if (Input.GetKey (KeyCode.RightArrow)) {
+			InputRight ();
+		}
+
+		if (Input.GetKey (KeyCode.LeftArrow)) {
+			InputLeft ();
+		}
+
+		// Vertical control
+		if (Input.GetKeyDown (KeyCode.UpArrow)) {
+			InputUp ();
+		}
+		if (Input.GetKeyDown (KeyCode.DownArrow)) {
+			InputDown ();
+		}
+
+		//		Debug.LogFormat ("{0} ControlDirection: {1}", FrameCounter.Instance.count, controlDirection);
+
+		// Check if the input direction should be neutralized
+		Boolean isNoHorizontalInput = !Input.GetKey (KeyCode.RightArrow) && !Input.GetKey (KeyCode.LeftArrow);
+		Boolean isConcurrentHorizontalInput = Input.GetKey (KeyCode.RightArrow) && Input.GetKey (KeyCode.LeftArrow);
+
+		if (isNoHorizontalInput || isConcurrentHorizontalInput) {
+			InputHorizontalNone ();
+		}
+		if ((!Input.GetKey (KeyCode.UpArrow) && !Input.GetKey (KeyCode.DownArrow))) {
+			InputVerticalNone ();
+		}
 	}
 
 	private bool isHorizontalControlDirectionFlippedInFrameWindow (int frameWindowSize) {
