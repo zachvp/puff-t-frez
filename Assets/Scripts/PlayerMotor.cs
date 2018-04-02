@@ -1,7 +1,4 @@
 ﻿using UnityEngine;
-using System;
-using System.Collections.Generic;
-using System.Collections;
 
 [RequireComponent(typeof(CharacterController2D))]
 public class PlayerMotor : MonoBehaviour, IPlayerInput
@@ -18,8 +15,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 	// The direction the motor is facing.
 	private Vector2 motorDirection;
 
-	private Stack<Vector2> inputDirectionBuffer;
-
 	private PlayerMotorData motorData;
 
 	private bool shouldApplyAdditiveJump;
@@ -27,18 +22,12 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
 	public void Awake() {
 		engine = GetComponent<CharacterController2D> ();
-		inputDirectionBuffer = new Stack<Vector2> ();
 		motorData = ScriptableObject.CreateInstance<PlayerMotorData> ();
 	}
 
 	public void Update() {
-		// TODO: When this becomes relevant, should clear after some amount of frames and write to global input buffer.
-//		inputDirectionBuffer.Push (inputDirection);
-
 		Debug.AssertFormat (Mathf.Abs (inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
 		Debug.AssertFormat (Mathf.Abs (inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
-
-//		CoreDebug.LogCollection ("ControlDirections", controlDirections);
 
 		if (engine.isGrounded) {
 			// Horizontal movement.
@@ -132,46 +121,5 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
 	public void InputVerticalNone () {
 		inputDirection.y = 0;
-	}
-
-	private bool isHorizontalControlDirectionFlippedInFrameWindow (int frameWindowSize) {
-		if (inputDirectionBuffer.Count > frameWindowSize) {
-			List<Vector2> window = new List<Vector2> ();
-
-			// Build a window of the last n frames
-			for (int i = 0; i < frameWindowSize; ++i) {
-				window.Add (inputDirectionBuffer.Pop ());
-			}
-
-//			CoreDebug.LogCollection ("frameWindow", window);
-//			Debug.LogFormat ("Frame window: {0}", window.ToString ());
-
-			// Iterate through the window, store first nonzero direction, then see if it's the negative of the next
-			// nonzero direction.
-			Vector2 initialDirection = Vector2.zero;
-			Vector2 finalDirection = Vector2.zero;
-
-			foreach (Vector2 direction in window) {
-				if (Mathf.Abs (direction.x) > 0) {
-					if (Mathf.Abs (initialDirection.x) > 0) {
-						// We have an initial direction, see if the current direction is opposite of that.
-						if (initialDirection.x == -direction.x) {
-							return true;
-						}
-					} else {
-						// Store the first nonzero direction
-						initialDirection = direction;
-					}
-				}
-			}
-
-			// Add directions back to the stack.
-//			controlDirections.Push (controlStatePrevious);
-//			controlDirections.Push (controlStateCurrent);
-
-//			return controlStateCurrent.x == -controlStatePrevious.x;
-		}
-
-		return false;
 	}
 }
