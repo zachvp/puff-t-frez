@@ -64,7 +64,7 @@ public class PlayerMotor : MonoBehaviour
 				if (!shouldApplyAdditiveJump) {
 					// Apply a small amount of velocity for the first part of the jump.
 					// The rest of the jump velocity will be added as vertical input is applied to the motor in the air.
-					velocity.y = 400;
+					velocity.y = motorData.velocityJumpImpulse;
 					shouldApplyAdditiveJump = true;
 				}
 			} else if (inputDirection.y < 0) {
@@ -74,12 +74,12 @@ public class PlayerMotor : MonoBehaviour
 				velocity.y = 0;
 			}
 		} else {
-			// Not grounded.
-
-			if (shouldApplyAdditiveJump && inputDirection.y > 0 && additiveJumpAmount < 1200) {
-				velocity.y += 120;
-				additiveJumpAmount += 120;
-				velocity.y = Mathf.Clamp (velocity.y, -800, 800);
+			// Motor is not grounded.
+			bool isWithinAdditiveJumpLimit = additiveJumpAmount < motorData.velocityJumpAdditive * motorData.frameLimitJumpAdditive;
+			if (shouldApplyAdditiveJump && inputDirection.y > 0 && isWithinAdditiveJumpLimit) {
+				velocity.y += motorData.velocityJumpAdditive;
+				additiveJumpAmount += motorData.velocityJumpAdditive;
+				velocity.y = Mathf.Clamp (velocity.y, -motorData.velocityJumpMax, motorData.velocityJumpMax);
 			}
 
 			// Air directional influence
