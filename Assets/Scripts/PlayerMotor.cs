@@ -5,6 +5,8 @@ using System.Collections;
 [RequireComponent(typeof(CharacterController2D))]
 public class PlayerMotor : MonoBehaviour, IPlayerInput
 {
+	// TODO: Implement int Vector2?
+	
 	// Reference to the character controller engine.
 	private CharacterController2D engine;
 
@@ -45,8 +47,8 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 			jumpCount++;
 		}
 
-		// Jump
-		if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && jumpCount < 1) {
+		// Additive jump. The longer the jump input, the higher the jump, for a certain amount of frames.
+		if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && jumpCount < motorData.jumpCountMax) {
 			velocity.y += Mathf.Min (motorData.velocityJumpAdditive, motorData.velocityJumpMax - velocity.y);
 			additiveJumpFrameCount++;
 
