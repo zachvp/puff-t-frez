@@ -20,6 +20,8 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
 	private int additiveJumpFrameCount;
 
+	private int jumpCount;
+
 	public void Awake() {
 		engine = GetComponent<CharacterController2D> ();
 		motorData = ScriptableObject.CreateInstance<PlayerMotorData> ();
@@ -30,6 +32,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 		Debug.AssertFormat (Mathf.Abs (inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
 
 		// Jump
+		// TODO: Shouldn't apply if jump input has been released.
 		if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive) {
 			velocity.y += Mathf.Min (motorData.velocityJumpAdditive, motorData.velocityJumpMax - velocity.y);
 			additiveJumpFrameCount++;
