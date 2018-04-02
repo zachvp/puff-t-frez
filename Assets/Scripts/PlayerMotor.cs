@@ -23,7 +23,7 @@ public class PlayerMotor : MonoBehaviour
 	private PlayerMotorData motorData;
 
 	private bool shouldApplyAdditiveJump;
-	private int additiveJumpAmount;
+	private int additiveJumpAccumulatedVelocity;
 
 	public void Awake() {
 		engine = GetComponent<CharacterController2D> ();
@@ -31,12 +31,11 @@ public class PlayerMotor : MonoBehaviour
 		motorData = ScriptableObject.CreateInstance<PlayerMotorData> ();
 	}
 
-	// TODO: Variable jump height based on how long up input is pressed for
-
 	public void Update() {
 		UpdateInput ();
 
-		inputDirectionBuffer.Push (inputDirection);
+		// TODO: When this becomes relevant, should clear after some amount of frames and write to global input buffer.
+//		inputDirectionBuffer.Push (inputDirection);
 
 		Debug.AssertFormat (Mathf.Abs (inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
 		Debug.AssertFormat (Mathf.Abs (inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
@@ -55,7 +54,7 @@ public class PlayerMotor : MonoBehaviour
 
 			if (shouldApplyAdditiveJump) {
 				shouldApplyAdditiveJump = false;
-				additiveJumpAmount = 0;
+				additiveJumpAccumulatedVelocity = 0;
 			}
 
 			if (inputDirection.y > 0) {
@@ -75,10 +74,10 @@ public class PlayerMotor : MonoBehaviour
 			}
 		} else {
 			// Motor is not grounded.
-			bool isWithinAdditiveJumpLimit = additiveJumpAmount < motorData.velocityJumpAdditive * motorData.frameLimitJumpAdditive;
+			bool isWithinAdditiveJumpLimit = additiveJumpAccumulatedVelocity < motorData.velocityJumpAdditive * motorData.frameLimitJumpAdditive;
 			if (shouldApplyAdditiveJump && inputDirection.y > 0 && isWithinAdditiveJumpLimit) {
 				velocity.y += motorData.velocityJumpAdditive;
-				additiveJumpAmount += motorData.velocityJumpAdditive;
+				additiveJumpAccumulatedVelocity += motorData.velocityJumpAdditive;
 				velocity.y = Mathf.Clamp (velocity.y, -motorData.velocityJumpMax, motorData.velocityJumpMax);
 			}
 
