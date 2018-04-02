@@ -6,7 +6,7 @@ public class PlayerMotorData : ScriptableObject {
 	public int velocityHorizontalAirMax = 600;
 	public int accelerationHorizontalAir = 50;
 	public int velocityJumpImpulse = 200;
-	public int velocityJumpAdditive = 120;
+	public int velocityJumpAdditive = 130;
 	public int velocityJumpMax = 1200;
 	public int gravity = 50;
 
