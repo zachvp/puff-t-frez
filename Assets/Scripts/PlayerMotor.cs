@@ -6,15 +6,11 @@ using System.Collections;
 [RequireComponent(typeof(CharacterController2D))]
 public class PlayerMotor : MonoBehaviour
 {
-	[SerializeField]
-	private CharacterController2D controller;
+	// Reference to the character controller engine.
+	private CharacterController2D engine;
 
-	public AnimationCurve accelerationCurve;
-
+	// The motor velocity.
 	private Vector2 velocity;
-
-	// The accumulated velocity of the motor in the air.
-	private Vector2 velocityAirDirectionalInfluence;
 
 	// The direction of input.
 	private Vector2 inputDirection;
@@ -22,18 +18,17 @@ public class PlayerMotor : MonoBehaviour
 	// The direction the motor is facing.
 	private Vector2 motorDirection;
 
-	private Stack<Vector2> controlDirections;
+	private Stack<Vector2> inputDirectionBuffer;
 
 	private PlayerMotorData motorData;
 
 	public void Awake() {
-		controller = GetComponent<CharacterController2D> ();
-		controlDirections = new Stack<Vector2> ();
+		engine = GetComponent<CharacterController2D> ();
+		inputDirectionBuffer = new Stack<Vector2> ();
 		motorData = ScriptableObject.CreateInstance<PlayerMotorData> ();
 	}
 
 	// TODO: Variable jump height based on how long up input is pressed for
-	// TODO: Air directional influence
 
 	public void Update() {
 		// Horizontal control
@@ -59,25 +54,21 @@ public class PlayerMotor : MonoBehaviour
 		Boolean isNoHorizontalInput = !Input.GetKey (KeyCode.RightArrow) && !Input.GetKey (KeyCode.LeftArrow);
 		Boolean isConcurrentHorizontalInput = Input.GetKey (KeyCode.RightArrow) && Input.GetKey (KeyCode.LeftArrow);
 
-		if (isNoHorizontalInput || isConcurrentHorizontalInput)
-		{
+		if (isNoHorizontalInput || isConcurrentHorizontalInput) {
 			InputHorizontalNone ();
 		}
-		if ((!Input.GetKey (KeyCode.UpArrow) && !Input.GetKey (KeyCode.DownArrow)))
-		{
+		if ((!Input.GetKey (KeyCode.UpArrow) && !Input.GetKey (KeyCode.DownArrow))) {
 			InputVerticalNone ();
 		}
 
-		controlDirections.Push (inputDirection);
+		inputDirectionBuffer.Push (inputDirection);
 
 		Debug.AssertFormat (Mathf.Abs (inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
 		Debug.AssertFormat (Mathf.Abs (inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
 
 //		CoreDebug.LogCollection ("ControlDirections", controlDirections);
 
-		if (controller.isGrounded) {
-			velocityAirDirectionalInfluence = Vector2.zero;
-
+		if (engine.isGrounded) {
 			// Horizontal movement.
 			if (Mathf.Abs (inputDirection.x) > 0) {
 				// There is some directional input applied.
@@ -123,10 +114,10 @@ public class PlayerMotor : MonoBehaviour
 		}
 
 		// Update the controller with the computed velocity.
-		controller.move(Time.deltaTime * velocity);
+		engine.move(Time.deltaTime * velocity);
 
-		// Update the motor's velocity reference.
-		velocity = controller.velocity;
+		// Update the motor's velocity reference to the computed velocity.
+		velocity = engine.velocity;
 //		Debug.LogFormat ("Velocity: {0}", velocity);
 	}
 
@@ -156,12 +147,12 @@ public class PlayerMotor : MonoBehaviour
 	}
 
 	private bool isHorizontalControlDirectionFlippedInFrameWindow (int frameWindowSize) {
-		if (controlDirections.Count > frameWindowSize) {
+		if (inputDirectionBuffer.Count > frameWindowSize) {
 			List<Vector2> window = new List<Vector2> ();
 
 			// Build a window of the last n frames
 			for (int i = 0; i < frameWindowSize; ++i) {
-				window.Add (controlDirections.Pop ());
+				window.Add (inputDirectionBuffer.Pop ());
 			}
 
 //			CoreDebug.LogCollection ("frameWindow", window);
