@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections;
 
 [RequireComponent(typeof(CharacterController2D))]
-public class PlayerMotor : MonoBehaviour
+public class PlayerMotor : MonoBehaviour, IPlayerInput
 {
 	// Reference to the character controller engine.
 	private CharacterController2D engine;
@@ -32,8 +32,6 @@ public class PlayerMotor : MonoBehaviour
 	}
 
 	public void Update() {
-		UpdateInput ();
-
 		// TODO: When this becomes relevant, should clear after some amount of frames and write to global input buffer.
 //		inputDirectionBuffer.Push (inputDirection);
 
@@ -112,7 +110,6 @@ public class PlayerMotor : MonoBehaviour
 
 
 	// Input functions
-	// TODO: These should be interface-implemented methods.
 	public void InputRight () {
 		inputDirection.x = Mathf.Clamp (inputDirection.x + 1, 0, 1);
 	}
@@ -135,39 +132,6 @@ public class PlayerMotor : MonoBehaviour
 
 	public void InputVerticalNone () {
 		inputDirection.y = 0;
-	}
-
-	// TODO: Move this to a separate component.
-	private void UpdateInput() {
-		// Horizontal control
-		if (Input.GetKey (KeyCode.RightArrow)) {
-			InputRight ();
-		}
-
-		if (Input.GetKey (KeyCode.LeftArrow)) {
-			InputLeft ();
-		}
-
-		// Vertical control
-		if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			InputUp ();
-		}
-		if (Input.GetKeyDown (KeyCode.DownArrow)) {
-			InputDown ();
-		}
-
-		//		Debug.LogFormat ("{0} ControlDirection: {1}", FrameCounter.Instance.count, controlDirection);
-
-		// Check if the input direction should be neutralized
-		Boolean isNoHorizontalInput = !Input.GetKey (KeyCode.RightArrow) && !Input.GetKey (KeyCode.LeftArrow);
-		Boolean isConcurrentHorizontalInput = Input.GetKey (KeyCode.RightArrow) && Input.GetKey (KeyCode.LeftArrow);
-
-		if (isNoHorizontalInput || isConcurrentHorizontalInput) {
-			InputHorizontalNone ();
-		}
-		if ((!Input.GetKey (KeyCode.UpArrow) && !Input.GetKey (KeyCode.DownArrow))) {
-			InputVerticalNone ();
-		}
 	}
 
 	private bool isHorizontalControlDirectionFlippedInFrameWindow (int frameWindowSize) {
