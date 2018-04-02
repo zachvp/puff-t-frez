@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(CharacterController2D))]
 public class PlayerMotor : MonoBehaviour, IPlayerInput
@@ -17,8 +18,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
 	private PlayerMotorData motorData;
 
-	private bool shouldApplyAdditiveJump;
-	private int additiveJumpAccumulatedVelocity;
+	private int additiveJumpFrameCount;
 
 	public void Awake() {
 		engine = GetComponent<CharacterController2D> ();
@@ -29,7 +29,19 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 		Debug.AssertFormat (Mathf.Abs (inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
 		Debug.AssertFormat (Mathf.Abs (inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
 
+		// Jump
+		if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive) {
+			velocity.y += Mathf.Min (motorData.velocityJumpAdditive, motorData.velocityJumpMax - velocity.y);
+			additiveJumpFrameCount++;
+		}
+
 		if (engine.isGrounded) {
+			// Reset the additive jump frame counter.
+			additiveJumpFrameCount = 0;
+
+			// Zero out Y velocity so engine isn't fighting with the ground.
+			velocity.y = 0;
+
 			// Horizontal movement.
 			if (Mathf.Abs (inputDirection.x) > 0) {
 				// There is some directional input applied.
@@ -39,35 +51,11 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 				velocity.x = 0;
 			}
 
-			if (shouldApplyAdditiveJump) {
-				shouldApplyAdditiveJump = false;
-				additiveJumpAccumulatedVelocity = 0;
-			}
-
-			if (inputDirection.y > 0) {
-				// Perform jump.
-				// TODO: Move to PerformJump function
-				if (!shouldApplyAdditiveJump) {
-					// Apply a small amount of velocity for the first part of the jump.
-					// The rest of the jump velocity will be added as vertical input is applied to the motor in the air.
-					velocity.y = motorData.velocityJumpImpulse;
-					shouldApplyAdditiveJump = true;
-				}
-			} else if (inputDirection.y < 0) {
+			if (inputDirection.y < 0) {
 				// TODO: Perform crouch
-			} else {
-				// Controller is grounded and no vertical control direction applied. Zero out Y velocity.
-				velocity.y = 0;
 			}
 		} else {
 			// Motor is not grounded.
-			bool isWithinAdditiveJumpLimit = additiveJumpAccumulatedVelocity < motorData.velocityJumpAdditive * motorData.frameLimitJumpAdditive;
-			if (shouldApplyAdditiveJump && inputDirection.y > 0 && isWithinAdditiveJumpLimit) {
-				velocity.y += motorData.velocityJumpAdditive;
-				additiveJumpAccumulatedVelocity += motorData.velocityJumpAdditive;
-				velocity.y = Mathf.Clamp (velocity.y, -motorData.velocityJumpMax, motorData.velocityJumpMax);
-			}
-
 			// Air directional influence
 			velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
 
