@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using System.Collections;
 
 [RequireComponent(typeof(CharacterController2D))]
@@ -22,25 +23,43 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
 	private int jumpCount;
 
+	private int jumpFrameStart;
+
+	private List<Vector2> inputDirectionBuffer;
+
 	public void Awake() {
 		engine = GetComponent<CharacterController2D> ();
 		motorData = ScriptableObject.CreateInstance<PlayerMotorData> ();
+		inputDirectionBuffer = new List<Vector2> ();
 	}
 
+	// When update is called, all input has been processed.
 	public void Update() {
 		Debug.AssertFormat (Mathf.Abs (inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
 		Debug.AssertFormat (Mathf.Abs (inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
 
+		inputDirectionBuffer.Add (inputDirection);
+
+		// Check all frames since jump was initiated for a release of the jump button.
+		if (isInputReleased (inputDirection, 1, FrameCounter.Instance.count - jumpFrameStart)) {
+			jumpCount++;
+		}
+
 		// Jump
-		// TODO: Shouldn't apply if jump input has been released.
-		if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive) {
+		if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && jumpCount < 1) {
 			velocity.y += Mathf.Min (motorData.velocityJumpAdditive, motorData.velocityJumpMax - velocity.y);
 			additiveJumpFrameCount++;
+
+			// Initial jump push off the ground.
+			if (engine.isGrounded) {
+				jumpFrameStart = FrameCounter.Instance.count;
+			}
 		}
 
 		if (engine.isGrounded) {
 			// Reset the additive jump frame counter.
 			additiveJumpFrameCount = 0;
+			jumpCount = 0;
 
 			// Zero out Y velocity so engine isn't fighting with the ground.
 			velocity.y = 0;
@@ -88,6 +107,38 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 //		Debug.LogFormat ("Velocity: {0}", velocity);
 	}
 
+	// TODO: Convert vector to array
+	private bool isInputReleased(Vector2 checkInputDirection, int checkDimension, int frameWindow) {
+		var startIndex = Mathf.Max (0, inputDirectionBuffer.Count - (1 + frameWindow));
+		var windowLength = Mathf.Min (frameWindow, inputDirectionBuffer.Count);
+		var window = inputDirectionBuffer.GetRange (startIndex, windowLength);
+		var pressedCount = 0;
+		var isReleased = false;
+
+		// Iterate through the window, checking if given input direction was pressed, then released.
+		foreach (Vector2 input in window) {
+			if (checkDimension == 0) {
+				if (input.x == checkInputDirection.x) {
+					pressedCount++;
+					isReleased = false;
+				} else if (checkInputDirection.x == 0) {
+					Debug.LogFormat ("Released X input direction");
+					isReleased = true;
+					break;
+				}
+			} else {
+				if (input.y == checkInputDirection.y) {
+					pressedCount++;
+				} else if (checkInputDirection.y == 0) {
+					isReleased = true;
+					Debug.LogFormat ("Released Y input direction");
+					break;
+				}
+			}
+		}
+
+		return isReleased;
+	}
 
 	// Input functions
 	public void InputRight () {
