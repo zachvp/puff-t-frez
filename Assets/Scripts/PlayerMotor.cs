@@ -13,8 +13,13 @@ public class PlayerMotor : MonoBehaviour
 
 	private Vector2 velocity;
 
-	private Vector2 controlDirection;
+	// The accumulated velocity of the motor in the air.
+	private Vector2 velocityAirDirectionalInfluence;
 
+	// The direction of input.
+	private Vector2 inputDirection;
+
+	// The direction the motor is facing.
 	private Vector2 motorDirection;
 
 	private Stack<Vector2> controlDirections;
@@ -63,28 +68,31 @@ public class PlayerMotor : MonoBehaviour
 			InputVerticalNone ();
 		}
 
-		controlDirections.Push (controlDirection);
+		controlDirections.Push (inputDirection);
 
-		Debug.AssertFormat (Mathf.Abs (controlDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
-		Debug.AssertFormat (Mathf.Abs (controlDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
+		Debug.AssertFormat (Mathf.Abs (inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
+		Debug.AssertFormat (Mathf.Abs (inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
 
 //		CoreDebug.LogCollection ("ControlDirections", controlDirections);
 
 		if (controller.isGrounded) {
+			velocityAirDirectionalInfluence = Vector2.zero;
+
 			// Horizontal movement.
-			if (Mathf.Abs (controlDirection.x) > 0) {
+			if (Mathf.Abs (inputDirection.x) > 0) {
 				// There is some directional input applied.
-				velocity.x = controlDirection.x * motorData.walkVelocityMax;
+				velocity.x = inputDirection.x * motorData.velocityHorizontalGroundMax;
 			} else {
 				// No directional input applied or input cancels itself out.
 				velocity.x = 0;
 			}
 
-			if (controlDirection.y > 0) {
+			if (inputDirection.y > 0) {
 				// Perform jump.
 				// TODO: Move to InputJump function
-				velocity.y = motorData.jumpVelocity;
-				velocity.x = controlDirection.x * motorData.jumpHorizontalVelocity;
+				velocity.y = motorData.velocityVerticalJump;
+			} else if (inputDirection.y < 0) {
+				// TODO: Perform crouch
 			} else {
 				// Controller is grounded and no vertical control direction applied. Zero out Y velocity.
 				velocity.y = 0;
@@ -93,13 +101,11 @@ public class PlayerMotor : MonoBehaviour
 			// Not grounded.
 
 			// Air directional influence
-			if (Mathf.Abs (controlDirection.x) > 0) {
-				// There is some directional input applied in the air.
-				// TODO: Magic value here for air DI amount
-				if (Mathf.Abs (velocity.x) < 600) {
-					velocity.x += controlDirection.x * 50;
-				}
-			} 
+			// There is some directional input applied in the air.
+			// TODO: Magic value
+			velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
+
+			velocity.x = Mathf.Clamp (velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
 
 			// Apply gravity
 			velocity.y -= motorData.gravity;
@@ -121,33 +127,32 @@ public class PlayerMotor : MonoBehaviour
 
 		// Update the motor's velocity reference.
 		velocity = controller.velocity;
-
 //		Debug.LogFormat ("Velocity: {0}", velocity);
 	}
 
 	// Input functions
 	public void InputRight () {
-		controlDirection.x = Mathf.Clamp (controlDirection.x + 1, 0, 1);
+		inputDirection.x = Mathf.Clamp (inputDirection.x + 1, 0, 1);
 	}
 
 	public void InputLeft () {
-		controlDirection.x = Mathf.Clamp (controlDirection.x - 1, -1, 0);	
+		inputDirection.x = Mathf.Clamp (inputDirection.x - 1, -1, 0);	
 	}
 
 	public void InputUp () {
-		controlDirection.y = Mathf.Clamp (controlDirection.y + 1, 0, 1);
+		inputDirection.y = Mathf.Clamp (inputDirection.y + 1, 0, 1);
 	}
 
 	public void InputDown () {
-		controlDirection.y = Mathf.Clamp (controlDirection.y - 1, -1, 1);
+		inputDirection.y = Mathf.Clamp (inputDirection.y - 1, -1, 1);
 	}
 
 	public void InputHorizontalNone () {
-		controlDirection.x = 0;
+		inputDirection.x = 0;
 	}
 
 	public void InputVerticalNone () {
-		controlDirection.y = 0;
+		inputDirection.y = 0;
 	}
 
 	private bool isHorizontalControlDirectionFlippedInFrameWindow (int frameWindowSize) {
