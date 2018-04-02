@@ -43,7 +43,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 		inputDirectionBuffer.AddInput (inputDirection);
 
 		// Check all frames since jump was initiated for a release of the jump button.
-		if (inputDirectionBuffer.isInputReleased (inputDirection, 1, FrameCounter.Instance.count - jumpFrameStart)) {
+		if (inputDirectionBuffer.IsInputYReleased (inputDirection, FrameCounter.Instance.count - jumpFrameStart)) {
 			jumpCount++;
 		}
 
