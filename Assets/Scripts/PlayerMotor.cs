@@ -29,6 +29,8 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
 	private InputBuffer inputDirectionBuffer;
 
+	// TODO: Move game logic to separate class (when can wall jump)
+
 	public void Awake() {
 		engine = GetComponent<CharacterController2D> ();
 		motorData = ScriptableObject.CreateInstance<PlayerMotorData> ();
@@ -79,12 +81,30 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 				// TODO: Perform crouch
 			}
 		} else {
+			Debug.LogFormat ("NOT GROUNDED");
 			// Motor is not grounded.
 			// Air directional influence
 			velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
 
 			// Clamp horizontal velocity so it doesn't get out of control.
 			velocity.x = Mathf.Clamp (velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
+
+			// Check for wall jump.
+			if (jumpCount > 0 && inputDirection.y > 0) {
+				var proximityCollisionState = engine.getProximityCollisionState ();
+
+				if (proximityCollisionState.left) {
+					Debug.LogFormat ("Wall JUMP LEFT");
+					velocity.y = 900;
+					velocity.x = 100;
+				}
+
+				if (proximityCollisionState.right) {
+					Debug.LogFormat ("Wall JUMP RIGHT");
+					velocity.y = 900;
+					velocity.x = -100;
+				}
+			}
 
 			// Apply gravity
 			velocity.y -= motorData.gravity;
