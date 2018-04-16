@@ -51,16 +51,20 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
 		// Additive jump. The longer the jump input, the higher the jump, for a certain amount of frames.
 		if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && jumpCount < motorData.jumpCountMax) {
+			// Initial jump push off the ground.
+			if (additiveJumpFrameCount < 1) {
+				Debug.LogFormat ("Applying impulse");
+				jumpFrameStart = FrameCounter.Instance.count;
+				velocity.y = motorData.velocityJumpImpulse;
+			}
+
 			velocity.y += Mathf.Min (motorData.velocityJumpAdditive, motorData.velocityJumpMax - velocity.y);
 			additiveJumpFrameCount++;
-
-			// Initial jump push off the ground.
-			if (engine.isGrounded) {
-				jumpFrameStart = FrameCounter.Instance.count;
-			}
 		}
 
 		if (engine.isGrounded) {
+			// TODO: Find out why this doesn't say grounded when it should be.
+
 			// Reset the additive jump frame counter.
 			additiveJumpFrameCount = 0;
 			jumpCount = 0;
@@ -81,7 +85,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 				// TODO: Perform crouch
 			}
 		} else {
-			Debug.LogFormat ("NOT GROUNDED");
 			// Motor is not grounded.
 			// Air directional influence
 			velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
@@ -93,21 +96,22 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 			if (jumpCount > 0 && inputDirection.y > 0) {
 				var proximityCollisionState = engine.getProximityCollisionState ();
 
+				// TODO: Move magic numbers to motor data
 				if (proximityCollisionState.left) {
-					Debug.LogFormat ("Wall JUMP LEFT");
 					velocity.y = 900;
 					velocity.x = 100;
 				}
 
 				if (proximityCollisionState.right) {
-					Debug.LogFormat ("Wall JUMP RIGHT");
 					velocity.y = 900;
 					velocity.x = -100;
 				}
 			}
 
-			// Apply gravity
-			velocity.y -= motorData.gravity;
+			// Apply gravity if motor does not have jump immunity.
+			if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || inputDirection.y < 1) {
+				velocity.y -= motorData.gravity;
+			}
 		}
 
 		// Set the motor direction based on the velocty.
