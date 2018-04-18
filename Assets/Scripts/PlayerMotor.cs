@@ -53,7 +53,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 		if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && jumpCount < motorData.jumpCountMax) {
 			// Initial jump push off the ground.
 			if (additiveJumpFrameCount < 1) {
-				Debug.LogFormat ("Applying impulse");
 				jumpFrameStart = FrameCounter.Instance.count;
 				velocity.y = motorData.velocityJumpImpulse;
 			}
