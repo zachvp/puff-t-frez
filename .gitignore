@@ -4,3 +4,7 @@
 obj/
 Library/
 Temp/
+
+# Visual Studio
+.vs/
+
