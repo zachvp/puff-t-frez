@@ -2,7 +2,7 @@
 public delegate void EventHandler<T>(T args);
 
 public static class Events {
-    public static void RaiseEvent(EventHandler eventHandler) {
+    public static void Raise(EventHandler eventHandler) {
         // Temp variable for thread safety.
         var threadsafeHandler = eventHandler;
         if (threadsafeHandler != null) {
@@ -10,7 +10,7 @@ public static class Events {
         }
     }
 
-    public static void RaiseEvent<T>(EventHandler<T> eventHandler, T args) {
+    public static void Raise<T>(EventHandler<T> eventHandler, T args) {
         // Temp variable for thread safety.
         var threadsafeHandler = eventHandler;
         if (threadsafeHandler != null)

@@ -41,12 +41,9 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 		engine = GetComponent<CharacterController2D> ();
 		motorData = ScriptableObject.CreateInstance<PlayerMotorData> ();
 
+        // Subscribe to events.
         initializer.OnCreate += HandleCreate;
 	}
-
-    private void HandleCreate(PlayerCharacterInitializer initializer) {
-        inputDirectionBuffer = initializer.inputBuffer;
-    }
 
 	// When update is called, all input has been processed.
 	public void Update() {
@@ -167,4 +164,10 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 	public void InputVerticalNone () {
 		inputDirection.y = 0;
 	}
+
+    // Event handlers
+    private void HandleCreate(PlayerCharacterInitializer initializer)
+    {
+        inputDirectionBuffer = initializer.inputBuffer;
+    }
 }

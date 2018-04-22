@@ -12,6 +12,6 @@ public class PlayerCharacterInitializer : MonoBehaviour {
 	public void Start() {
         // Raise the create event in start so every entity that needs
         // a reference to this can subscribe to it in Awake().
-        Events.RaiseEvent(OnCreate, this);
+        Events.Raise(OnCreate, this);
 	}
 }
