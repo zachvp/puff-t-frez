@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Collections;
 
-[RequireComponent(typeof(CharacterController2D))]
+[RequireComponent(
+        typeof(CharacterController2D),
+        typeof(PlayerCharacterInitializer)
+    )
+]
 public class PlayerMotor : MonoBehaviour, IPlayerInput
 {
 	// TODO: Implement int Vector2?
@@ -27,22 +31,29 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
 	private int jumpFrameStart;
 
-	private InputBuffer inputDirectionBuffer;
+    private InputBuffer inputDirectionBuffer;
 
 	// TODO: Move game logic to separate class (when can wall jump)
 
 	public void Awake() {
+        var initializer = GetComponent<PlayerCharacterInitializer>();
+
 		engine = GetComponent<CharacterController2D> ();
 		motorData = ScriptableObject.CreateInstance<PlayerMotorData> ();
-		inputDirectionBuffer = new InputBuffer ();
+
+        initializer.OnCreate += HandleCreate;
 	}
+
+    private void HandleCreate(PlayerCharacterInitializer initializer) {
+        inputDirectionBuffer = initializer.inputBuffer;
+    }
 
 	// When update is called, all input has been processed.
 	public void Update() {
 		Debug.AssertFormat (Mathf.Abs (inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
 		Debug.AssertFormat (Mathf.Abs (inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
 
-		inputDirectionBuffer.AddInput (inputDirection);
+        inputDirectionBuffer.AddInput (inputDirection);
 
 		// Check all frames since jump was initiated for a release of the jump button.
 		if (inputDirectionBuffer.IsInputYReleased (inputDirection, FrameCounter.Instance.count - jumpFrameStart)) {

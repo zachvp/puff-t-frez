@@ -5,7 +5,7 @@
 /// Be configured to run before any other scripts.
 /// </summary>
 public class BehaviorSpawner : MonoBehaviour {
-	[SerializeField] private MonoBehaviour[] behaviors;
+	public MonoBehaviour[] behaviors;
 
 	public void Awake() {
 		// Spawn all behaviors
