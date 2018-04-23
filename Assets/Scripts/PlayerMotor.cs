@@ -15,7 +15,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 	private CharacterController2D engine;
 
 	// The motor velocity.
-	private Vector2 velocity;
+    private Vector2 velocity; // TODO: Does this need to be vector3?
 
 	// The direction of input.
 	private Vector2 inputDirection;
@@ -24,6 +24,8 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 	private Vector2 motorDirection;
 
 	private PlayerMotorData motorData;
+
+    private float deltaTime;
 
 	private int additiveJumpFrameCount;
 
@@ -49,8 +51,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 	public void Update() {
 		Debug.AssertFormat (Mathf.Abs (inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
 		Debug.AssertFormat (Mathf.Abs (inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
-
-        inputDirectionBuffer.AddInput (inputDirection);
 
 		// Check all frames since jump was initiated for a release of the jump button.
 		if (inputDirectionBuffer.IsInputYReleased (inputDirection, FrameCounter.Instance.count - jumpFrameStart)) {
@@ -94,10 +94,10 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 		} else {
 			// Motor is not grounded.
 			// Air directional influence
-			velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
+			//velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
 
 			// Clamp horizontal velocity so it doesn't get out of control.
-			velocity.x = Mathf.Clamp (velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
+			//velocity.x = Mathf.Clamp (velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
 
 			// Check for wall jump.
 			if (jumpCount > 0 && inputDirection.y > 0) {
@@ -105,13 +105,13 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
 				// TODO: Move magic numbers to motor data
 				if (proximityCollisionState.left) {
-					velocity.y = 900;
-					velocity.x = 100;
+                    velocity.y = motorData.velocityWallJumpVertical;
+                    //velocity.x = motorData.velocityWallJumpHorizontal;
 				}
 
 				if (proximityCollisionState.right) {
-					velocity.y = 900;
-					velocity.x = -100;
+                    velocity.y = motorData.velocityWallJumpVertical;
+                    //velocity.x = -motorData.velocityWallJumpHorizontal;
 				}
 			}
 
@@ -132,38 +132,58 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 			motorDirection.y = velocity.y > 0 ? 1 : -1;
 		}
 
-		// Update the controller with the computed velocity.
-		engine.move(Time.deltaTime * velocity);
+        // Update the controller with the computed velocity.
+        var deltaMovement = deltaTime * velocity;
+        //var deltaMovement = inputDirection * 256 * deltaTime;
+
+        deltaMovement.x = Mathf.RoundToInt(deltaMovement.x);
+        deltaMovement.y = Mathf.RoundToInt(deltaMovement.y);
+
+        engine.move(deltaMovement, velocity);
+
+        // Testing: Isolated the engine as the discrepancy source.
+        //var newPos = transform.position;
+        //var inputDir = new Vector3(inputDirection.x, inputDirection.y, 0);
+
+        //newPos += inputDir * 256 * deltaTime;
+        //newPos.y = 0;
+
+        //transform.position = newPos;
 
 		// Update the motor's velocity reference to the computed velocity.
-		velocity = engine.velocity;
-//		Debug.LogFormat ("Velocity: {0}", velocity);
+		//velocity = engine.velocity;
+		Debug.LogFormat ("Velocity: {0}", velocity);
+	}
+
+	public void LateUpdate() {
+        // Round position to nearest integer.
+        Vector3 newPosition = transform.position;
+
+        newPosition.x = Mathf.RoundToInt(transform.position.x);
+        newPosition.y = Mathf.RoundToInt(transform.position.y);
+
+        transform.position = newPosition;
+
+        //Debug.LogFormat("Position: {0}", transform.position);
 	}
 
 	// Input functions
-	public void InputRight () {
-		inputDirection.x = Mathf.Clamp (inputDirection.x + 1, 0, 1);
-	}
+	public void ApplyInput(Vector2 input) {
+        inputDirection = input;
+        inputDirectionBuffer.AddInput(input);
+    }
 
-	public void InputLeft () {
-		inputDirection.x = Mathf.Clamp (inputDirection.x - 1, -1, 0);	
-	}
+    public void ApplyDeltaTime(float time) {
+        deltaTime = time;
+    }
 
-	public void InputUp () {
-		inputDirection.y = Mathf.Clamp (inputDirection.y + 1, 0, 1);
-	}
+    public Vector3 GetPosition() {
+        return transform.position;
+    }
 
-	public void InputDown () {
-		inputDirection.y = Mathf.Clamp (inputDirection.y - 1, -1, 1);
-	}
-
-	public void InputHorizontalNone () {
-		inputDirection.x = 0;
-	}
-
-	public void InputVerticalNone () {
-		inputDirection.y = 0;
-	}
+    public void SetPosition(Vector3 position) {
+        transform.position = position;
+    }
 
     // Event handlers
     private void HandleCreate(PlayerCharacterInitializer initializer)

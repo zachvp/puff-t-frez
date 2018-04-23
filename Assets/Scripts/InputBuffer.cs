@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 public class InputBuffer {
-	private List<Vector2> inputBuffer;
+    public List<Vector2> inputBuffer { get; private set; }
 
 	public InputBuffer() {
 		inputBuffer = new List<Vector2> ();

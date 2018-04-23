@@ -155,8 +155,6 @@ public class CharacterController2D : MonoBehaviour
 	public Vector3 velocity;
 	public bool isGrounded { get { return collisionState.below; } }
 
-	private const float kSkinWidthFloatFudgeFactor = 0.001f;
-
 	#endregion
 
 
@@ -255,7 +253,7 @@ public class CharacterController2D : MonoBehaviour
 	/// stop when run into.
 	/// </summary>
 	/// <param name="deltaMovement">Delta movement.</param>
-	public void move( Vector3 deltaMovement )
+	public void move( Vector3 deltaMovement, Vector2 vel)
 	{
 		// save off our current grounded state which we will use for wasGroundedLastFrame and becameGroundedThisFrame
 		collisionState.wasGroundedLastFrame = collisionState.below;
@@ -268,7 +266,6 @@ public class CharacterController2D : MonoBehaviour
 		var desiredPosition = transform.position + deltaMovement;
 		primeRaycastOrigins( desiredPosition, deltaMovement );
 
-
 		// first, we check for a slope below us before moving
 		// only check slopes if we are going down and grounded
 		if( deltaMovement.y < 0 && collisionState.wasGroundedLastFrame )
@@ -278,11 +275,11 @@ public class CharacterController2D : MonoBehaviour
 		checkLayerForRaycastHitsHorizontal(ref deltaMovement);
 
 		// now we check movement in the horizontal dir
-		if( deltaMovement.x != 0 )
+        if( Mathf.Abs(deltaMovement.x) > 0 )
 			moveHorizontally( ref deltaMovement );
 
 		// next, check movement in the vertical dir
-		if( deltaMovement.y != 0 )
+        if( Mathf.Abs(deltaMovement.y) > 0 )
 			moveVertically( ref deltaMovement );
 
 		// check for special interactibles in vertical direction
@@ -299,8 +296,10 @@ public class CharacterController2D : MonoBehaviour
 			transform.Translate( deltaMovement, Space.World );
 
 			// only calculate velocity if we have a non-zero deltaTime
-			if( Time.deltaTime > 0 )
-				velocity = deltaMovement / Time.deltaTime;
+            if( Time.deltaTime > 0 ) {
+                velocity = vel;
+                //velocity = deltaMovement / Time.deltaTime;
+            }
 		}
 
 		// set our becameGrounded state based on the previous and current collision state
@@ -327,7 +326,7 @@ public class CharacterController2D : MonoBehaviour
 	{
 		do
 		{
-			move( new Vector3( 0, -1f, 0 ) );
+            move( new Vector3( 0, -1f, 0 ), Vector2.down );
 		} while( !isGrounded );
 	}
 
@@ -477,11 +476,6 @@ public class CharacterController2D : MonoBehaviour
 				}
 
 				_raycastHitsThisFrame.Add( _raycastHit );
-
-				// we add a small fudge factor for the float operations here. if our rayDistance is smaller
-				// than the width + fudge bail out because we have a direct impact
-				if( rayDistance < _skinWidth + kSkinWidthFloatFudgeFactor )
-					break;
 			}
 		}
 	}
@@ -603,11 +597,6 @@ public class CharacterController2D : MonoBehaviour
 				// where our ray gets a hit that is less then skinWidth causing us to be ungrounded the next frame due to residual velocity.
 				if( !isGoingUp && deltaMovement.y > 0.00001f )
 					_isGoingUpSlope = true;
-
-				// we add a small fudge factor for the float operations here. if our rayDistance is smaller
-				// than the width + fudge bail out because we have a direct impact
-				if( rayDistance < _skinWidth + kSkinWidthFloatFudgeFactor )
-					return;
 			}
 		}
 	}

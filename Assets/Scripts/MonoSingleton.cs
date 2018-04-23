@@ -14,14 +14,14 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 
 	protected static T _instance;
 
-	protected virtual void Awake()
+	public virtual void Awake()
 	{
 		Debug.AssertFormat(_instance == null, "{0}: More than one instance of MonoSingleton exists in the scene",
 											   typeof(MonoSingleton<T>).Name);
 		_instance = this as T;
 	}
 
-	protected virtual void OnDestroy()
+	public virtual void OnDestroy()
 	{
 		_instance = null;
 	}

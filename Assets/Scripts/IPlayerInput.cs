@@ -1,15 +1,11 @@
-﻿public interface IPlayerInput {
-	// Input functions
-	// TODO: These should be interface-implemented methods.
-	void InputRight ();
+﻿using UnityEngine;
 
-	void InputLeft ();
+public interface IPlayerInput {
+    // Input functions
+    void ApplyInput(Vector2 input);
+    void ApplyDeltaTime(float deltaTime);
 
-	void InputUp ();
-
-	void InputDown ();
-
-	void InputHorizontalNone ();
-
-	void InputVerticalNone ();
+    // Possibly move to separate interface if this gets too messy.
+    Vector3 GetPosition();
+    void SetPosition(Vector3 position);
 }
