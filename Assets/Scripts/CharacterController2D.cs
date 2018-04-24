@@ -183,7 +183,6 @@ public class CharacterController2D : MonoBehaviour
 	// the reason is so that if we reach the end of the slope we can make an adjustment to stay grounded
 	private bool _isGoingUpSlope = false;
 
-
 	#region Monobehaviour
 
 	void Awake()
@@ -253,7 +252,7 @@ public class CharacterController2D : MonoBehaviour
 	/// stop when run into.
 	/// </summary>
 	/// <param name="deltaMovement">Delta movement.</param>
-	public void move( Vector3 deltaMovement, Vector2 vel)
+	public void move( Vector3 deltaMovement)
 	{
 		// save off our current grounded state which we will use for wasGroundedLastFrame and becameGroundedThisFrame
 		collisionState.wasGroundedLastFrame = collisionState.below;
@@ -285,6 +284,11 @@ public class CharacterController2D : MonoBehaviour
 		// check for special interactibles in vertical direction
 		checkLayerForRaycastHitsVertical(ref deltaMovement);
 
+        // Perist the below state since we were grounded and there was no Y delta.
+        if (deltaMovement.y == 0 && collisionState.wasGroundedLastFrame) {
+            collisionState.below = true;
+        }
+
 		// move then update our state
 		if( usePhysicsForMovement )
 		{
@@ -297,8 +301,7 @@ public class CharacterController2D : MonoBehaviour
 
 			// only calculate velocity if we have a non-zero deltaTime
             if( Time.deltaTime > 0 ) {
-                velocity = vel;
-                //velocity = deltaMovement / Time.deltaTime;
+                velocity = deltaMovement / Time.deltaTime;
             }
 		}
 
@@ -326,7 +329,7 @@ public class CharacterController2D : MonoBehaviour
 	{
 		do
 		{
-            move( new Vector3( 0, -1f, 0 ), Vector2.down );
+            move( new Vector3( 0, -1f, 0 ) );
 		} while( !isGrounded );
 	}
 
@@ -566,7 +569,7 @@ public class CharacterController2D : MonoBehaviour
 		{
 			var ray = new Vector2( initialRayOrigin.x + i * _horizontalDistanceBetweenRays, initialRayOrigin.y );
 
-			// DrawRay( ray, rayDirection * rayDistance, Color.red );
+            DrawRay( ray, rayDirection * rayDistance, Color.blue );
 			_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, mask );
 			/*_specialRaycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, specialInteractibleMask );
 			if (_specialRaycastHit) {
