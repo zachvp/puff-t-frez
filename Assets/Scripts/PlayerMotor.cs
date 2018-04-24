@@ -80,14 +80,14 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             // Horizontal movement.
             velocity.x = inputDirection.x * motorData.velocityHorizontalGroundMax;
 
+            // Reset jump states.
+            additiveJumpFrameCount = 0;
+            jumpCount = 0;
+
             if (inputDirection.y < 0)
             {
                 // TODO: Perform crouch
             }
-
-            // Reset the additive jump frame counter.
-            additiveJumpFrameCount = 0;
-            jumpCount = 0;
         }
         else
         {

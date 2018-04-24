@@ -13,8 +13,9 @@ public class PlayerInputPlaybackController : MonoBehaviour {
     private InputBuffer buffer;
     private Vector3 initialPosition;
 
-    // TODO: DBG var
+#if DEBUG
     private Vector3 finalPosition;
+#endif
 
     public void Awake() {
         var initializer = GetComponent<PlayerCharacterInitializer>();
