@@ -9,153 +9,168 @@ using System.Collections;
 ]
 public class PlayerMotor : MonoBehaviour, IPlayerInput
 {
-	// TODO: Implement int Vector2?
-	
-	// Reference to the character controller engine.
-	private CharacterController2D engine;
+    // TODO: Implement int Vector2?
 
-	// The motor velocity.
-    private Vector2 velocity; // TODO: Does this need to be vector3?
+    // Reference to the character controller engine.
+    private CharacterController2D engine;
 
-	// The direction of input.
-	private Vector2 inputDirection;
+    // The motor velocity.
+    private Vector2 velocity;
 
-	// The direction the motor is facing.
-	private Vector2 motorDirection;
+    // The direction of input.
+    private Vector2 inputDirection;
 
-	private PlayerMotorData motorData;
+    // The direction the motor is facing.
+    private Vector2 motorDirection;
 
-    private float deltaTime;
+    private PlayerMotorData motorData;
 
-	private int additiveJumpFrameCount;
+    private int additiveJumpFrameCount;
 
-	private int jumpCount;
+    private int jumpCount;
 
-	private int jumpFrameStart;
+    private int jumpFrameStart;
 
     private InputBuffer inputDirectionBuffer;
 
-	// TODO: Move game logic to separate class (when can wall jump)
+    private float deltaTime;
 
-	public void Awake() {
+    // TODO: Move game logic to separate class (when can wall jump)
+
+    public void Awake()
+    {
         var initializer = GetComponent<PlayerCharacterInitializer>();
 
-		engine = GetComponent<CharacterController2D> ();
-		motorData = ScriptableObject.CreateInstance<PlayerMotorData> ();
+        engine = GetComponent<CharacterController2D>();
+        motorData = ScriptableObject.CreateInstance<PlayerMotorData>();
 
         // Subscribe to events.
         initializer.OnCreate += HandleCreate;
-	}
+    }
 
-	// When update is called, all input has been processed.
-	public void Update() {
-		Debug.AssertFormat (Mathf.Abs (inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
-		Debug.AssertFormat (Mathf.Abs (inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
+    // When update is called, all input has been processed.
+    public void Update()
+    {
+        Debug.AssertFormat(Mathf.Abs(inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
+        Debug.AssertFormat(Mathf.Abs(inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
 
-		// Check all frames since jump was initiated for a release of the jump button.
-		if (inputDirectionBuffer.IsInputYReleased (inputDirection, FrameCounter.Instance.count - jumpFrameStart)) {
-			jumpCount++;
-		}
+        // Check all frames since jump was initiated for a release of the jump button.
+        if (inputDirectionBuffer.IsInputYReleased(inputDirection, FrameCounter.Instance.count - jumpFrameStart))
+        {
+            Debug.LogFormat("JUMP COUNT++");
+            jumpCount++;
+        }
 
-		// Additive jump. The longer the jump input, the higher the jump, for a certain amount of frames.
-		if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && jumpCount < motorData.jumpCountMax) {
-			// Initial jump push off the ground.
-			if (additiveJumpFrameCount < 1) {
-				jumpFrameStart = FrameCounter.Instance.count;
-				velocity.y = motorData.velocityJumpImpulse;
-			}
+        // Additive jump. The longer the jump input, the higher the jump, for a certain amount of frames.
+        if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && jumpCount < motorData.jumpCountMax)
+        {
+            // Initial jump push off the ground.
+            if (additiveJumpFrameCount < 1)
+            {
+                jumpFrameStart = FrameCounter.Instance.count;
+                velocity.y = motorData.velocityJumpImpulse;
+            }
 
-			velocity.y += Mathf.Min (motorData.velocityJumpAdditive, motorData.velocityJumpMax - velocity.y);
-			additiveJumpFrameCount++;
-		}
+            Debug.LogFormat("ADDITIVE JUMP");
+            velocity.y += Mathf.Min(motorData.velocityJumpAdditive, motorData.velocityJumpMax - velocity.y);
+            additiveJumpFrameCount++;
+        }
 
-		if (engine.isGrounded) {
-			// TODO: Find out why this doesn't say grounded when it should be.
+        if (engine.isGrounded)
+        {
+            // TODO: Find out why this doesn't say grounded when it should be.
+            Debug.LogFormat("GROUNDED");
 
-			// Reset the additive jump frame counter.
-			additiveJumpFrameCount = 0;
-			jumpCount = 0;
+            if (additiveJumpFrameCount == 0)
+            {
+                Debug.LogFormat("ZERO OUT Y VEL");
 
-			// Zero out Y velocity so engine isn't fighting with the ground.
-			velocity.y = 0;
+                // Zero out Y velocity so engine isn't fighting with the ground.
+                velocity.y = 0;
 
-			// Horizontal movement.
-			if (Mathf.Abs (inputDirection.x) > 0) {
-				// There is some directional input applied.
-				velocity.x = inputDirection.x * motorData.velocityHorizontalGroundMax;
-			} else {
-				// No directional input applied or input cancels itself out.
-				velocity.x = 0;
-			}
+                // Horizontal movement.
+                if (Mathf.Abs(inputDirection.x) > 0)
+                {
+                    // There is some directional input applied.
+                    velocity.x = inputDirection.x * motorData.velocityHorizontalGroundMax;
+                }
+                else
+                {
+                    // No directional input applied or input cancels itself out.
+                    velocity.x = 0;
+                }
 
-			if (inputDirection.y < 0) {
-				// TODO: Perform crouch
-			}
-		} else {
-			// Motor is not grounded.
-			// Air directional influence
-			//velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
+                if (inputDirection.y < 0)
+                {
+                    // TODO: Perform crouch
+                }
+            }
 
-			// Clamp horizontal velocity so it doesn't get out of control.
-			//velocity.x = Mathf.Clamp (velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
+            // Reset the additive jump frame counter.
+            additiveJumpFrameCount = 0;
+            jumpCount = 0;
+        }
+        else
+        {
+            Debug.LogFormat("NOT GROUNDED");
 
-			// Check for wall jump.
-			if (jumpCount > 0 && inputDirection.y > 0) {
-				var proximityCollisionState = engine.getProximityCollisionState ();
+            // Motor is not grounded.
+            // Air directional influence
+            velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
 
-				// TODO: Move magic numbers to motor data
-				if (proximityCollisionState.left) {
-                    velocity.y = motorData.velocityWallJumpVertical;
-                    //velocity.x = motorData.velocityWallJumpHorizontal;
-				}
+            // Clamp horizontal velocity so it doesn't get out of control.
+            velocity.x = Mathf.Clamp(velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
 
-				if (proximityCollisionState.right) {
-                    velocity.y = motorData.velocityWallJumpVertical;
-                    //velocity.x = -motorData.velocityWallJumpHorizontal;
-				}
-			}
+            // Check for wall jump.
+            if (jumpCount > 0 && inputDirection.y > 0)
+            {
+                var proximityCollisionState = engine.getProximityCollisionState();
 
-			// Apply gravity if motor does not have jump immunity.
-			if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || inputDirection.y < 1) {
-				velocity.y -= motorData.gravity;
-			}
-		}
+                // TODO: Move magic numbers to motor data
+                if (proximityCollisionState.left)
+                {
+                    velocity.y = 900;
+                    velocity.x = 100;
+                }
 
-		// Set the motor direction based on the velocty.
-		// TODO: Can be moved to subroutine
-		// Check for nonzero velocity
-		if (Mathf.Abs (velocity.x) > 1) {
-			// Motor direction should be 1 for positive velocity and 0 for negative velocity.
-			motorDirection.x = velocity.x > 0 ? 1 : -1;
-		}
-		if (Mathf.Abs (velocity.y) > 1) {
-			motorDirection.y = velocity.y > 0 ? 1 : -1;
-		}
+                if (proximityCollisionState.right)
+                {
+                    velocity.y = 900;
+                    velocity.x = -100;
+                }
+            }
+
+            // Apply gravity if motor does not have jump immunity.
+            if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || inputDirection.y < 1)
+            {
+                velocity.y -= motorData.gravity;
+            }
+        }
+
+        // Set the motor direction based on the velocty.
+        // TODO: Can be moved to subroutine
+        // Check for nonzero velocity
+        if (Mathf.Abs(velocity.x) > 1)
+        {
+            // Motor direction should be 1 for positive velocity and 0 for negative velocity.
+            motorDirection.x = velocity.x > 0 ? 1 : -1;
+        }
+        if (Mathf.Abs(velocity.y) > 1)
+        {
+            motorDirection.y = velocity.y > 0 ? 1 : -1;
+        }
 
         // Update the controller with the computed velocity.
-        var deltaMovement = deltaTime * velocity;
-        //var deltaMovement = inputDirection * 256 * deltaTime;
+        engine.move(deltaTime * velocity);
 
-        deltaMovement.x = Mathf.RoundToInt(deltaMovement.x);
-        deltaMovement.y = Mathf.RoundToInt(deltaMovement.y);
+        // Update the motor's velocity reference to the computed velocity.
+        velocity = engine.velocity;
+        //      Debug.LogFormat ("Velocity: {0}", velocity);
+    }
 
-        engine.move(deltaMovement, velocity);
-
-        // Testing: Isolated the engine as the discrepancy source.
-        //var newPos = transform.position;
-        //var inputDir = new Vector3(inputDirection.x, inputDirection.y, 0);
-
-        //newPos += inputDir * 256 * deltaTime;
-        //newPos.y = 0;
-
-        //transform.position = newPos;
-
-		// Update the motor's velocity reference to the computed velocity.
-		//velocity = engine.velocity;
-		Debug.LogFormat ("Velocity: {0}", velocity);
-	}
-
-	public void LateUpdate() {
+    // Input functions
+    public void LateUpdate()
+    {
         // Round position to nearest integer.
         Vector3 newPosition = transform.position;
 
@@ -165,23 +180,27 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         transform.position = newPosition;
 
         //Debug.LogFormat("Position: {0}", transform.position);
-	}
+    }
 
-	// Input functions
-	public void ApplyInput(Vector2 input) {
+    // Input functions
+    public void ApplyInput(Vector2 input)
+    {
         inputDirection = input;
         inputDirectionBuffer.AddInput(input);
     }
 
-    public void ApplyDeltaTime(float time) {
+    public void ApplyDeltaTime(float time)
+    {
         deltaTime = time;
     }
 
-    public Vector3 GetPosition() {
+    public Vector3 GetPosition()
+    {
         return transform.position;
     }
 
-    public void SetPosition(Vector3 position) {
+    public void SetPosition(Vector3 position)
+    {
         transform.position = position;
     }
 
