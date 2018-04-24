@@ -71,39 +71,18 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
                 velocity.y = motorData.velocityJumpImpulse;
             }
 
-            Debug.LogFormat("ADDITIVE JUMP");
             velocity.y += Mathf.Min(motorData.velocityJumpAdditive, motorData.velocityJumpMax - velocity.y);
             additiveJumpFrameCount++;
         }
 
         if (engine.isGrounded)
         {
-            // TODO: Find out why this doesn't say grounded when it should be.
-            Debug.LogFormat("GROUNDED");
+            // Horizontal movement.
+            velocity.x = inputDirection.x * motorData.velocityHorizontalGroundMax;
 
-            if (additiveJumpFrameCount == 0)
+            if (inputDirection.y < 0)
             {
-                Debug.LogFormat("ZERO OUT Y VEL");
-
-                // Zero out Y velocity so engine isn't fighting with the ground.
-                velocity.y = 0;
-
-                // Horizontal movement.
-                if (Mathf.Abs(inputDirection.x) > 0)
-                {
-                    // There is some directional input applied.
-                    velocity.x = inputDirection.x * motorData.velocityHorizontalGroundMax;
-                }
-                else
-                {
-                    // No directional input applied or input cancels itself out.
-                    velocity.x = 0;
-                }
-
-                if (inputDirection.y < 0)
-                {
-                    // TODO: Perform crouch
-                }
+                // TODO: Perform crouch
             }
 
             // Reset the additive jump frame counter.
@@ -112,8 +91,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         }
         else
         {
-            Debug.LogFormat("NOT GROUNDED");
-
             // Motor is not grounded.
             // Air directional influence
             velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
