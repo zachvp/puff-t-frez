@@ -2,7 +2,7 @@
 
 public class PlayerMotorData : ScriptableObject {
 	// TODO: Doc these values
-	public int velocityHorizontalGroundMax = 256;
+	public int velocityHorizontalGroundMax = 400;
 	public int velocityHorizontalAirMax = 600;
 	public int accelerationHorizontalAir = 50;
 	public int jumpCountMax = 1;
