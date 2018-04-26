@@ -23,10 +23,20 @@ public class CharacterController2D : MonoBehaviour
 		public bool above;
 		public bool below;
 		public bool becameGroundedThisFrame;
-		public bool wasGroundedLastFrame;
 		public bool movingDownSlope;
 		public float slopeAngle;
 
+        public CharacterCollisionState2D() {}
+
+        public CharacterCollisionState2D(CharacterCollisionState2D other) {
+            right = other.right;
+            left = other.left;
+            above = other.above;
+            below = other.below;
+            becameGroundedThisFrame = other.becameGroundedThisFrame;
+            movingDownSlope = other.movingDownSlope;
+            slopeAngle = other.slopeAngle;
+        }
 
 		public bool hasCollision()
 		{
@@ -43,8 +53,8 @@ public class CharacterController2D : MonoBehaviour
 
 		public override string ToString()
 		{
-			return string.Format( "[CharacterCollisionState2D] r: {0}, l: {1}, a: {2}, b: {3}, movingDownSlope: {4}, angle: {5}, wasGroundedLastFrame: {6}, becameGroundedThisFrame: {7}",
-			                     right, left, above, below, movingDownSlope, slopeAngle, wasGroundedLastFrame, becameGroundedThisFrame );
+			return string.Format( "[CharacterCollisionState2D] r: {0}, l: {1}, a: {2}, b: {3}, movingDownSlope: {4}, angle: {5}, becameGroundedThisFrame: {6}",
+			                     right, left, above, below, movingDownSlope, slopeAngle, becameGroundedThisFrame );
 		}
 	}
 
@@ -254,8 +264,8 @@ public class CharacterController2D : MonoBehaviour
 	/// <param name="deltaMovement">Delta movement.</param>
 	public void move( Vector3 deltaMovement)
 	{
-		// save off our current grounded state which we will use for wasGroundedLastFrame and becameGroundedThisFrame
-		collisionState.wasGroundedLastFrame = collisionState.below;
+        // save off our current grounded state which we will use for wasGroundedLastFrame and becameGroundedThisFrame
+        var oldCollisionState = new CharacterCollisionState2D(collisionState);
 
 		// clear our state
 		collisionState.reset();
@@ -267,7 +277,7 @@ public class CharacterController2D : MonoBehaviour
 
 		// first, we check for a slope below us before moving
 		// only check slopes if we are going down and grounded
-		if( deltaMovement.y < 0 && collisionState.wasGroundedLastFrame )
+        if( deltaMovement.y < 0 && oldCollisionState.below)
 			handleVerticalSlope( ref deltaMovement );
 
 		// check for special interactibles in the horizontal direction
@@ -275,18 +285,31 @@ public class CharacterController2D : MonoBehaviour
 
 		// now we check movement in the horizontal dir
         if( Mathf.Abs(deltaMovement.x) > 0 )
-			moveHorizontally( ref deltaMovement );
+            moveHorizontally( ref deltaMovement, oldCollisionState );
 
 		// next, check movement in the vertical dir
         if( Mathf.Abs(deltaMovement.y) > 0 )
-			moveVertically( ref deltaMovement );
+            moveVertically( ref deltaMovement, oldCollisionState );
 
 		// check for special interactibles in vertical direction
 		checkLayerForRaycastHitsVertical(ref deltaMovement);
 
         // Perist the below state since we were grounded and there was no Y delta.
-        if (deltaMovement.y == 0 && collisionState.wasGroundedLastFrame) {
-            collisionState.below = true;
+        if (Mathf.Abs(deltaMovement.y) < 0.01) {
+            if (oldCollisionState.below) {
+                collisionState.below = oldCollisionState.below;
+            }
+            if (oldCollisionState.above) {
+                collisionState.above = oldCollisionState.above;
+            }
+        }
+        if (Mathf.Abs(deltaMovement.x) < 0.01) {
+            if (oldCollisionState.left) {
+                collisionState.left = oldCollisionState.left;
+            }
+            if (oldCollisionState.right) {
+                collisionState.right = oldCollisionState.right;
+            }
         }
 
 		// move then update our state
@@ -315,7 +338,7 @@ public class CharacterController2D : MonoBehaviour
 		}
 
 		// set our becameGrounded state based on the previous and current collision state
-		if( !collisionState.wasGroundedLastFrame && collisionState.below )
+        if( !oldCollisionState.below && collisionState.below )
 			collisionState.becameGroundedThisFrame = true;
 
 		// if we are going up a slope we artificially set a y velocity so we need to zero it out here
@@ -381,7 +404,7 @@ public class CharacterController2D : MonoBehaviour
 		_raycastOrigins.bottomLeft = modifiedBounds.min;
 	}
 
-	public CharacterCollisionState2D getProximityCollisionState() {
+	/*public CharacterCollisionState2D getProximityCollisionState() {
 		var rayDistance = 2 + _skinWidth;
 		var collisionState = new CharacterCollisionState2D ();
 
@@ -409,7 +432,7 @@ public class CharacterController2D : MonoBehaviour
 		}
 
 		return collisionState;
-	}
+	}*/
 
 	// checks in horizontal direction for special interactible objects; effectively a collision detector
 	private void checkLayerForRaycastHitsHorizontal(ref Vector3 deltaMovement) {
@@ -441,7 +464,7 @@ public class CharacterController2D : MonoBehaviour
 	/// we have to increase the ray distance skinWidth then remember to remove skinWidth from deltaMovement before
 	/// actually moving the player
 	/// </summary>
-	private void moveHorizontally( ref Vector3 deltaMovement )
+    private void moveHorizontally( ref Vector3 deltaMovement, CharacterCollisionState2D oldCollisionState )
 	{
 		var isGoingRight = deltaMovement.x > 0;
 		var rayDistance = Mathf.Abs( deltaMovement.x ) + _skinWidth;
@@ -456,7 +479,7 @@ public class CharacterController2D : MonoBehaviour
 
 			// if we are grounded we will include oneWayPlatforms only on the first ray (the bottom one). this will allow us to
 			// walk up sloped oneWayPlatforms
-			if( i == 0 && collisionState.wasGroundedLastFrame ) {
+            if( i == 0 && oldCollisionState.below) {
 				_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, platformMask );
 			} else {
 				_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, platformMask & ~oneWayPlatformMask);
@@ -559,7 +582,7 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
-	private void moveVertically( ref Vector3 deltaMovement )
+    private void moveVertically( ref Vector3 deltaMovement, CharacterCollisionState2D oldCollisionState )
 	{
 		var isGoingUp = deltaMovement.y > 0;
 		var rayDistance = Mathf.Abs( deltaMovement.y ) + _skinWidth;
@@ -571,7 +594,7 @@ public class CharacterController2D : MonoBehaviour
 
 		// if we are moving up, we should ignore the layers in oneWayPlatformMask
 		var mask = platformMask;
-		if( isGoingUp && !collisionState.wasGroundedLastFrame )
+        if( isGoingUp && !oldCollisionState.below)
 			mask &= ~oneWayPlatformMask;
 
 		for( var i = 0; i < totalVerticalRays; i++ )
