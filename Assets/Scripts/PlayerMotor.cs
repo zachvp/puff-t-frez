@@ -116,34 +116,19 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         if (inputReleaseDirection.movement.y > 0 && jumpCount < motorData.jumpCountMax)
         {
             jumpCount++;
-
-            Debug.LogFormat("will jump if on ground");
-
-            if (engine.isGrounded)
-            {
-                Debug.LogFormat("apply jump");
-                velocity.y = 800;
-            }
         }
 
-        // TODO: Figure out jump inconsistencies.
-        // ^ Maybe keep track of gravityApplied frames and make sure it equals
-        // ^ the additive jump frames
         // Additive jump. The longer the jump input, the higher the jump, for a certain amount of frames.
-        if (movement.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && velocity.y < motorData.velocityJumpMax)
+        if (movement.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive)
         {
             // Initial jump push off the ground.
             if (additiveJumpFrameCount < 1)
             {
                 jumpFrameStart = FrameCounter.Instance.count;
-                //velocity.y += motorData.velocityJumpImpulse;
+                velocity.y += motorData.velocityJumpImpulse;
             }
 
-            //addVelocity = Mathf.Max(addVelocity, 0);
-
-            //velocity.y += motorData.velocityJumpAdditive;
-            //velocity.y = Mathf.Clamp(velocity.y, 0, motorData.velocityJumpMax);
-            //Debug.LogFormat("Y velocity: {0}", velocity.y);
+            velocity.y += motorData.velocityJumpAdditive;
             additiveJumpFrameCount++;
         }
 
@@ -163,16 +148,12 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         // Update the controller with the computed velocity.
         engine.move(deltaTime * velocity);
 
-        // Update the motor's velocity reference to the computed velocity.
-        //velocity = engine.velocity;
-        //      Debug.LogFormat ("Velocity: {0}", velocity);
-
-        if (jumpCount > 0)
-        {
-            Debug.LogFormat("Y velocity: {0}", velocity.y);
-        } else {
-            Debug.LogFormat("jump count: {0}", jumpCount);
+        if (Mathf.Abs(engine.velocity.y) < 0.01) {
+            // Kind of a hack. The normally computed velocity is unreliable.
+            // The only other case velocity is used is in handling slopes.
+            velocity.y = 0;
         }
+        //      Debug.LogFormat ("Velocity: {0}", velocity);
     }
 
     // Input functions
