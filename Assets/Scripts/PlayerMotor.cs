@@ -60,6 +60,8 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
         if (engine.isGrounded)
         {
+            //Debug.LogFormat("GROUNDED");
+
             // Horizontal movement.
             velocity.x = movement.x * motorData.velocityHorizontalGroundMax;
 
@@ -75,6 +77,8 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         }
         else
         {
+            //Debug.LogFormat("NOT GROUNDED");
+
             // Motor is not grounded.
             // Air directional influence
             velocity.x += movement.x * motorData.accelerationHorizontalAir;
@@ -83,19 +87,15 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             velocity.x = Mathf.Clamp(velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
 
             // Check for wall jump.
-            // TODO: should check jump flag instead of movement axis
             if (jumpCount > 0 && input.pressed.jump)
             {
-                var proximityCollisionState = engine.getProximityCollisionState();
-
-                // TODO: Proximity collision state should use same mechanisms as grounded.
-                if (proximityCollisionState.left)
+                if (engine.collisionState.left)
                 {
                     velocity.y = motorData.velocityWallJumpVertical;
                     velocity.x = motorData.velocityWallJumpHorizontal;
                 }
 
-                if (proximityCollisionState.right)
+                if (engine.collisionState.right)
                 {
                     velocity.y = motorData.velocityWallJumpVertical;
                     velocity.x = -motorData.velocityWallJumpHorizontal;
