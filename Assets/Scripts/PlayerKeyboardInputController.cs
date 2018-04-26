@@ -3,14 +3,18 @@
 [RequireComponent(typeof(PlayerMotor))]
 public class PlayerKeyboardInputController : MonoBehaviour {
 	private IPlayerInput player;
+    private Vector2 input;
 
 	public void Awake() {
 		player = GetComponent<PlayerMotor> ();
 	}
 
 	public void Update () {
+        var inputRelease = Vector2.zero;
+        var lastInput = input;
+
         // Horizontal control
-        Vector2 input = Vector2.zero;
+        input = Vector2.zero;
 
 		if (Input.GetKey (KeyCode.RightArrow)) {
 			//player.InputRight ();
@@ -51,7 +55,15 @@ public class PlayerKeyboardInputController : MonoBehaviour {
         input.x = Mathf.Clamp(input.x, -1, 1);
         input.y = Mathf.Clamp(input.y, -1, 1);
 
+        if (input.x < 1 && lastInput.x > 0) {
+            inputRelease.x = 1;
+        }
+        if (input.y < 1 && lastInput.y > 0) {
+            inputRelease.y = 1;
+        }
+
         player.ApplyInput(input);
+        player.ApplyInputRelease(inputRelease);
         player.ApplyDeltaTime(FrameCounter.Instance.deltaTime);
 
         Debug.AssertFormat(Mathf.Abs(input.x) <= 1, "Input exceeded bounds: {0}", input);

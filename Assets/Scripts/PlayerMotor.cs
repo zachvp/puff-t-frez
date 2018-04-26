@@ -20,6 +20,8 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     // The direction of input.
     private Vector2 inputDirection;
 
+    private Vector2 inputReleaseDirection;
+
     // The direction the motor is facing.
     private Vector2 motorDirection;
 
@@ -35,6 +37,8 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
     private float deltaTime;
 
+    private float maxHeight;
+
     // TODO: Move game logic to separate class (when can wall jump)
 
     public void Awake()
@@ -48,32 +52,20 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         initializer.OnCreate += HandleCreate;
     }
 
-    // When update is called, all input has been processed.
-    public void Update()
+	public void Start()
+	{
+        engine.warpToGrounded();
+	}
+
+	// When update is called, all input has been processed.
+	public void Update()
     {
+        maxHeight = Mathf.Max(maxHeight, transform.position.y);
+
+        //Debug.LogFormat("Max height: {0}", maxHeight);
+
         Debug.AssertFormat(Mathf.Abs(inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
         Debug.AssertFormat(Mathf.Abs(inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
-
-        // Check all frames since jump was initiated for a release of the jump button.
-        if (inputDirectionBuffer.IsInputYReleased(inputDirection, FrameCounter.Instance.count - jumpFrameStart))
-        {
-            Debug.LogFormat("JUMP COUNT++");
-            jumpCount++;
-        }
-
-        // Additive jump. The longer the jump input, the higher the jump, for a certain amount of frames.
-        if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && jumpCount < motorData.jumpCountMax)
-        {
-            // Initial jump push off the ground.
-            if (additiveJumpFrameCount < 1)
-            {
-                jumpFrameStart = FrameCounter.Instance.count;
-                velocity.y = motorData.velocityJumpImpulse;
-            }
-
-            velocity.y += Mathf.Min(motorData.velocityJumpAdditive, motorData.velocityJumpMax - velocity.y);
-            additiveJumpFrameCount++;
-        }
 
         if (engine.isGrounded)
         {
@@ -93,10 +85,10 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         {
             // Motor is not grounded.
             // Air directional influence
-            velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
+            //velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
 
             // Clamp horizontal velocity so it doesn't get out of control.
-            velocity.x = Mathf.Clamp(velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
+            //velocity.x = Mathf.Clamp(velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
 
             // Check for wall jump.
             if (jumpCount > 0 && inputDirection.y > 0)
@@ -104,24 +96,58 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
                 var proximityCollisionState = engine.getProximityCollisionState();
 
                 // TODO: Move magic numbers to motor data
+                // TODO: Proximity collision state should use same mechanisms as grounded.
                 if (proximityCollisionState.left)
                 {
-                    velocity.y = 900;
+                    //velocity.y = 900;
                     velocity.x = 100;
                 }
 
                 if (proximityCollisionState.right)
                 {
-                    velocity.y = 900;
+                    //velocity.y = 900;
                     velocity.x = -100;
                 }
             }
 
             // Apply gravity if motor does not have jump immunity.
-            if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || inputDirection.y < 1)
+            //if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || inputDirection.y < 1)
             {
                 velocity.y -= motorData.gravity;
             }
+        }
+
+        // Check all frames since jump was initiated for a release of the jump button.
+        if (inputReleaseDirection.y > 0 && jumpCount < motorData.jumpCountMax)
+        {
+            jumpCount++;
+
+            if (engine.isGrounded)
+            {
+                Debug.LogFormat("apply jump");
+                velocity.y = 800;
+            }
+        }
+
+        // TODO: Figure out jump inconsistencies.
+        // ^ Maybe keep track of gravityApplied frames and make sure it equals
+        // ^ the additive jump frames
+        // Additive jump. The longer the jump input, the higher the jump, for a certain amount of frames.
+        if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && velocity.y < motorData.velocityJumpMax)
+        {
+            // Initial jump push off the ground.
+            if (additiveJumpFrameCount < 1)
+            {
+                jumpFrameStart = FrameCounter.Instance.count;
+                //velocity.y += motorData.velocityJumpImpulse;
+            }
+
+            //addVelocity = Mathf.Max(addVelocity, 0);
+
+            //velocity.y += motorData.velocityJumpAdditive;
+            //velocity.y = Mathf.Clamp(velocity.y, 0, motorData.velocityJumpMax);
+            //Debug.LogFormat("Y velocity: {0}", velocity.y);
+            additiveJumpFrameCount++;
         }
 
         // Set the motor direction based on the velocty.
@@ -141,29 +167,28 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         engine.move(deltaTime * velocity);
 
         // Update the motor's velocity reference to the computed velocity.
-        velocity = engine.velocity;
+        //velocity = engine.velocity;
         //      Debug.LogFormat ("Velocity: {0}", velocity);
-    }
 
-    // Input functions
-    public void LateUpdate()
-    {
-        // Round position to nearest integer.
-        Vector3 newPosition = transform.position;
-
-        newPosition.x = Mathf.RoundToInt(transform.position.x);
-        newPosition.y = Mathf.RoundToInt(transform.position.y);
-
-        transform.position = newPosition;
-
-        //Debug.LogFormat("Position: {0}", transform.position);
+        if (jumpCount > 0)
+        {
+            Debug.LogFormat("Y velocity: {0}", velocity.y);
+        } else {
+            Debug.LogFormat("jump count: {0}", jumpCount);
+        }
     }
 
     // Input functions
     public void ApplyInput(Vector2 input)
     {
         inputDirection = input;
+
+        // TODO: This should live in the input controller.
         inputDirectionBuffer.AddInput(input);
+    }
+
+    public void ApplyInputRelease(Vector2 inputRelease) {
+        inputReleaseDirection = inputRelease;
     }
 
     public void ApplyDeltaTime(float time)

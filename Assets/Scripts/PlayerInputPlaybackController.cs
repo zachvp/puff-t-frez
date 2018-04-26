@@ -49,6 +49,9 @@ public class PlayerInputPlaybackController : MonoBehaviour {
             var deltaTime = timeCopy[i];
 
             player.ApplyInput(input);
+            // TODO: This is a problem. need to figure this out.
+            // ^ probly finally refactor input to use input object instead of vector2
+            //player.ApplyInputRelease()
             player.ApplyDeltaTime(deltaTime);
             i++;
             yield return null;

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 public class InputBuffer {
@@ -14,11 +15,11 @@ public class InputBuffer {
 
 	// TODO: Implement this so there isn't so much duplicate code =\
 	public bool IsInputYReleased(Vector2 checkInputDirection, int frameWindow) {
-		return IsInputReleased ((int) checkInputDirection.y, inputBuffer.Count, frameWindow);
+        return IsInputReleased (checkInputDirection, frameWindow).y == 1;
 	}
 
 	public bool IsInputXReleased(Vector2 checkInputDirection, int frameWindow) {
-		return IsInputReleased ((int) checkInputDirection.x, inputBuffer.Count, frameWindow);
+        return IsInputReleased(checkInputDirection, frameWindow).x == 1;
 	}
 
 	/// <summary>
@@ -38,19 +39,22 @@ public class InputBuffer {
 		return isFlipped;
 	}
 
-	private bool IsInputReleased(int inputMagnitude, int bufferCount, int frameWindow) {
-		var window = GetFrameWindow (frameWindow);
-		var isReleased = false;
+    // Given an input, determines which axes were released in the last
+    // windowLength frames.
+    // TODO: Return some kind of bool Tuple
+    private Vector2 IsInputReleased(Vector2 checkInput, int windowLength) {
+        // TODO: FIx this
+        Debug.LogError("The function IsInputReleased is not fully implemented. Don't call it.");
+		var window = GetFrameWindow (windowLength);
+        var wasPressed = Vector2.zero;
+        var result = Vector2.zero;
 
 		// Iterate through the window, checking if given input direction was pressed, then released.
 		foreach (Vector2 input in window) {
-			if (inputMagnitude == 0) {
-				isReleased = true;
-				break;
-			}
+            
 		}
 
-		return isReleased;
+        return result;
 	}
 
 	/// <summary>
