@@ -79,10 +79,10 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         {
             // Motor is not grounded.
             // Air directional influence
-            //velocity.x += inputDirection.x * motorData.accelerationHorizontalAir;
+            velocity.x += movement.x * motorData.accelerationHorizontalAir;
 
             // Clamp horizontal velocity so it doesn't get out of control.
-            //velocity.x = Mathf.Clamp(velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
+            velocity.x = Mathf.Clamp(velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
 
             // Check for wall jump.
             // TODO: should check jump flag instead of movement axis
@@ -94,19 +94,19 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
                 // TODO: Proximity collision state should use same mechanisms as grounded.
                 if (proximityCollisionState.left)
                 {
-                    //velocity.y = 900;
+                    velocity.y = 900;
                     velocity.x = 100;
                 }
 
                 if (proximityCollisionState.right)
                 {
-                    //velocity.y = 900;
+                    velocity.y = 900;
                     velocity.x = -100;
                 }
             }
 
             // Apply gravity if motor does not have jump immunity.
-            //if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || inputDirection.y < 1)
+            if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || movement.y < 1)
             {
                 velocity.y -= motorData.gravity;
             }
