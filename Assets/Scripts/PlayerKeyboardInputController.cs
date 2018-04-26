@@ -1,39 +1,46 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(PlayerMotor))]
+[RequireComponent(typeof(PlayerMotor),
+                  typeof(PlayerCharacterInitializer))]
 public class PlayerKeyboardInputController : MonoBehaviour {
 	private IPlayerInput player;
-    private Vector2 input;
+    private PlayerInput input;
+    private InputBuffer buffer;
 
 	public void Awake() {
+        var initializer = GetComponent<PlayerCharacterInitializer>();
+
+        input = new PlayerInput();
 		player = GetComponent<PlayerMotor> ();
+
+        initializer.OnCreate += HandleCreate;
 	}
 
+    public void HandleCreate(PlayerCharacterInitializer initializer) {
+        buffer = initializer.inputBuffer;
+    }
+
 	public void Update () {
-        var inputRelease = Vector2.zero;
-        var lastInput = input;
+        var inputRelease = new PlayerInput();
+        var lastInput = new PlayerInput(input);
+
+        input = new PlayerInput();
 
         // Horizontal control
-        input = Vector2.zero;
-
 		if (Input.GetKey (KeyCode.RightArrow)) {
-			//player.InputRight ();
-            input.x += 1;
+            input.movement.x = 1;
 		}
 
 		if (Input.GetKey (KeyCode.LeftArrow)) {
-			//player.InputLeft ();
-            input.x -= 1;
+            input.movement.x = -1;
 		}
 
 		// Vertical control
 		if (Input.GetKey (KeyCode.UpArrow)) {
-			//player.InputUp ();
-            input.y += 1;
+            input.movement.y = 1;
 		}
 		if (Input.GetKey (KeyCode.DownArrow)) {
-			//player.InputDown ();
-            input.y -= 1;
+            input.movement.y = -1;
 		}
 
 		// Check if the input direction should be neutralized
@@ -45,28 +52,30 @@ public class PlayerKeyboardInputController : MonoBehaviour {
 
 		if (isNoHorizontalInput || isConcurrentHorizontalInput) {
 			//player.InputHorizontalNone ();
-            input.x = 0;
+            input.movement.x = 0;
 		}
         if (isNoVerticalInput || isConcurrentVerticalInput) {
 			//player.InputVerticalNone ();
-            input.y = 0;
+            input.movement.y = 0;
 		}
 
-        input.x = Mathf.Clamp(input.x, -1, 1);
-        input.y = Mathf.Clamp(input.y, -1, 1);
-
-        if (input.x < 1 && lastInput.x > 0) {
-            inputRelease.x = 1;
+        if (Mathf.Abs(input.movement.x) < 1 && Mathf.Abs(lastInput.movement.x) > 0) {
+            inputRelease.movement.x = 1;
         }
-        if (input.y < 1 && lastInput.y > 0) {
-            inputRelease.y = 1;
+        if (Mathf.Abs(input.movement.y) < 1 && Mathf.Abs(lastInput.movement.y) > 0) {
+            inputRelease.movement.y = 1;
         }
 
         player.ApplyInput(input);
         player.ApplyInputRelease(inputRelease);
         player.ApplyDeltaTime(FrameCounter.Instance.deltaTime);
 
-        Debug.AssertFormat(Mathf.Abs(input.x) <= 1, "Input exceeded bounds: {0}", input);
-        Debug.AssertFormat(Mathf.Abs(input.y) <= 1, "Input exceeded bounds: {0}", input);
+        // TODO: This should live in a parent input controller class.
+        var snapshot = new PlayerInputSnapshot(input, inputRelease);
+
+        buffer.AddInput(snapshot);
+
+        Debug.AssertFormat(Mathf.Abs(input.movement.x) <= 1, "Input exceeded bounds: {0}", input);
+        Debug.AssertFormat(Mathf.Abs(input.movement.y) <= 1, "Input exceeded bounds: {0}", input);
 	}
 }

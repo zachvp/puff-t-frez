@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 
 [RequireComponent(
-        typeof(CharacterController2D),
-        typeof(PlayerCharacterInitializer)
+        typeof(CharacterController2D)
     )
 ]
 public class PlayerMotor : MonoBehaviour, IPlayerInput
@@ -18,9 +17,9 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     private Vector2 velocity;
 
     // The direction of input.
-    private Vector2 inputDirection;
+    private PlayerInput inputDirection;
 
-    private Vector2 inputReleaseDirection;
+    private PlayerInput inputReleaseDirection;
 
     // The direction the motor is facing.
     private Vector2 motorDirection;
@@ -33,8 +32,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
     private int jumpFrameStart;
 
-    private InputBuffer inputDirectionBuffer;
-
     private float deltaTime;
 
     private float maxHeight;
@@ -43,13 +40,11 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
     public void Awake()
     {
-        var initializer = GetComponent<PlayerCharacterInitializer>();
+        inputDirection = new PlayerInput();
+        inputReleaseDirection = new PlayerInput();
 
         engine = GetComponent<CharacterController2D>();
         motorData = ScriptableObject.CreateInstance<PlayerMotorData>();
-
-        // Subscribe to events.
-        initializer.OnCreate += HandleCreate;
     }
 
 	public void Start()
@@ -60,23 +55,22 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 	// When update is called, all input has been processed.
 	public void Update()
     {
+        var movement = inputDirection.movement;
+
         maxHeight = Mathf.Max(maxHeight, transform.position.y);
 
         //Debug.LogFormat("Max height: {0}", maxHeight);
 
-        Debug.AssertFormat(Mathf.Abs(inputDirection.x) <= 1, "ControlDirection.x magnitude exceeded max");
-        Debug.AssertFormat(Mathf.Abs(inputDirection.y) <= 1, "ControlDirection.y magnitude exceeded max");
-
         if (engine.isGrounded)
         {
             // Horizontal movement.
-            velocity.x = inputDirection.x * motorData.velocityHorizontalGroundMax;
+            velocity.x = movement.x * motorData.velocityHorizontalGroundMax;
 
             // Reset jump states.
             additiveJumpFrameCount = 0;
             jumpCount = 0;
 
-            if (inputDirection.y < 0)
+            if (movement.y < 0)
             {
                 // TODO: Perform crouch
             }
@@ -91,7 +85,8 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             //velocity.x = Mathf.Clamp(velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
 
             // Check for wall jump.
-            if (jumpCount > 0 && inputDirection.y > 0)
+            // TODO: should check jump flag instead of movement axis
+            if (jumpCount > 0 && movement.y > 0)
             {
                 var proximityCollisionState = engine.getProximityCollisionState();
 
@@ -118,9 +113,11 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         }
 
         // Check all frames since jump was initiated for a release of the jump button.
-        if (inputReleaseDirection.y > 0 && jumpCount < motorData.jumpCountMax)
+        if (inputReleaseDirection.movement.y > 0 && jumpCount < motorData.jumpCountMax)
         {
             jumpCount++;
+
+            Debug.LogFormat("will jump if on ground");
 
             if (engine.isGrounded)
             {
@@ -133,7 +130,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         // ^ Maybe keep track of gravityApplied frames and make sure it equals
         // ^ the additive jump frames
         // Additive jump. The longer the jump input, the higher the jump, for a certain amount of frames.
-        if (inputDirection.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && velocity.y < motorData.velocityJumpMax)
+        if (movement.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive && velocity.y < motorData.velocityJumpMax)
         {
             // Initial jump push off the ground.
             if (additiveJumpFrameCount < 1)
@@ -179,15 +176,12 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     }
 
     // Input functions
-    public void ApplyInput(Vector2 input)
+    public void ApplyInput(PlayerInput input)
     {
         inputDirection = input;
-
-        // TODO: This should live in the input controller.
-        inputDirectionBuffer.AddInput(input);
     }
 
-    public void ApplyInputRelease(Vector2 inputRelease) {
+    public void ApplyInputRelease(PlayerInput inputRelease) {
         inputReleaseDirection = inputRelease;
     }
 
@@ -204,11 +198,5 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     public void SetPosition(Vector3 position)
     {
         transform.position = position;
-    }
-
-    // Event handlers
-    private void HandleCreate(PlayerCharacterInitializer initializer)
-    {
-        inputDirectionBuffer = initializer.inputBuffer;
     }
 }

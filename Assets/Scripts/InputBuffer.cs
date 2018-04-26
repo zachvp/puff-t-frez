@@ -3,13 +3,13 @@ using System;
 using System.Collections.Generic;
 
 public class InputBuffer {
-    public List<Vector2> inputBuffer { get; private set; }
+    public List<PlayerInputSnapshot> inputBuffer { get; private set; }
 
 	public InputBuffer() {
-		inputBuffer = new List<Vector2> ();
+        inputBuffer = new List<PlayerInputSnapshot> ();
 	}
 
-	public void AddInput(Vector2 input) {
+    public void AddInput(PlayerInputSnapshot input) {
 		inputBuffer.Add (input);
 	}
 
@@ -25,19 +25,21 @@ public class InputBuffer {
 	/// <summary>
 	/// Determines whether the given inputMagnitude has flipped from previous frames' magnitude.
 	/// </summary>
-	public bool IsInputXFlipped(int inputMagnitude, int frameWindow) {
-		var window = GetFrameWindow (frameWindow);
-		var isFlipped = false;
 
-		foreach (Vector2 input in window) {
-			if (Mathf.Abs(input.x) > 0 && (int) input.x == -inputMagnitude) {
-				isFlipped = true;
-				break;
-			}
-		}
+    // TODO: Fix dis boii
+	//public bool IsInputXFlipped(int inputMagnitude, int frameWindow) {
+	//	var window = GetFrameWindow (frameWindow);
+	//	var isFlipped = false;
 
-		return isFlipped;
-	}
+ //       foreach (PlayerInputSnapshot input in window) {
+	//		if (Mathf.Abs(input.x) > 0 && (int) input.x == -inputMagnitude) {
+	//			isFlipped = true;
+	//			break;
+	//		}
+	//	}
+
+	//	return isFlipped;
+	//}
 
     // Given an input, determines which axes were released in the last
     // windowLength frames.
@@ -50,7 +52,7 @@ public class InputBuffer {
         var result = Vector2.zero;
 
 		// Iterate through the window, checking if given input direction was pressed, then released.
-		foreach (Vector2 input in window) {
+        foreach (PlayerInputSnapshot input in window) {
             
 		}
 
@@ -62,7 +64,7 @@ public class InputBuffer {
 	/// </summary>
 	/// <returns>The frame window.</returns>
 	/// <param name="frameWindow">Frame window.</param>
-	private List<Vector2> GetFrameWindow(int frameWindow) {
+    private List<PlayerInputSnapshot> GetFrameWindow(int frameWindow) {
 		var startIndex = Mathf.Max (0, inputBuffer.Count - (1 + frameWindow));
 		var windowLength = Mathf.Min (frameWindow, inputBuffer.Count);
 		var window = inputBuffer.GetRange (startIndex, windowLength);

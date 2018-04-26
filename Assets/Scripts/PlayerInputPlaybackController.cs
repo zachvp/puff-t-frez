@@ -39,19 +39,19 @@ public class PlayerInputPlaybackController : MonoBehaviour {
 	}
 
     private IEnumerator PlaybackFrames() {
-        var bufferCopy = new List<Vector2>(buffer.inputBuffer);
+        var bufferCopy = new List<PlayerInputSnapshot>(buffer.inputBuffer);
         var timeCopy = new List<float>(FrameCounter.Instance.deltaTimes);
         var i = 0;
 
         Debug.AssertFormat(bufferCopy.Count == timeCopy.Count, "Input buffer length {0} different from DeltaTime length {1}", bufferCopy.Count, timeCopy.Count);
 
-        foreach (Vector2 input in bufferCopy) {
+        foreach (PlayerInputSnapshot input in bufferCopy) {
             var deltaTime = timeCopy[i];
 
-            player.ApplyInput(input);
+            player.ApplyInput(input.pressedInput);
             // TODO: This is a problem. need to figure this out.
             // ^ probly finally refactor input to use input object instead of vector2
-            //player.ApplyInputRelease()
+            player.ApplyInputRelease(input.releasedInput);
             player.ApplyDeltaTime(deltaTime);
             i++;
             yield return null;

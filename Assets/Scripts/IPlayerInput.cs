@@ -2,8 +2,8 @@
 
 public interface IPlayerInput {
     // Input functions
-    void ApplyInput(Vector2 input);
-    void ApplyInputRelease(Vector2 inputRelease);
+    void ApplyInput(PlayerInput input);
+    void ApplyInputRelease(PlayerInput inputRelease);
     void ApplyDeltaTime(float deltaTime);
 
     // Possibly move to separate interface if this gets too messy.
