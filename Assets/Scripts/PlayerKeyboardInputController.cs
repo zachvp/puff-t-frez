@@ -38,6 +38,7 @@ public class PlayerKeyboardInputController : MonoBehaviour {
 		// Vertical control
 		if (Input.GetKey (KeyCode.UpArrow)) {
             input.movement.y = 1;
+            input.jump = true;
 		}
 		if (Input.GetKey (KeyCode.DownArrow)) {
             input.movement.y = -1;
@@ -51,19 +52,21 @@ public class PlayerKeyboardInputController : MonoBehaviour {
         var isConcurrentVerticalInput = Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.DownArrow);
 
 		if (isNoHorizontalInput || isConcurrentHorizontalInput) {
-			//player.InputHorizontalNone ();
             input.movement.x = 0;
 		}
         if (isNoVerticalInput || isConcurrentVerticalInput) {
-			//player.InputVerticalNone ();
             input.movement.y = 0;
 		}
 
+        // Check for releases.
         if (Mathf.Abs(input.movement.x) < 1 && Mathf.Abs(lastInput.movement.x) > 0) {
             inputRelease.movement.x = 1;
         }
         if (Mathf.Abs(input.movement.y) < 1 && Mathf.Abs(lastInput.movement.y) > 0) {
             inputRelease.movement.y = 1;
+        }
+        if (!input.jump && lastInput.jump) {
+            inputRelease.jump = true;
         }
 
         player.ApplyInput(input);

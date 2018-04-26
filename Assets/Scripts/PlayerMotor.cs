@@ -70,6 +70,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             additiveJumpFrameCount = 0;
             jumpCount = 0;
 
+            // TODO: This should be tied to crouch input.
             if (movement.y < 0)
             {
                 // TODO: Perform crouch
@@ -86,40 +87,39 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
             // Check for wall jump.
             // TODO: should check jump flag instead of movement axis
-            if (jumpCount > 0 && movement.y > 0)
+            if (jumpCount > 0 && inputDirection.jump)
             {
                 var proximityCollisionState = engine.getProximityCollisionState();
 
-                // TODO: Move magic numbers to motor data
                 // TODO: Proximity collision state should use same mechanisms as grounded.
                 if (proximityCollisionState.left)
                 {
-                    velocity.y = 900;
-                    velocity.x = 100;
+                    velocity.y = motorData.velocityWallJumpVertical;
+                    velocity.x = motorData.velocityWallJumpHorizontal;
                 }
 
                 if (proximityCollisionState.right)
                 {
-                    velocity.y = 900;
-                    velocity.x = -100;
+                    velocity.y = motorData.velocityWallJumpVertical;
+                    velocity.x = -motorData.velocityWallJumpHorizontal;
                 }
             }
 
             // Apply gravity if motor does not have jump immunity.
-            if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || movement.y < 1)
+            if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || !inputDirection.jump)
             {
                 velocity.y -= motorData.gravity;
             }
         }
 
         // Check all frames since jump was initiated for a release of the jump button.
-        if (inputReleaseDirection.movement.y > 0 && jumpCount < motorData.jumpCountMax)
+        if (inputReleaseDirection.jump && jumpCount < motorData.jumpCountMax)
         {
             jumpCount++;
         }
 
         // Additive jump. The longer the jump input, the higher the jump, for a certain amount of frames.
-        if (movement.y > 0 && additiveJumpFrameCount < motorData.frameLimitJumpAdditive)
+        if (inputDirection.jump && additiveJumpFrameCount < motorData.frameLimitJumpAdditive)
         {
             // Initial jump push off the ground.
             if (additiveJumpFrameCount < 1)
