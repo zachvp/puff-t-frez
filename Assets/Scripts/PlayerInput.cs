@@ -2,12 +2,17 @@
 
 // Represents a snapshot of input in a single frame.
 public class PlayerInputSnapshot {
-    public PlayerInput pressedInput;
-    public PlayerInput releasedInput;
+    public PlayerInput pressed;
+    public PlayerInput released;
+
+    public PlayerInputSnapshot() {
+        pressed = new PlayerInput();
+        released = new PlayerInput();
+    }
 
     public PlayerInputSnapshot(PlayerInput pressed, PlayerInput released) {
-        pressedInput = pressed;
-        releasedInput = released;
+        this.pressed = pressed;
+        this.released = released;
     }
 }
 

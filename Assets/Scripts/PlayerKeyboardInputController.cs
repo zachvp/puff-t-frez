@@ -69,12 +69,11 @@ public class PlayerKeyboardInputController : MonoBehaviour {
             inputRelease.jump = true;
         }
 
-        player.ApplyInput(input);
-        player.ApplyInputRelease(inputRelease);
-        player.ApplyDeltaTime(FrameCounter.Instance.deltaTime);
-
         // TODO: This should live in a parent input controller class.
         var snapshot = new PlayerInputSnapshot(input, inputRelease);
+
+        player.ApplyInput(snapshot);
+        player.ApplyDeltaTime(FrameCounter.Instance.deltaTime);
 
         buffer.AddInput(snapshot);
 

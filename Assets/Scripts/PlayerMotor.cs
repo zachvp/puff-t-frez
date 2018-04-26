@@ -17,9 +17,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     private Vector2 velocity;
 
     // The direction of input.
-    private PlayerInput inputDirection;
-
-    private PlayerInput inputReleaseDirection;
+    private PlayerInputSnapshot input;
 
     // The direction the motor is facing.
     private Vector2 motorDirection;
@@ -40,8 +38,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
     public void Awake()
     {
-        inputDirection = new PlayerInput();
-        inputReleaseDirection = new PlayerInput();
+        input = new PlayerInputSnapshot();
 
         engine = GetComponent<CharacterController2D>();
         motorData = ScriptableObject.CreateInstance<PlayerMotorData>();
@@ -55,7 +52,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 	// When update is called, all input has been processed.
 	public void Update()
     {
-        var movement = inputDirection.movement;
+        var movement = input.pressed.movement;
 
         maxHeight = Mathf.Max(maxHeight, transform.position.y);
 
@@ -87,7 +84,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
             // Check for wall jump.
             // TODO: should check jump flag instead of movement axis
-            if (jumpCount > 0 && inputDirection.jump)
+            if (jumpCount > 0 && input.pressed.jump)
             {
                 var proximityCollisionState = engine.getProximityCollisionState();
 
@@ -106,20 +103,20 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             }
 
             // Apply gravity if motor does not have jump immunity.
-            if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || !inputDirection.jump)
+            if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || !input.pressed.jump)
             {
                 velocity.y -= motorData.gravity;
             }
         }
 
         // Check all frames since jump was initiated for a release of the jump button.
-        if (inputReleaseDirection.jump && jumpCount < motorData.jumpCountMax)
+        if (input.released.jump && jumpCount < motorData.jumpCountMax)
         {
             jumpCount++;
         }
 
         // Additive jump. The longer the jump input, the higher the jump, for a certain amount of frames.
-        if (inputDirection.jump && additiveJumpFrameCount < motorData.frameLimitJumpAdditive)
+        if (input.pressed.jump && additiveJumpFrameCount < motorData.frameLimitJumpAdditive)
         {
             // Initial jump push off the ground.
             if (additiveJumpFrameCount < 1)
@@ -157,13 +154,9 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     }
 
     // Input functions
-    public void ApplyInput(PlayerInput input)
+    public void ApplyInput(PlayerInputSnapshot inputSnapshot)
     {
-        inputDirection = input;
-    }
-
-    public void ApplyInputRelease(PlayerInput inputRelease) {
-        inputReleaseDirection = inputRelease;
+        input = inputSnapshot;
     }
 
     public void ApplyDeltaTime(float time)
