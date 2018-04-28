@@ -32,16 +32,14 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
     // TODO: Move game logic to separate class (when can wall jump)
 
-    public void Awake()
-    {
+    public void Awake() {
         input = new PlayerInputSnapshot();
 
         engine = GetComponent<CharacterController2D>();
         motorData = ScriptableObject.CreateInstance<PlayerMotorData>();
     }
 
-	public void Start()
-	{
+	public void Start() {
         engine.warpToGrounded();
 	}
 
@@ -60,6 +58,9 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         }
 
         HandleJump();
+
+        // At this point, all the motor's velocity computations are complete,
+        // so we can determine the motor's direction.
         ComputeMotorDirection();
 
         // Update the controller with the computed velocity.

@@ -18,8 +18,4 @@ public class PlayerMotorData : ScriptableObject {
 	/// </summary>
 	public int frameLimitJumpAdditive = 10;
 	public int frameLimitJumpGravityImmunity = 2;
-
-	public void Awake () {
-		// TODO: Assert that max values are evenly divisible by acceleration values.
-	}
 }

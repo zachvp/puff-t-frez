@@ -28,7 +28,8 @@ public class CharacterController2D : MonoBehaviour
 
         public CharacterCollisionState2D() {}
 
-        public CharacterCollisionState2D(CharacterCollisionState2D other) {
+        public CharacterCollisionState2D(CharacterCollisionState2D other)
+        {
             right = other.right;
             left = other.left;
             above = other.above;
@@ -264,7 +265,7 @@ public class CharacterController2D : MonoBehaviour
 	/// <param name="deltaMovement">Delta movement.</param>
 	public void move( Vector3 deltaMovement)
 	{
-        // save off our current grounded state which we will use for wasGroundedLastFrame and becameGroundedThisFrame
+        // save off our current grounded state which we will use for becameGroundedThisFrame
         var oldCollisionState = new CharacterCollisionState2D(collisionState);
 
 		// clear our state
