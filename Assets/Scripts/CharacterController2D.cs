@@ -78,7 +78,7 @@ public class CharacterController2D : MonoBehaviour
 	public bool usePhysicsForMovement = false;
 
 	[SerializeField]
-	[Range( 0.001f, 128f )]
+	[Range( 0.001f, 8f )]
 	private float _skinWidth = 0.02f;
 
 	/// <summary>
@@ -161,10 +161,10 @@ public class CharacterController2D : MonoBehaviour
 	public Rigidbody2D rigidBody2D;
 
 	[HideInInspector][NonSerialized]
-	public CharacterCollisionState2D collisionState = new CharacterCollisionState2D();
+	public CharacterCollisionState2D collision = new CharacterCollisionState2D();
 	[HideInInspector][NonSerialized]
 	public Vector3 velocity;
-	public bool isGrounded { get { return collisionState.below; } }
+	public bool isGrounded { get { return collision.below; } }
 
 	#endregion
 
@@ -266,10 +266,11 @@ public class CharacterController2D : MonoBehaviour
 	public void move( Vector3 deltaMovement)
 	{
         // save off our current grounded state which we will use for becameGroundedThisFrame
-        var oldCollisionState = new CharacterCollisionState2D(collisionState);
+        var oldCollisionState = new CharacterCollisionState2D(collision);
+        var targetDeltaMovement = deltaMovement;
 
 		// clear our state
-		collisionState.reset();
+		collision.reset();
 		_raycastHitsThisFrame.Clear();
 		_isGoingUpSlope = false;
 
@@ -292,24 +293,16 @@ public class CharacterController2D : MonoBehaviour
         if( Mathf.Abs(deltaMovement.y) > 0 )
             moveVertically( ref deltaMovement, oldCollisionState );
 
-		// check for special interactibles in vertical direction
-		checkLayerForRaycastHitsVertical(ref deltaMovement);
+        // check for special interactibles in vertical direction
+		//checkLayerForRaycastHitsVertical(ref deltaMovement);
 
         // Perist the below state since we were grounded and there was no Y delta.
         if (Mathf.Abs(deltaMovement.y) < 0.01) {
+            // TODO: This check will have to change at some point.
+            // It's possible for the ground to move out from under the controller,
+            // in which case it would still think something was below it.
             if (oldCollisionState.below) {
-                collisionState.below = oldCollisionState.below;
-            }
-            if (oldCollisionState.above) {
-                collisionState.above = oldCollisionState.above;
-            }
-        }
-        if (Mathf.Abs(deltaMovement.x) < 0.01) {
-            if (oldCollisionState.left) {
-                collisionState.left = oldCollisionState.left;
-            }
-            if (oldCollisionState.right) {
-                collisionState.right = oldCollisionState.right;
+                collision.below = oldCollisionState.below;
             }
         }
 
@@ -339,8 +332,8 @@ public class CharacterController2D : MonoBehaviour
 		}
 
 		// set our becameGrounded state based on the previous and current collision state
-        if( !oldCollisionState.below && collisionState.below )
-			collisionState.becameGroundedThisFrame = true;
+        if( !oldCollisionState.below && collision.below )
+			collision.becameGroundedThisFrame = true;
 
 		// if we are going up a slope we artificially set a y velocity so we need to zero it out here
 		if( _isGoingUpSlope )
@@ -405,36 +398,6 @@ public class CharacterController2D : MonoBehaviour
 		_raycastOrigins.bottomLeft = modifiedBounds.min;
 	}
 
-	/*public CharacterCollisionState2D getProximityCollisionState() {
-		var rayDistance = 2 + _skinWidth;
-		var collisionState = new CharacterCollisionState2D ();
-
-		// Check right
-		for (var i = 0; i < totalHorizontalRays; i++) {
-			var rayDirection = Vector2.right;
-			var initialRayOrigin = _raycastOrigins.bottomRight;
-			var ray = new Vector2( initialRayOrigin.x, initialRayOrigin.y + i * _verticalDistanceBetweenRays );
-			var cast = Physics2D.Raycast( ray, rayDirection, rayDistance, platformMask);
-
-			// Set right state.
-			collisionState.right = cast.normal.x < 0;
-
-			DrawRay( ray, rayDirection * rayDistance, Color.blue );
-
-			// Check left state
-			rayDirection = Vector2.left;
-			initialRayOrigin = _raycastOrigins.bottomLeft;
-			ray = new Vector2( initialRayOrigin.x, initialRayOrigin.y + i * _verticalDistanceBetweenRays );
-			cast = Physics2D.Raycast( ray, rayDirection, rayDistance, platformMask);
-
-			collisionState.left = cast.normal.x > 0;
-
-			DrawRay( ray, rayDirection * rayDistance, Color.blue );
-		}
-
-		return collisionState;
-	}*/
-
 	// checks in horizontal direction for special interactible objects; effectively a collision detector
 	private void checkLayerForRaycastHitsHorizontal(ref Vector3 deltaMovement) {
 		var isGoingRight = deltaMovement.x > 0;
@@ -448,7 +411,7 @@ public class CharacterController2D : MonoBehaviour
 		for( var i = 0; i < totalHorizontalRays; i++ )
 		{
 			var ray = new Vector2( initialRayOrigin.x, initialRayOrigin.y + i * _verticalDistanceBetweenRays );
-//			DrawRay( ray, rayDirection * rayDistance, Color.red );
+            DrawRay( ray, rayDirection * rayDistance, Color.blue );
 
 			_specialRaycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, specialInteractibleMask);
 			
@@ -503,12 +466,12 @@ public class CharacterController2D : MonoBehaviour
 				if( isGoingRight )
 				{
 					deltaMovement.x -= _skinWidth;
-					collisionState.right = true;
+					collision.right = true;
 				}
 				else
 				{
 					deltaMovement.x += _skinWidth;
-					collisionState.left = true;
+					collision.left = true;
 				}
 
 				_raycastHitsThisFrame.Add( _raycastHit );
@@ -547,7 +510,7 @@ public class CharacterController2D : MonoBehaviour
 				deltaMovement.y = Mathf.Abs( Mathf.Tan( angle * Mathf.Deg2Rad ) * deltaMovement.x );
 				_isGoingUpSlope = true;
 
-				collisionState.below = true;
+				collision.below = true;
 			}
 		}
 		else // too steep. get out of here
@@ -619,12 +582,12 @@ public class CharacterController2D : MonoBehaviour
 				if( isGoingUp )
 				{
 					deltaMovement.y -= _skinWidth;
-					collisionState.above = true;
+					collision.above = true;
 				}
 				else
 				{
 					deltaMovement.y += _skinWidth;
-					collisionState.below = true;
+					collision.below = true;
 				}
 
 				_raycastHitsThisFrame.Add( _raycastHit );
@@ -670,8 +633,8 @@ public class CharacterController2D : MonoBehaviour
 				var slopeModifier = slopeSpeedMultiplier.Evaluate( -angle );
 				deltaMovement.y = _raycastHit.point.y - slopeRay.y - skinWidth;
 				deltaMovement.x *= slopeModifier;
-				collisionState.movingDownSlope = true;
-				collisionState.slopeAngle = angle;
+				collision.movingDownSlope = true;
+				collision.slopeAngle = angle;
 			}
 		}
 	}

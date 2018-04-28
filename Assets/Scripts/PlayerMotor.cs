@@ -55,8 +55,16 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             jumpCount++;
         }
 
-        if (input.pressed.jump && additiveJumpFrameCount < motorData.frameLimitJumpAdditive) {
-            ApplyJump();
+        if (input.pressed.jump) {
+            if (additiveJumpFrameCount < motorData.frameLimitJumpAdditive &&
+                jumpCount == 0) {
+                Debug.LogFormat("Apply jump");
+                ApplyJump();
+            }
+        }
+
+        if (engine.collision.right || engine.collision.left) {
+            velocity.x = 0;
         }
 
         // At this point, all the motor's velocity computations are complete,
@@ -65,6 +73,8 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
         // Update the controller with the computed velocity.
         engine.move(deltaTime * velocity);
+
+        Debug.LogFormat("Collision right: {0}", engine.collision.right);
 
         if (Mathf.Abs(engine.velocity.y) < 0.01) {
             // Kind of a hack. The normally computed velocity is unreliable.
@@ -97,9 +107,13 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         // Horizontal movement.
         velocity.x = movement.x * motorData.velocityHorizontalGroundMax;
 
-        // Reset jump states.
-        additiveJumpFrameCount = 0;
-        jumpCount = 0;
+        // Reset jump states if jump isn't pressed.
+        if (!input.pressed.jump) {
+            additiveJumpFrameCount = 0;
+            jumpCount = 0;
+        }
+
+        velocity.y = 0;
 
         // TODO: This should be tied to crouch input.
         if (movement.y < 0)
@@ -121,12 +135,12 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
         // Check for wall jump.
         if (jumpCount > 0 && input.pressed.jump) {
-            if (engine.collisionState.left) {
+            if (engine.collision.left) {
                 velocity.y = motorData.velocityWallJumpVertical;
                 velocity.x = motorData.velocityWallJumpHorizontal;
             }
 
-            if (engine.collisionState.right) {
+            if (engine.collision.right) {
                 velocity.y = motorData.velocityWallJumpVertical;
                 velocity.x = -motorData.velocityWallJumpHorizontal;
             }
@@ -136,6 +150,10 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         // jump input.
         if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || !input.pressed.jump) {
             velocity.y -= motorData.gravity;
+        }
+
+        if (engine.collision.above) {
+            velocity.y = 0;
         }
     }
 
