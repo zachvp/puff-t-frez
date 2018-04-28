@@ -26,8 +26,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
     private int jumpCount;
 
-    private int jumpFrameStart;
-
     private float deltaTime;
 
     // TODO: Move game logic to separate class (when can wall jump)
@@ -57,7 +55,9 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             jumpCount++;
         }
 
-        HandleJump();
+        if (input.pressed.jump && additiveJumpFrameCount < motorData.frameLimitJumpAdditive) {
+            ApplyJump();
+        }
 
         // At this point, all the motor's velocity computations are complete,
         // so we can determine the motor's direction.
@@ -71,7 +71,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             // The only other case velocity is used is in handling slopes.
             velocity.y = 0;
         }
-        //      Debug.LogFormat ("Velocity: {0}", velocity);
     }
 
     // IPlayerInput functions
@@ -133,31 +132,31 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             }
         }
 
-        // Apply gravity if motor does not have jump immunity or if there is no jump input.
+        // Apply gravity if motor does not have jump immunity or if there is no
+        // jump input.
         if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || !input.pressed.jump) {
             velocity.y -= motorData.gravity;
         }
     }
 
-    private void HandleJump() {
-        // Additive jump. The longer the jump input, the higher the jump, for a certain amount of frames.
-        if (input.pressed.jump && additiveJumpFrameCount < motorData.frameLimitJumpAdditive) {
-            // Initial jump push off the ground.
-            if (additiveJumpFrameCount < 1) {
-                jumpFrameStart = FrameCounter.Instance.count;
-                velocity.y += motorData.velocityJumpImpulse;
-            }
-
-            velocity.y += motorData.velocityJumpAdditive;
-            additiveJumpFrameCount++;
+    // Additive jump. The longer the jump input, the higher the jump, for a
+    // certain amount of frames.
+    private void ApplyJump() {
+        // Initial jump push off the ground.
+        if (additiveJumpFrameCount < 1) {
+            velocity.y += motorData.velocityJumpImpulse;
         }
+
+        velocity.y += motorData.velocityJumpAdditive;
+        additiveJumpFrameCount++;
     }
 
     private void ComputeMotorDirection() {
         // Set the motor direction based on the velocty.
         // Check for nonzero velocity
         if (Mathf.Abs(velocity.x) > 1) {
-            // Motor direction should be 1 for positive velocity and 0 for negative velocity.
+            // Motor direction should be 1 for positive velocity and 0 for
+            // negative velocity.
             motorDirection.x = velocity.x > 0 ? 1 : -1;
         }
 
