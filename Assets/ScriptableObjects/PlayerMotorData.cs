@@ -2,16 +2,16 @@
 
 public class PlayerMotorData : ScriptableObject {
 	// TODO: Doc these values
-	public int velocityHorizontalGroundMax = 400;
-	public int velocityHorizontalAirMax = 600;
-	public int accelerationHorizontalAir = 50;
+	public int velocityHorizontalGroundMax = 1600;
+	public int velocityHorizontalAirMax = 2400;
+	public int accelerationHorizontalAir = 200;
 	public int jumpCountMax = 1;
-	public int velocityJumpImpulse = 200;
-	public int velocityJumpAdditive = 100;
-	public int velocityJumpMax = 1200;
-    public int velocityWallJumpHorizontal = 100;
-    public int velocityWallJumpVertical = 900;
-	public int gravity = 50;
+	public int velocityJumpImpulse = 800;
+	public int velocityJumpAdditive = 400;
+	public int velocityJumpMax = 4800;
+    public int velocityWallJumpHorizontal = 400;
+    public int velocityWallJumpVertical = 3600;
+	public int gravity = 200;
 
 	/// <summary>
 	/// How many frames the additive jump will last.

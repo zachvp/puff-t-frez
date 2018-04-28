@@ -78,7 +78,7 @@ public class CharacterController2D : MonoBehaviour
 	public bool usePhysicsForMovement = false;
 
 	[SerializeField]
-	[Range( 0.001f, 0.3f )]
+	[Range( 0.001f, 128f )]
 	private float _skinWidth = 0.02f;
 
 	/// <summary>
