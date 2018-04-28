@@ -72,8 +72,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         // Update the controller with the computed velocity.
         engine.move(deltaTime * velocity);
 
-        Debug.LogFormat("Collision right: {0}", engine.collision.right);
-
         if (Mathf.Abs(engine.velocity.y) < 0.01) {
             // Kind of a hack. The normally computed velocity is unreliable.
             // The only other case velocity is used is in handling slopes.

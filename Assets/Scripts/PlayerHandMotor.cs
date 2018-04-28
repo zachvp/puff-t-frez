@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
 
+// TODO: Clean up magic values
+// TODO: Tie into replay system
 public class PlayerHandMotor : MonoBehaviour {
     public PlayerMotor root;
 
@@ -30,7 +31,7 @@ public class PlayerHandMotor : MonoBehaviour {
 
         transform.position = newPos;
 
-        if (sqrDistance < 24) {
+        if (sqrDistance < 32) {
             transform.position = root.transform.position;
         }
 	}
