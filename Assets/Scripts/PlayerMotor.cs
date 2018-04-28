@@ -12,7 +12,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     private CharacterController2D engine;
 
     // The motor velocity.
-    private Vector2 velocity;
+    public Vector2 velocity;
 
     // The direction of input.
     private PlayerInputSnapshot input;
@@ -55,12 +55,10 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             jumpCount++;
         }
 
-        if (input.pressed.jump) {
-            if (additiveJumpFrameCount < motorData.frameLimitJumpAdditive &&
-                jumpCount == 0) {
-                Debug.LogFormat("Apply jump");
+        if (input.pressed.jump &&
+            additiveJumpFrameCount < motorData.frameLimitJumpAdditive &&
+            jumpCount < motorData.jumpCountMax) {
                 ApplyJump();
-            }
         }
 
         if (engine.collision.right || engine.collision.left) {
