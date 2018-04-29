@@ -2,6 +2,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Microsoft.Win32.SafeHandles;
 
 
 [RequireComponent( typeof( BoxCollider2D ), typeof( Rigidbody2D ) )]
@@ -233,14 +234,14 @@ public class CharacterController2D : MonoBehaviour
 
         // TODO: remove this
         // Perist the below state since we were grounded and there was no Y delta.
-        if (Mathf.Abs(deltaMovement.y) < 0.01) {
-            // TODO: This check will have to change at some point.
-            // It's possible for the ground to move out from under the controller,
-            // in which case it would still think something was below it.
-            if (oldCollisionState.below) {
-                collision.below = oldCollisionState.below;
-            }
-        }
+        //if (Mathf.Abs(deltaMovement.y) < 0.01) {
+        //    // TODO: This check will have to change at some point.
+        //    // It's possible for the ground to move out from under the controller,
+        //    // in which case it would still think something was below it.
+        //    if (oldCollisionState.below) {
+        //        collision.below = oldCollisionState.below;
+        //    }
+        //}
 
 		// move then update our state
 		if( usePhysicsForMovement )
@@ -266,6 +267,9 @@ public class CharacterController2D : MonoBehaviour
                 velocity = deltaMovement / Time.deltaTime;
             }
 		}
+
+        // After translation, update proximity check so collision state is fresh.
+        checkProximity();
 
 		// set our becameGrounded state based on the previous and current collision state
         if( !oldCollisionState.below && collision.below )
@@ -521,6 +525,26 @@ public class CharacterController2D : MonoBehaviour
 			}
 		}
 	}
+
+    private void checkProximity()
+    {
+        var checkDepth = skinWidth;
+        var origin = _raycastOrigins.bottomLeft;
+        var size = new Vector2(boxCollider.bounds.size.x - skinWidth, checkDepth);
+        var direction = Vector2.down;
+        var checkDistance = skinWidth * 2;
+
+        // Get to center x
+        origin.x = transform.position.x;
+
+        // Check below
+        var result = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, platformMask);
+        collision.below = result;
+
+        // Check above
+        direction = Vector2.up;
+        result = Physics2D.BoxCast(origin, size, 0, direction, skinWidth, platformMask);
+    }
 
 	#endregion
 }
