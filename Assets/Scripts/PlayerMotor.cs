@@ -142,23 +142,28 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             }
         }
 
+        // Cut short the jump if the motor bumped something above.
+        if (engine.collision.above)
+        {
+            Debug.LogFormat("STOP JUMP");
+            additiveJumpFrameCount = motorData.frameLimitJumpAdditive;
+        }
+
         // Apply gravity if motor does not have jump immunity or if there is no
         // jump input.
         if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || !input.pressed.jump) {
             velocity.y -= motorData.gravity;
-        }
-
-        if (engine.collision.above) {
-            velocity.y = 0;
         }
     }
 
     // Additive jump. The longer the jump input, the higher the jump, for a
     // certain amount of frames.
     private void ApplyJump() {
+        Debug.LogFormat("APPLY JUMP");
+
         // Initial jump push off the ground.
         if (additiveJumpFrameCount < 1) {
-            velocity.y += motorData.velocityJumpImpulse;
+            velocity.y = motorData.velocityJumpImpulse;
         }
 
         velocity.y += motorData.velocityJumpAdditive;
