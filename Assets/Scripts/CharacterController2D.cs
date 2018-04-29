@@ -232,17 +232,6 @@ public class CharacterController2D : MonoBehaviour
         if( Mathf.Abs(deltaMovement.y) > 0 )
             moveVertically( ref deltaMovement, oldCollisionState );
 
-        // TODO: remove this
-        // Perist the below state since we were grounded and there was no Y delta.
-        //if (Mathf.Abs(deltaMovement.y) < 0.01) {
-        //    // TODO: This check will have to change at some point.
-        //    // It's possible for the ground to move out from under the controller,
-        //    // in which case it would still think something was below it.
-        //    if (oldCollisionState.below) {
-        //        collision.below = oldCollisionState.below;
-        //    }
-        //}
-
 		// move then update our state
 		if( usePhysicsForMovement )
 		{
