@@ -64,11 +64,6 @@ public class CharacterController2D : MonoBehaviour
 	public LayerMask triggerMask = 0;
 
 	/// <summary>
-	/// mask with all layers that have special effects on the player
-	/// </summary>
-	public LayerMask specialInteractibleMask = 0;
-
-	/// <summary>
 	/// mask with all layers that should act as one-way platforms. Note that one-way platforms should always be EdgeCollider2Ds. This is private because it does not support being
 	/// updated anytime outside of the inspector for now.
 	/// </summary>
@@ -135,8 +130,6 @@ public class CharacterController2D : MonoBehaviour
 	/// stores our raycast hit during movement
 	/// </summary>
 	private RaycastHit2D _raycastHit;
-
-	private RaycastHit2D _specialRaycastHit;
 
 	/// <summary>
 	/// stores any raycast hits that occur this frame. we have to store them in case we get a hit moving
@@ -230,9 +223,6 @@ public class CharacterController2D : MonoBehaviour
         if( deltaMovement.y < 0 && oldCollisionState.below)
 			handleVerticalSlope( ref deltaMovement );
 
-		// check for special interactibles in the horizontal direction
-		checkLayerForRaycastHitsHorizontal(ref deltaMovement);
-
 		// now we check movement in the horizontal dir
         if( Mathf.Abs(deltaMovement.x) > 0 )
             moveHorizontally( ref deltaMovement, oldCollisionState );
@@ -240,9 +230,6 @@ public class CharacterController2D : MonoBehaviour
 		// next, check movement in the vertical dir
         if( Mathf.Abs(deltaMovement.y) > 0 )
             moveVertically( ref deltaMovement, oldCollisionState );
-
-        // check for special interactibles in vertical direction
-        //checkLayerForRaycastHitsVertical(ref deltaMovement);
 
         // TODO: remove this
         // Perist the below state since we were grounded and there was no Y delta.
@@ -347,30 +334,6 @@ public class CharacterController2D : MonoBehaviour
 		_raycastOrigins.bottomLeft = modifiedBounds.min;
 	}
 
-	// checks in horizontal direction for special interactible objects; effectively a collision detector
-	private void checkLayerForRaycastHitsHorizontal(ref Vector3 deltaMovement) {
-		var isGoingRight = deltaMovement.x > 0;
-		var rayDistance = Mathf.Abs( deltaMovement.x ) + _skinWidth;
-		var rayDirection = isGoingRight ? Vector2.right : -Vector2.right;
-		var boundOffset = /*collider2D.bounds.size.x / 2.0f +*/ 0.05f;
-		//var initialRayOrigin = isGoingRight ? collider2D.bounds.max : collider2D.bounds.min;
-		var initialRayOrigin = isGoingRight ? _raycastOrigins.bottomRight : _raycastOrigins.bottomLeft;
-		initialRayOrigin.x += isGoingRight ? boundOffset : -boundOffset;
-		
-		for( var i = 0; i < totalHorizontalRays; i++ )
-		{
-			var ray = new Vector2( initialRayOrigin.x, initialRayOrigin.y + i * _verticalDistanceBetweenRays );
-            DrawRay( ray, rayDirection * rayDistance, Color.blue );
-
-			_specialRaycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, specialInteractibleMask);
-			
-			if(_specialRaycastHit) {
-				//Debug.Log(gameObject.name + " hit special object " + _specialRaycastHit.collider.name);
-				_raycastHitsThisFrame.Add(_specialRaycastHit);
-			}
-		}
-	}
-
 	/// <summary>
 	/// we have to use a bit of trickery in this one. The rays must be cast from a small distance inside of our
 	/// collider (skinWidth) to avoid zero distance rays which will get the wrong normal. Because of this small offset
@@ -470,31 +433,6 @@ public class CharacterController2D : MonoBehaviour
 		return true;
 	}
 
-
-	private void checkLayerForRaycastHitsVertical(ref Vector3 deltaMovement) {
-		var isGoingUp = deltaMovement.y > 0;
-		var rayDistance = Mathf.Abs( deltaMovement.y ) + _skinWidth;
-		var rayDirection = isGoingUp ? Vector2.up : -Vector2.up;
-		var initialRayOrigin = isGoingUp ? _raycastOrigins.topLeft : _raycastOrigins.bottomLeft;
-		var boundOffset = 0.05f;
-
-		initialRayOrigin.y += isGoingUp ? boundOffset : -boundOffset;
-		
-		// apply our horizontal deltaMovement here so that we do our raycast from the actual position we would be in if we had moved
-		initialRayOrigin.x += deltaMovement.x;
-		
-		for( var i = 0; i < totalVerticalRays; i++ )
-		{
-			var ray = new Vector2( initialRayOrigin.x + i * _horizontalDistanceBetweenRays, initialRayOrigin.y );
-
-			_specialRaycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, specialInteractibleMask );
-			if (_specialRaycastHit) {
-				// Debug.Log(gameObject.name + ": special object ray hit vertical");
-				_raycastHitsThisFrame.Add(_specialRaycastHit);
-			}
-		}
-	}
-
     private void moveVertically( ref Vector3 deltaMovement, CharacterCollisionState2D oldCollisionState )
 	{
 		var isGoingUp = deltaMovement.y > 0;
@@ -516,10 +454,6 @@ public class CharacterController2D : MonoBehaviour
 
             DrawRay( ray, rayDirection * rayDistance, Color.blue );
 			_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, mask );
-			/*_specialRaycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, specialInteractibleMask );
-			if (_specialRaycastHit) {
-				_raycastHitsThisFrame.Add(_specialRaycastHit);
-			}*/
 
 			if( _raycastHit )
 			{

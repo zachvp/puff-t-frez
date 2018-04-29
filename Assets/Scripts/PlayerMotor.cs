@@ -38,7 +38,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     }
 
 	public void Start() {
-        //engine.warpToGrounded();
+        engine.warpToGrounded();
 	}
 
 	// When update is called, all input has been processed.
