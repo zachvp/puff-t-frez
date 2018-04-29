@@ -258,6 +258,7 @@ public class CharacterController2D : MonoBehaviour
 		}
 
         // After translation, update proximity check so collision state is fresh.
+        // Collision state doesn't get updated if there's no delta movement.
         checkProximity();
 
 		// set our becameGrounded state based on the previous and current collision state

@@ -6,8 +6,6 @@
 ]
 public class PlayerMotor : MonoBehaviour, IPlayerInput
 {
-    // TODO: Implement int Vector2?
-
     // Reference to the character controller engine.
     private CharacterController2D engine;
 
@@ -30,36 +28,45 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
 
     // TODO: Move game logic to separate class (when can wall jump)
 
-    public void Awake() {
+    public void Awake()
+    {
         input = new PlayerInputSnapshot();
 
         engine = GetComponent<CharacterController2D>();
         motorData = ScriptableObject.CreateInstance<PlayerMotorData>();
+
+        // Define the initial motor direction to be facing right going down.
+        motorDirection.x = 1;
+        motorDirection.y = -1;
     }
 
-	public void Start() {
+	public void Start()
+    {
         engine.warpToGrounded();
 	}
 
 	// When update is called, all input has been processed.
 	public void Update()
     {
-        if (engine.isGrounded) {
-            //Debug.LogFormat("Is GROUNDED");
+        if (engine.isGrounded)
+        {
             HandleGrounded();
-        } else {
-            //Debug.LogFormat("NOT GROUNDED");
+        }
+        else
+        {
             HandleNotGrounded();
         }
 
         // Check all frames since jump was initiated for a release of the jump button.
-        if (input.released.jump && jumpCount < motorData.jumpCountMax) {
+        if (input.released.jump && jumpCount < motorData.jumpCountMax)
+        {
             jumpCount++;
         }
 
         if (input.pressed.jump &&
             additiveJumpFrameCount < motorData.frameLimitJumpAdditive &&
-            jumpCount < motorData.jumpCountMax) {
+            jumpCount < motorData.jumpCountMax)
+        {
                 ApplyJump();
         }
 
@@ -95,7 +102,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     }
 
     private void HandleGrounded() {
-        Debug.LogFormat("GROUNDED");
+        //Debug.LogFormat("GROUNDED");
         var movement = input.pressed.movement;
 
         // Horizontal movement.
@@ -115,7 +122,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     }
 
     private void HandleNotGrounded() {
-        Debug.LogFormat("NOT GROUNDED");
+        //Debug.LogFormat("NOT GROUNDED");
         var movement = input.pressed.movement;
 
         // Motor is not grounded.
@@ -126,41 +133,50 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         velocity.x = Mathf.Clamp(velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
 
         // Check for wall collision in air, which should zero out x velocity.
-        if (Mathf.Abs(input.pressed.movement.x) < 1 && (engine.collision.right || engine.collision.left)) {
+        if (Mathf.Abs(input.pressed.movement.x) < 1 && 
+            (engine.collision.right || engine.collision.left))
+        {
             velocity.x = 0;
         }
 
         // Check for wall jump.
-        if (jumpCount > 0 && input.pressed.jump) {
-            if (engine.collision.left) {
+        if (jumpCount > 0 && input.pressed.jump)
+        {
+            if (engine.collision.left)
+            {
                 velocity.y = motorData.velocityWallJumpVertical;
                 velocity.x = motorData.velocityWallJumpHorizontal;
             }
-
-            if (engine.collision.right) {
+            if (engine.collision.right)
+            {
                 velocity.y = motorData.velocityWallJumpVertical;
                 velocity.x = -motorData.velocityWallJumpHorizontal;
             }
         }
 
         // Cut short the jump if the motor bumped something above.
-        if (engine.collision.above) {
+        if (engine.collision.above)
+        {
             additiveJumpFrameCount = motorData.frameLimitJumpAdditive;
             velocity.y = 0;
         }
 
         // Apply gravity if motor does not have jump immunity or if there is no
         // jump input.
-        if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity || !input.pressed.jump) {
+        if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity ||
+            !input.pressed.jump)
+        {
             velocity.y -= motorData.gravity;
         }
     }
 
     // Additive jump. The longer the jump input, the higher the jump, for a
     // certain amount of frames.
-    private void ApplyJump() {
+    private void ApplyJump()
+    {
         // Initial jump push off the ground.
-        if (additiveJumpFrameCount < 1) {
+        if (additiveJumpFrameCount < 1)
+        {
             velocity.y = motorData.velocityJumpImpulse;
         }
 
@@ -168,17 +184,22 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         additiveJumpFrameCount++;
     }
 
-    private void ComputeMotorDirection() {
+    private void ComputeMotorDirection()
+    {
         // Set the motor direction based on the velocty.
+        // Motor direction should be 1 for positive velocity and -1 for
+        // negative velocity.
         // Check for nonzero velocity
-        if (Mathf.Abs(velocity.x) > 1) {
-            // Motor direction should be 1 for positive velocity and 0 for
-            // negative velocity.
+        if (Mathf.Abs(velocity.x) > 1)
+        {
             motorDirection.x = velocity.x > 0 ? 1 : -1;
         }
-
-        if (Mathf.Abs(velocity.y) > 1) {
+        if (Mathf.Abs(velocity.y) > 1)
+        {
             motorDirection.y = velocity.y > 0 ? 1 : -1;
         }
+
+        Debug.AssertFormat((int) Mathf.Abs(motorDirection.x) == 1, "Motor X direction should always have a magnitude of one.");
+        Debug.AssertFormat((int) Mathf.Abs(motorDirection.y) == 1, "Motor Y direction should always have a magnitude of one.");
     }
 }
