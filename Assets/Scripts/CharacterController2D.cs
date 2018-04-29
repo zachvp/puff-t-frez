@@ -16,49 +16,6 @@ public class CharacterController2D : MonoBehaviour
 		public Vector3 bottomLeft;
 	}
 
-	public class CharacterCollisionState2D
-	{
-		public bool right;
-		public bool left;
-		public bool above;
-		public bool below;
-		public bool becameGroundedThisFrame;
-		public bool movingDownSlope;
-		public float slopeAngle;
-
-        public CharacterCollisionState2D() {}
-
-        public CharacterCollisionState2D(CharacterCollisionState2D other)
-        {
-            right = other.right;
-            left = other.left;
-            above = other.above;
-            below = other.below;
-            becameGroundedThisFrame = other.becameGroundedThisFrame;
-            movingDownSlope = other.movingDownSlope;
-            slopeAngle = other.slopeAngle;
-        }
-
-		public bool hasCollision()
-		{
-			return below || right || left || above;
-		}
-
-
-		public void reset()
-		{
-			right = left = above = below = becameGroundedThisFrame = movingDownSlope = false;
-			slopeAngle = 0f;
-		}
-
-
-		public override string ToString()
-		{
-			return string.Format( "[CharacterCollisionState2D] r: {0}, l: {1}, a: {2}, b: {3}, movingDownSlope: {4}, angle: {5}, becameGroundedThisFrame: {6}",
-			                     right, left, above, below, movingDownSlope, slopeAngle, becameGroundedThisFrame );
-		}
-	}
-
 	#endregion
 
 
@@ -164,7 +121,7 @@ public class CharacterController2D : MonoBehaviour
 	public CharacterCollisionState2D collision = new CharacterCollisionState2D();
 	[HideInInspector][NonSerialized]
 	public Vector3 velocity;
-	public bool isGrounded { get { return collision.below; } }
+    public bool isGrounded { get { return collision.below; } }
 
 	#endregion
 
@@ -259,7 +216,6 @@ public class CharacterController2D : MonoBehaviour
 	{
         // save off our current grounded state which we will use for becameGroundedThisFrame
         var oldCollisionState = new CharacterCollisionState2D(collision);
-        var targetDeltaMovement = deltaMovement;
 
 		// clear our state
 		collision.reset();
@@ -286,8 +242,9 @@ public class CharacterController2D : MonoBehaviour
             moveVertically( ref deltaMovement, oldCollisionState );
 
         // check for special interactibles in vertical direction
-		//checkLayerForRaycastHitsVertical(ref deltaMovement);
+        //checkLayerForRaycastHitsVertical(ref deltaMovement);
 
+        // TODO: remove this
         // Perist the below state since we were grounded and there was no Y delta.
         if (Mathf.Abs(deltaMovement.y) < 0.01) {
             // TODO: This check will have to change at some point.
@@ -632,6 +589,4 @@ public class CharacterController2D : MonoBehaviour
 	}
 
 	#endregion
-
-
 }

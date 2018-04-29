@@ -38,15 +38,17 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     }
 
 	public void Start() {
-        engine.warpToGrounded();
+        //engine.warpToGrounded();
 	}
 
 	// When update is called, all input has been processed.
 	public void Update()
     {
         if (engine.isGrounded) {
+            //Debug.LogFormat("Is GROUNDED");
             HandleGrounded();
         } else {
+            //Debug.LogFormat("NOT GROUNDED");
             HandleNotGrounded();
         }
 
@@ -97,7 +99,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     }
 
     private void HandleGrounded() {
-        //Debug.LogFormat("GROUNDED");
+        Debug.LogFormat("GROUNDED");
         var movement = input.pressed.movement;
 
         // Horizontal movement.
@@ -109,8 +111,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
             jumpCount = 0;
         }
 
-        velocity.y = 0;
-
         // TODO: This should be tied to crouch input.
         if (movement.y < 0)
         {
@@ -119,7 +119,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     }
 
     private void HandleNotGrounded() {
-        //Debug.LogFormat("NOT GROUNDED");
+        Debug.LogFormat("NOT GROUNDED");
         var movement = input.pressed.movement;
 
         // Motor is not grounded.

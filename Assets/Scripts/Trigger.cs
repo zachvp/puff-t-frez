@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 
 public class Trigger : MonoBehaviour {
+    public EventHandler OnEnter;
+    public EventHandler OnExit;
+
 	void OnTriggerEnter2D(Collider2D other) {
-        Debug.LogFormat("trigger enter: {0}", other.name);
+        Events.Raise(OnEnter);
 	}
 
     void OnTriggerExit2D(Collider2D other) {
-        Debug.LogFormat("trigger exit: {0}", other.name);
+        Events.Raise(OnExit);
 	}
 }
