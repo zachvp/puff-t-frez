@@ -63,10 +63,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
                 ApplyJump();
         }
 
-        if (engine.collision.right || engine.collision.left) {
-            velocity.x = 0;
-        }
-
         // At this point, all the motor's velocity computations are complete,
         // so we can determine the motor's direction.
         ComputeMotorDirection();
@@ -129,6 +125,11 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         // Clamp horizontal velocity so it doesn't get out of control.
         velocity.x = Mathf.Clamp(velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
 
+        // Check for wall collision in air, which should zero out x velocity.
+        if (Mathf.Abs(input.pressed.movement.x) < 1 && (engine.collision.right || engine.collision.left)) {
+            velocity.x = 0;
+        }
+
         // Check for wall jump.
         if (jumpCount > 0 && input.pressed.jump) {
             if (engine.collision.left) {
@@ -143,10 +144,9 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
         }
 
         // Cut short the jump if the motor bumped something above.
-        if (engine.collision.above)
-        {
-            Debug.LogFormat("STOP JUMP");
+        if (engine.collision.above) {
             additiveJumpFrameCount = motorData.frameLimitJumpAdditive;
+            velocity.y = 0;
         }
 
         // Apply gravity if motor does not have jump immunity or if there is no
@@ -159,8 +159,6 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput
     // Additive jump. The longer the jump input, the higher the jump, for a
     // certain amount of frames.
     private void ApplyJump() {
-        Debug.LogFormat("APPLY JUMP");
-
         // Initial jump push off the ground.
         if (additiveJumpFrameCount < 1) {
             velocity.y = motorData.velocityJumpImpulse;
