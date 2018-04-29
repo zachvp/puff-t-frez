@@ -528,22 +528,44 @@ public class CharacterController2D : MonoBehaviour
 
     private void checkProximity()
     {
+        // Initialize check parameters for below.
         var checkDepth = skinWidth;
         var origin = _raycastOrigins.bottomLeft;
         var size = new Vector2(boxCollider.bounds.size.x - skinWidth, checkDepth);
         var direction = Vector2.down;
         var checkDistance = skinWidth * 2;
 
+        // Vertical checks.
+
         // Get to center x
         origin.x = transform.position.x;
 
         // Check below
-        var result = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, platformMask);
-        collision.below = result;
+        collision.below = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, platformMask);
 
         // Check above
+        origin.y = _raycastOrigins.topLeft.y;
         direction = Vector2.up;
-        result = Physics2D.BoxCast(origin, size, 0, direction, skinWidth, platformMask);
+        collision.above = Physics2D.BoxCast(origin, size, 0, direction, skinWidth, platformMask);
+
+        // Horizontal checks.
+
+        // Get to center y.
+        origin.y = transform.position.y;
+
+        // Adjust check size.
+        size.x = checkDepth;
+        size.y = boxCollider.bounds.size.y - skinWidth;
+
+        // Check right.
+        origin.x = _raycastOrigins.bottomRight.x;
+        direction = Vector2.right;
+        collision.right = Physics2D.BoxCast(origin, size, 0, direction, skinWidth, platformMask);
+
+        // Check left
+        origin.x = _raycastOrigins.bottomLeft.x;
+        direction = Vector2.left;
+        collision.left = Physics2D.BoxCast(origin, size, 0, direction, skinWidth, platformMask);
     }
 
 	#endregion
