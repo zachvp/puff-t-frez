@@ -4,8 +4,9 @@ public interface IPlayerInput {
     // Input functions
     void ApplyInput(PlayerInputSnapshot input);
     void ApplyDeltaTime(float deltaTime);
+}
 
-    // Possibly move to separate interface if this gets too messy.
-    Vector3 GetPosition();
+public interface ITransform {
+	Vector3 GetPosition();
     void SetPosition(Vector3 position);
 }

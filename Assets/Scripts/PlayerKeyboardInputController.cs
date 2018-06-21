@@ -2,43 +2,21 @@
 
 [RequireComponent(typeof(PlayerMotor),
                   typeof(PlayerCharacterInitializer))]
-public class PlayerKeyboardInputController : MonoBehaviour {
-	private IPlayerInput player;
-    private PlayerInput input;
-    private InputBuffer buffer;
-
-	public void Awake() {
-        var initializer = GetComponent<PlayerCharacterInitializer>();
-
-        input = new PlayerInput();
-		player = GetComponent<PlayerMotor> ();
-
-        initializer.OnCreate += HandleCreate;
-	}
-
-    public void HandleCreate(PlayerCharacterInitializer initializer) {
-        buffer = initializer.inputBuffer;
-    }
-
-	public void Update () {
-        var inputRelease = new PlayerInput();
-        var lastInput = new PlayerInput(input);
-
-        input = new PlayerInput();
-
+public class PlayerKeyboardInputController : PlayerInputController {
+	public override void HandleUpdate() {
         // Horizontal control
 		if (Input.GetKey (KeyCode.RightArrow)) {
-            input.movement.x = 1;
+            HandleInputRight();
 		}
 
 		if (Input.GetKey (KeyCode.LeftArrow)) {
-            input.movement.x = -1;
+            HandleInputLeft();
 		}
 
 		// Vertical control
 		if (Input.GetKey (KeyCode.UpArrow)) {
-            input.movement.y = 1;
-            input.jump = true;
+            HandleInputUp();
+            HandleInputJump();
 		}
 		if (Input.GetKey (KeyCode.DownArrow)) {
             input.movement.y = -1;
@@ -69,15 +47,6 @@ public class PlayerKeyboardInputController : MonoBehaviour {
             inputRelease.jump = true;
         }
 
-        // TODO: This should live in a parent input controller class.
-        var snapshot = new PlayerInputSnapshot(input, inputRelease);
-
-        player.ApplyInput(snapshot);
-        player.ApplyDeltaTime(FrameCounter.Instance.deltaTime);
-
-        buffer.AddInput(snapshot);
-
-        Debug.AssertFormat(Mathf.Abs(input.movement.x) <= 1, "Input exceeded bounds: {0}", input);
-        Debug.AssertFormat(Mathf.Abs(input.movement.y) <= 1, "Input exceeded bounds: {0}", input);
+        HandleInputChecksFinished();
 	}
 }

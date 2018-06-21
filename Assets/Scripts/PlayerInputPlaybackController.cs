@@ -8,15 +8,20 @@ using System.Collections.Generic;
         typeof(PlayerCharacterInitializer)
     )
 ]
-public class PlayerInputPlaybackController : MonoBehaviour {
-    private IPlayerInput player;
+public class PlayerInputPlaybackController : MonoBehaviour, IPlayerInputPlaybackInformer {
+	public static EventHandler OnPlaybackStarted;
+	public static EventHandler<IPlayerInputPlaybackInformer> OnInformInitialData;
+
+	private PlayerMotor player;
+
     private InputBuffer buffer;
     private Vector3 initialPosition;
-
+    
 #if DEBUG
     private Vector3 finalPosition;
 #endif
 
+	// TODO: Keep map of played-back Transforms. At the end, iterate and assert.
     public void Awake() {
         var initializer = GetComponent<PlayerCharacterInitializer>();
 
@@ -27,10 +32,14 @@ public class PlayerInputPlaybackController : MonoBehaviour {
 
 	public void Start() {
         initialPosition = player.GetPosition();
+
+		Events.Raise(OnInformInitialData, this);
 	}
 
 	public void Update() {
         if (Input.GetKeyDown(KeyCode.R)) {
+			Events.Raise(OnPlaybackStarted);
+
             finalPosition = player.GetPosition();
 
             player.SetPosition(initialPosition);
@@ -63,4 +72,22 @@ public class PlayerInputPlaybackController : MonoBehaviour {
 	private void HandleCreate(PlayerCharacterInitializer initializer) {
         buffer = initializer.inputBuffer;
     }
+
+	// IPlayerInputPlaybackInformer
+	public void InformInitialTransform(Transform t) {
+		
+	}
+
+	class PlaybackObject {
+		public StoreTransform initialTransform;
+		public IPlayerInput input;
+
+		public PlaybackObject(Transform t) {
+			initialTransform = new StoreTransform(t);
+		}
+	}
+}
+
+public interface IPlayerInputPlaybackInformer {
+	void InformInitialTransform(Transform t);
 }

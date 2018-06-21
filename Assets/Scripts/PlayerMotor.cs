@@ -4,7 +4,7 @@
         typeof(CharacterController2D)
     )
 ]
-public class PlayerMotor : MonoBehaviour, IPlayerInput
+public class PlayerMotor : MonoBehaviour, IPlayerInput, ITransform
 {
     // Reference to the character controller engine.
     private CharacterController2D engine;
