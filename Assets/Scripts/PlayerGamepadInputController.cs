@@ -7,12 +7,26 @@ public class PlayerGamepadInputController : PlayerInputController
         if (InputManager.Devices.Count > 0) {
             var device = InputManager.Devices[0];
 
-            if (device.Action1.IsPressed) {
+            if (device.LeftStick.Value.x > 0.1f) {
+                HandleInputRight();
+            }
+            if (device.LeftStick.Value.x < -0.1f) {
+                HandleInputLeft();
+            }
+            if (device.LeftStick.Value.y > 0.1f) {
                 HandleInputUp();
+            }
+            if (device.LeftStick.Value.y < -0.1f) {
+                HandleInputDown();
+            }
+
+            if (device.Action1.IsPressed) {
+                HandleInputUp(); // TODO: Remove this
                 HandleInputJump();
             }
         }
 
-        HandleInputChecksFinished();
+        // TODO: Maybe handle when left analog is up and d-pad is down?
+        HandleInputChecksFinished(false, false);
     }
 }
