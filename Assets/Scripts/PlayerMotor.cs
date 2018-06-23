@@ -175,12 +175,12 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput, ITransform
     private void ApplyJump()
     {
         // Initial jump push off the ground.
-        if (additiveJumpFrameCount < 1)
-        {
+        if (additiveJumpFrameCount < 1) {
             velocity.y = motorData.velocityJumpImpulse;
+        } else {
+            velocity.y += Mathf.RoundToInt(motorData.velocityJumpMax / additiveJumpFrameCount);
         }
 
-        velocity.y += motorData.velocityJumpAdditive;
         additiveJumpFrameCount++;
     }
 
