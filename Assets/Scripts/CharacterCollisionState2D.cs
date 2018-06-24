@@ -40,4 +40,24 @@
         return string.Format("[CharacterCollisionState2D] r: {0}, l: {1}, a: {2}, b: {3}, movingDownSlope: {4}, angle: {5}, becameGroundedThisFrame: {6}",
                              right, left, above, below, movingDownSlope, slopeAngle, becameGroundedThisFrame);
     }
+
+    public override bool Equals(object obj) {
+        var result = false;
+
+        if (obj is Direction2D) {
+            var cast = (Direction2D) obj;
+            result |= cast == Direction2D.RIGHT && this.right;
+            result |= cast == Direction2D.LEFT && this.left;
+            result |= cast == Direction2D.ABOVE && this.above;
+            result |= cast == Direction2D.BELOW && this.below;
+        } else {
+            result = base.Equals(obj);
+        }
+
+        return result;
+    }
+
+    public override int GetHashCode() {
+        return base.GetHashCode();
+    }
 }

@@ -133,8 +133,8 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput, ITransform
         velocity.x = Mathf.Clamp(velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
 
         // Check for wall collision in air, which should zero out x velocity.
-        if (Mathf.Abs(input.pressed.movement.x) < 1 && 
-            (engine.collision.right || engine.collision.left))
+        if (Mathf.Abs(input.pressed.movement.x) < 1 &&
+           (engine.collision.right || engine.collision.left))
         {
             velocity.x = 0;
         }
@@ -142,12 +142,14 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput, ITransform
         // Check for wall jump.
         if (jumpCount > 0 && input.pressed.jump)
         {
-            if (engine.collision.left)
+            // Buffer collision state X frames
+            // Check if .left is in buffer up to Y frames back
+            if (engine.isCollisionBuffered(Direction2D.LEFT))
             {
                 velocity.y = motorData.velocityWallJumpVertical;
                 velocity.x = motorData.velocityWallJumpHorizontal;
             }
-            if (engine.collision.right)
+            if (engine.isCollisionBuffered(Direction2D.RIGHT))
             {
                 velocity.y = motorData.velocityWallJumpVertical;
                 velocity.x = -motorData.velocityWallJumpHorizontal;

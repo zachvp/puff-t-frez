@@ -2,12 +2,12 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using Microsoft.Win32.SafeHandles;
-
 
 [RequireComponent( typeof( BoxCollider2D ), typeof( Rigidbody2D ) )]
 public class CharacterController2D : MonoBehaviour
 {
+	public const int COLLISION_BUFFER_MAX = 4;
+
 	#region internal types
 
 	private struct CharacterRaycastOrigins
@@ -145,6 +145,8 @@ public class CharacterController2D : MonoBehaviour
 	// the reason is so that if we reach the end of the slope we can make an adjustment to stay grounded
 	private bool _isGoingUpSlope = false;
 
+	private List<CharacterCollisionState2D> collisionBuffer;
+
 	#region Monobehaviour
 
 	void Awake()
@@ -159,8 +161,31 @@ public class CharacterController2D : MonoBehaviour
 
 		// here, we trigger our properties that have setters with bodies
 		skinWidth = _skinWidth;
+
+		collisionBuffer = new List<CharacterCollisionState2D>(4);
 	}
 
+	public bool isCollisionBuffered(Direction2D direction, int windowSize) {
+		Debug.AssertFormat(windowSize <= collisionBuffer.Count, "You blew it using collisionBuffer. Requested window exceeds buffer size.");
+
+		var result = false;
+
+		for (var i = collisionBuffer.Count - 1; i > 0; --i) {
+			var collision = collisionBuffer[i];
+
+			if (collision.Equals(direction)) {
+				Debug.LogFormat("DBG: Collision found in buffer");
+				result = true;
+				break;
+			}
+		}
+
+		return result;
+	}
+
+	public bool isCollisionBuffered(Direction2D direction) {
+		return this.isCollisionBuffered(direction, collisionBuffer.Count);
+	}
 
 	public void OnTriggerEnter2D( Collider2D col )
 	{
@@ -258,8 +283,16 @@ public class CharacterController2D : MonoBehaviour
 		}
 
         // After translation, update proximity check so collision state is fresh.
-        // Collision state doesn't get updated if there's no delta movement.
+        // Without this, collision state doesn't get updated if there's no delta movement.
         checkProximity();
+
+		// Add to the collision buffer.
+		collisionBuffer.Add(new CharacterCollisionState2D(collision));
+
+		if (collisionBuffer.Count > COLLISION_BUFFER_MAX) {
+			// TODO: Change collision buffer to be linked list so this is better
+			collisionBuffer.RemoveAt(0);
+		}
 
 		// set our becameGrounded state based on the previous and current collision state
         if( !oldCollisionState.below && collision.below )
