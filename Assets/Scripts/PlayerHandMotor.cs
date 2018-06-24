@@ -13,27 +13,26 @@ public class PlayerHandMotor : MonoBehaviour, ITransform {
         var toTarget = root.transform.position - transform.position;
         var sqrDistance = toTarget.sqrMagnitude;
         var newPos = transform.position;
-        var proportion = 0.9f;
 
-        if (sqrDistance > Mathf.Pow(2, 15)) {
-            proportion = 1;
-        }
+        // Kind of a magic calculation. The idea is we want our speed to
+        // increase as the distance increases.
+        var proportion = 3 * (sqrDistance / Mathf.Pow(2, 16));
         
-        var velocity = proportion * root.velocity.magnitude;
+        // Computed speed is a mix of distance to target and velocity of
+        // target.
+        var speed = proportion * root.velocity.magnitude;
 
-        if (velocity < 0.1) {
-			velocity = 600;
+        // Still want to be moving towards target even when target is
+        // stopped or at low velocity
+        if (speed < 0.1) {
+            speed = 400;
         }
 
-        newPos += toTarget.normalized * velocity * Time.deltaTime;
+        newPos += toTarget.normalized * speed * FrameCounter.Instance.deltaTime;
         newPos.x = Mathf.RoundToInt(newPos.x);
         newPos.y = Mathf.RoundToInt(newPos.y);
 
         transform.position = newPos;
-
-        if (sqrDistance < 16) {
-            transform.position = root.transform.position;
-        }
 	}
 
     // ITransform
