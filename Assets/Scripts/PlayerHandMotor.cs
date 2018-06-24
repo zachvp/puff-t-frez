@@ -3,11 +3,11 @@
 // TODO: Clean up magic values
 // TODO: Tie into replay system
 public class PlayerHandMotor : MonoBehaviour, ITransform {
-    public Transform root;
+    public Transform root = null;
 
-    public PlayerMotor motor;
+    public PlayerMotor motor = null;
 
-    public float snappiness = 1;
+    public float snappiness = 32;
 
     public void Awake() {
         transform.position = root.transform.position;
@@ -20,19 +20,10 @@ public class PlayerHandMotor : MonoBehaviour, ITransform {
 
         // Kind of a magic calculation. The idea is we want our speed to
         // increase as the distance increases.
-        var proportion = snappiness * (sqrDistance / Mathf.Pow(2, 16));
-        
-        // Computed speed is a mix of distance to target and velocity of
-        // target.
-        var speed = proportion * motor.GetVelocity().magnitude;
+        var speed = snappiness * toTarget.magnitude;
+        var velocity = toTarget.normalized * speed;
 
-        // Still want to be moving towards target even when target is
-        // stopped or at low velocity
-        if (speed < 0.1) {
-            speed = 400;
-        }
-
-        newPos += toTarget.normalized * speed * FrameCounter.Instance.deltaTime;
+        newPos += velocity * FrameCounter.Instance.deltaTime;
         newPos.x = Mathf.RoundToInt(newPos.x);
         newPos.y = Mathf.RoundToInt(newPos.y);
 
