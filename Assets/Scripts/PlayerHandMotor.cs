@@ -3,7 +3,9 @@
 // TODO: Clean up magic values
 // TODO: Tie into replay system
 public class PlayerHandMotor : MonoBehaviour, ITransform {
-    public PlayerMotor root;
+    public Transform root;
+
+    public PlayerMotor motor;
 
     public void Awake() {
         transform.position = root.transform.position;
@@ -20,7 +22,7 @@ public class PlayerHandMotor : MonoBehaviour, ITransform {
         
         // Computed speed is a mix of distance to target and velocity of
         // target.
-        var speed = proportion * root.velocity.magnitude;
+        var speed = proportion * motor.velocity.magnitude;
 
         // Still want to be moving towards target even when target is
         // stopped or at low velocity

@@ -93,6 +93,7 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput, ITransform
         deltaTime = time;
     }
 
+    // ITransform functions
     public Vector3 GetPosition() {
         return transform.position;
     }
