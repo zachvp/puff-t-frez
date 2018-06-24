@@ -277,7 +277,7 @@ public class CharacterController2D : MonoBehaviour
             transform.position = newPosition;
 
 			// only calculate velocity if we have a non-zero deltaTime
-            if( Time.deltaTime > 0 ) {
+            if( FrameCounter.Instance.deltaTime > 0 ) {
                 velocity = deltaMovement / Time.deltaTime;
             }
 		}

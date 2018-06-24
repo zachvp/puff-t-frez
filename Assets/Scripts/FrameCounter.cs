@@ -6,7 +6,7 @@ public class FrameCounter : MonoSingleton<FrameCounter>
 {
 	public int count { get; private set; }
     public float deltaTime { 
-        get { return deltaTimes[deltaTimes.Count - 1]; }
+        get { return deltaTimes.Count > 0 ? deltaTimes[deltaTimes.Count - 1] : 0; }
         private set { deltaTime = value; }
     }
     public List<float> deltaTimes { get; private set; }
