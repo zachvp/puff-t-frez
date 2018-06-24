@@ -4,13 +4,13 @@
         typeof(CharacterController2D)
     )
 ]
-public class PlayerMotor : MonoBehaviour, IPlayerInput, ITransform
+public class PlayerMotor : MonoBehaviour, IPlayerInput, ITransform, IMotor
 {
     // Reference to the character controller engine.
     private CharacterController2D engine;
 
     // The motor velocity.
-    public Vector2 velocity;
+    private Vector2 velocity;
 
     // The direction of input.
     private PlayerInputSnapshot input;
@@ -100,6 +100,15 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput, ITransform
 
     public void SetPosition(Vector3 position) {
         transform.position = position;
+    }
+
+    // IMotor functions
+    public Vector3 GetVelocity() {
+        return velocity;
+    }
+
+    public Vector3 GetDirection() {
+        return motorDirection;
     }
 
     private void HandleGrounded() {

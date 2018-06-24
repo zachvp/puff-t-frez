@@ -7,6 +7,8 @@ public class PlayerHandMotor : MonoBehaviour, ITransform {
 
     public PlayerMotor motor;
 
+    public float snappiness = 1;
+
     public void Awake() {
         transform.position = root.transform.position;
     }
@@ -18,11 +20,11 @@ public class PlayerHandMotor : MonoBehaviour, ITransform {
 
         // Kind of a magic calculation. The idea is we want our speed to
         // increase as the distance increases.
-        var proportion = 3 * (sqrDistance / Mathf.Pow(2, 16));
+        var proportion = snappiness * (sqrDistance / Mathf.Pow(2, 16));
         
         // Computed speed is a mix of distance to target and velocity of
         // target.
-        var speed = proportion * motor.velocity.magnitude;
+        var speed = proportion * motor.GetVelocity().magnitude;
 
         // Still want to be moving towards target even when target is
         // stopped or at low velocity
