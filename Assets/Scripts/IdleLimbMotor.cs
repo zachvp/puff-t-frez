@@ -2,7 +2,7 @@
 
 // TODO: Clean up magic values
 // TODO: Tie into replay system
-public class PlayerHandMotor : MonoBehaviour, ITransform {
+public class IdleLimbMotor : MonoBehaviour, ITransform {
     public Transform root = null;
 
     public PlayerMotor motor = null;
@@ -19,7 +19,8 @@ public class PlayerHandMotor : MonoBehaviour, ITransform {
         var newPos = transform.position;
 
         // Kind of a magic calculation. The idea is we want our speed to
-        // increase as the distance increases.
+        // increase as the distance increases. We then fudge that with a
+        // user-defined param.
         var speed = snappiness * toTarget.magnitude;
         var velocity = toTarget.normalized * speed;
 

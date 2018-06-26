@@ -80,7 +80,6 @@ public class PlayerInputPlaybackController : MonoBehaviour, IPlayerInputPlayback
 
 	class PlaybackObject {
 		public StoreTransform initialTransform;
-		public IPlayerInput input;
 
 		public PlaybackObject(Transform t) {
 			initialTransform = new StoreTransform(t);
