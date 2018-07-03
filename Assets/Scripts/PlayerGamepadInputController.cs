@@ -21,7 +21,6 @@ public class PlayerGamepadInputController : PlayerInputController
             }
 
             if (device.Action1.IsPressed) {
-                HandleInputUp(); // TODO: Remove this
                 HandleInputJump();
             }
         }

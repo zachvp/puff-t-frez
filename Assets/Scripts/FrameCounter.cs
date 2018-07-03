@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class FrameCounter : MonoSingleton<FrameCounter>
 {
-    // The basic tick that doesn't try to be before/after anything else.
+	// The basic tick that doesn't try to be before/after anything else.
+	public EventHandler OnAwake;
+	public EventHandler OnStart;
     public EventHandler<int> OnUpdate;
 
 	public int count { get; private set; }
@@ -18,6 +20,8 @@ public class FrameCounter : MonoSingleton<FrameCounter>
         base.Awake();
 
         deltaTimes = new List<float>();
+
+		Events.Raise(OnAwake);
 	}
 
     public void Update() {
@@ -27,6 +31,8 @@ public class FrameCounter : MonoSingleton<FrameCounter>
 	public void Start() {
         EarlyUpdate.Instance.OnUpdate += HandleEarlyUpdate;
         LateUpdate.Instance.OnUpdate += HandleLateUpdate;
+
+		Events.Raise(OnStart);
 	}
 
 	private void HandleEarlyUpdate() {

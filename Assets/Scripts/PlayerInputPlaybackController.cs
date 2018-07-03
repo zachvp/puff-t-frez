@@ -8,7 +8,7 @@ using System.Collections.Generic;
         typeof(PlayerCharacterInitializer)
     )
 ]
-public class PlayerInputPlaybackController : MonoBehaviour, IPlayerInputPlaybackInformer {
+public class PlayerInputPlaybackController : IPlayerInputPlaybackInformer {
 	public static EventHandler OnPlaybackStarted;
 	public static EventHandler<IPlayerInputPlaybackInformer> OnInformInitialData;
 
@@ -20,15 +20,12 @@ public class PlayerInputPlaybackController : MonoBehaviour, IPlayerInputPlayback
 #if DEBUG
     private Vector3 finalPosition;
 #endif
-
+    
 	// TODO: Keep map of played-back Transforms. At the end, iterate and assert.
-    public void Awake() {
-        var initializer = GetComponent<PlayerCharacterInitializer>();
-
-        player = GetComponent<PlayerMotor>();
-
-        initializer.OnCreate += HandleCreate;
-    }
+	public PlayerInputPlaybackController(PlayerMotor playerMotor, InputBuffer inputBuffer) {
+		player = playerMotor;
+		buffer = inputBuffer;
+	}
 
 	public void Start() {
         initialPosition = player.GetPosition();
@@ -43,7 +40,7 @@ public class PlayerInputPlaybackController : MonoBehaviour, IPlayerInputPlayback
             finalPosition = player.GetPosition();
 
             player.SetPosition(initialPosition);
-            StartCoroutine(PlaybackFrames());
+			CoreBehaviour.Instance.StartCoroutine(PlaybackFrames());
         }
 	}
 
@@ -69,13 +66,9 @@ public class PlayerInputPlaybackController : MonoBehaviour, IPlayerInputPlayback
         yield break;
     }
 
-	private void HandleCreate(PlayerCharacterInitializer initializer) {
-        buffer = initializer.inputBuffer;
-    }
-
 	// IPlayerInputPlaybackInformer
 	public void InformInitialTransform(Transform t) {
-		
+		// TODO: waaat is this ^ ?
 	}
 
 	class PlaybackObject {

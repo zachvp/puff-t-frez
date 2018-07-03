@@ -4,8 +4,11 @@
         typeof(CharacterController2D)
     )
 ]
-public class PlayerMotor : MonoBehaviour, IPlayerInput, ITransform, IMotor
+public class PlayerMotor : IPlayerInput, ITransform, IMotor
 {
+	// Reference to the GameObject the motor is "attached" to.
+	private GameObject instance;
+
     // Reference to the character controller engine.
     private CharacterController2D engine;
 
@@ -18,29 +21,34 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput, ITransform, IMotor
     // The direction the motor is facing.
     private Vector2 motorDirection;
 
+    // The configuration data driving movement and physics.
     private PlayerMotorData motorData;
 
+    // The amount of frames the motor has been jumping.
     private int additiveJumpFrameCount;
 
+    // How many times a jump has been performed.
     private int jumpCount;
 
+    // The provided time between frames.
     private float deltaTime;
 
     // TODO: Move game logic to separate class (when can wall jump)
+	public PlayerMotor(GameObject engineInstance, CharacterController2D playerEngine) {
+		input = new PlayerInputSnapshot();
 
-    public void Awake()
-    {
-        input = new PlayerInputSnapshot();
+		instance = engineInstance;
+		engine = playerEngine;
+		motorData = ScriptableObject.CreateInstance<PlayerMotorData>();
 
-        engine = GetComponent<CharacterController2D>();
-        motorData = ScriptableObject.CreateInstance<PlayerMotorData>();
-
-        // Define the initial motor direction to be facing right going down.
+		// Define the initial motor direction to be facing right going down.
         motorDirection.x = 1;
         motorDirection.y = -1;
-    }
 
-	public void Start()
+		FrameCounter.Instance.OnStart += HandleStart;
+	}
+
+	public void HandleStart()
     {
         engine.warpToGrounded();
 	}
@@ -95,11 +103,11 @@ public class PlayerMotor : MonoBehaviour, IPlayerInput, ITransform, IMotor
 
     // ITransform functions
     public Vector3 GetPosition() {
-        return transform.position;
+        return instance.transform.position;
     }
 
     public void SetPosition(Vector3 position) {
-        transform.position = position;
+		instance.transform.position = position;
     }
 
     // IMotor functions

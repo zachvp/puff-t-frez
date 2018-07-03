@@ -1,29 +1,26 @@
 ﻿using UnityEngine;
 
-public class PlayerInputController : MonoBehaviour {
+public class PlayerInputController {
 	protected IPlayerInput player;
 
 	protected PlayerInput input;
-
 	protected PlayerInput inputRelease;
 	protected PlayerInput lastInput;
 
 	protected InputBuffer buffer;
 
-	public void Awake() {
-		var initializer = GetComponent<PlayerCharacterInitializer>();
+	public PlayerInputController() { }
 
+	public PlayerInputController(IPlayerInput inPlayer, InputBuffer inputBuffer) {
 		input = new PlayerInput();
-		player = GetComponent<PlayerMotor> ();
 
-		initializer.OnCreate += HandleCreate;
+		player = inPlayer;
+		buffer = inputBuffer;
+
+		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-    public void HandleCreate(PlayerCharacterInitializer initializer) {
-        buffer = initializer.inputBuffer;
-    }
-
-	public void Update() {
+	public void HandleUpdate(int currentFrame) {
 		inputRelease = new PlayerInput();
         lastInput = new PlayerInput(input);
 
@@ -57,8 +54,8 @@ public class PlayerInputController : MonoBehaviour {
 	}
 
 	protected void HandleInputChecksFinished(bool isConcurrentHorizontalInput, bool isConcurrentVerticalInput) {
-		var isNoHorizontalInput = input.movement.x == 0;
-		var isNoVerticalInput = input.movement.y == 0;
+		var isNoHorizontalInput = Mathf.RoundToInt(input.movement.x) == 0;
+		var isNoVerticalInput = Mathf.RoundToInt(input.movement.y) == 0;
 
 		if (isNoHorizontalInput || isConcurrentHorizontalInput) {
             input.movement.x = 0;
