@@ -23,17 +23,14 @@ public class LobMotor : MonoBehaviour, ILobInput {
 
     public void Start() {
         manager = new CallbackManager();
+		isInputAvailable = true;
         
         inputDampening -= 20;
-
-        //Lob();
     }
 
     public void Update() {
-        if (/*isInputAvailable && */Input.GetKeyDown(KeyCode.D)) {
+        if (isInputAvailable && Input.GetKeyDown(KeyCode.D)) {
             Lob();
-			manager.PostCallbackWithFrameDelay(32, new Callback(HandleCallbackFired));
-			manager.PostCallbackWithFrameDelay(32, new Callback(HandleCallbackFired));
         }
 
         // Determine if force should be applied 
@@ -55,8 +52,7 @@ public class LobMotor : MonoBehaviour, ILobInput {
         velocity += direction * inputDampening;
 
         transform.Translate(velocity * FrameCounter.Instance.deltaTime, Space.Self);
-
-        // TODO: Round positions
+		transform.position = CoreUtilities.NormalizePosition(transform.position);
     }
 
     public void Lob() {
@@ -65,8 +61,8 @@ public class LobMotor : MonoBehaviour, ILobInput {
         isInputAvailable = false;
 
         // TODO: fix magic numbers
-        //manager.PostCallbackWithFrameDelay(32, HandleCallbackFired);
-        //manager.PostCallbackWithFrameDelay(256, HandleResetPosition);
+		manager.PostCallbackWithFrameDelay(32, new Callback(HandleCallbackFired));
+		manager.PostCallbackWithFrameDelay(256, new Callback(HandleResetPosition));
     }
 
     public void HandleCallbackFired() {
@@ -74,11 +70,12 @@ public class LobMotor : MonoBehaviour, ILobInput {
     }
 
     public void HandleResetPosition () {
-        transform.position = root.position;
 		Freeze();
+		transform.position = root.position;
     }
 
     public void Freeze() {
         enabled = false;
+		velocity = Vector3.zero;
     }
 }

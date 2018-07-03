@@ -266,15 +266,7 @@ public class CharacterController2D : MonoBehaviour
 		else
 		{
 			transform.Translate( deltaMovement, Space.World );
-
-            // Round position to nearest integer.
-            // TODO: Move this to utility class
-            Vector3 newPosition = transform.position;
-
-            newPosition.x = Mathf.RoundToInt(transform.position.x);
-            newPosition.y = Mathf.RoundToInt(transform.position.y);
-
-            transform.position = newPosition;
+			transform.position = CoreUtilities.NormalizePosition(transform.position);
 
 			// only calculate velocity if we have a non-zero deltaTime
             if( FrameCounter.Instance.deltaTime > 0 ) {

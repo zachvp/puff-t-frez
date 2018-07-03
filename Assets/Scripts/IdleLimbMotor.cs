@@ -25,8 +25,7 @@ public class IdleLimbMotor : MonoBehaviour, ITransform {
         var velocity = toTarget.normalized * speed;
 
         newPos += velocity * FrameCounter.Instance.deltaTime;
-        newPos.x = Mathf.RoundToInt(newPos.x);
-        newPos.y = Mathf.RoundToInt(newPos.y);
+		newPos = CoreUtilities.NormalizePosition(newPos);
 
         transform.position = newPos;
 	}
