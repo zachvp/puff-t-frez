@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class FrameCounter : MonoSingleton<FrameCounter>
 {
+    // The basic tick that doesn't try to be before/after anything else.
+    public EventHandler<int> OnUpdate;
+
 	public int count { get; private set; }
     public float deltaTime { 
         get { return deltaTimes.Count > 0 ? deltaTimes[deltaTimes.Count - 1] : 0; }
@@ -16,6 +19,10 @@ public class FrameCounter : MonoSingleton<FrameCounter>
 
         deltaTimes = new List<float>();
 	}
+
+    public void Update() {
+        Events.Raise(OnUpdate, count);
+    }
 
 	public void Start() {
         EarlyUpdate.Instance.OnUpdate += HandleEarlyUpdate;
