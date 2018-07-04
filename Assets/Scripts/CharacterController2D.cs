@@ -3,23 +3,8 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-[RequireComponent( typeof( BoxCollider2D ), typeof( Rigidbody2D ) )]
-public class CharacterController2D : MonoBehaviour
+public class CharacterController2D
 {
-	public const int COLLISION_BUFFER_MAX = 4;
-
-	#region internal types
-
-	private struct CharacterRaycastOrigins
-	{
-		public Vector3 topLeft;
-		public Vector3 bottomRight;
-		public Vector3 bottomLeft;
-	}
-
-	#endregion
-
-
 	#region events, properties and fields
 
 	public event Action<RaycastHit2D> onControllerCollidedEvent;
@@ -27,32 +12,6 @@ public class CharacterController2D : MonoBehaviour
 	public event Action<Collision2D> onCollisionEnterEvent;
 	public event Action<Collider2D> onTriggerStayEvent;
 	public event Action<Collider2D> onTriggerExitEvent;
-
-
-	/// <summary>
-	/// toggles if the RigidBody2D methods should be used for movement or if Transform.Translate will be used. All the usual Unity rules for physics based movement apply when true
-	/// such as getting your input in Update and only calling move in FixedUpdate amonst others.
-	/// </summary>
-	public bool usePhysicsForMovement = false;
-
-	[SerializeField]
-	[Range( 0.001f, 8f )]
-	private float _skinWidth = 0.02f;
-
-	/// <summary>
-	/// defines how far in from the edges of the collider rays are cast from. If cast with a 0 extent it will often result in ray hits that are
-	/// not desired (for example a foot collider casting horizontally from directly on the surface can result in a hit)
-	/// </summary>
-	public float skinWidth
-	{
-		get { return _skinWidth; }
-		set
-		{
-			_skinWidth = value;
-			recalculateDistanceBetweenRays();
-		}
-	}
-
 
 	/// <summary>
 	/// mask with all layers that the player should interact with
@@ -93,7 +52,7 @@ public class CharacterController2D : MonoBehaviour
 	[Range( 2, 20 )]
 	public int totalHorizontalRays = 8;
 	[Range( 2, 20 )]
-	public int totalVerticalRays = 4;
+	public int totalVerticalRays = 8;
 
 
 	/// <summary>
@@ -106,21 +65,18 @@ public class CharacterController2D : MonoBehaviour
 	public float triggerHelperBoxColliderScale = 0.95f;
 
 
-	[HideInInspector][NonSerialized]
-	public new Transform transform;
-	[HideInInspector][NonSerialized]
+	public Transform transform;
 	public BoxCollider2D boxCollider;
-	[HideInInspector][NonSerialized]
 	public Rigidbody2D rigidBody2D;
 
-	[HideInInspector][NonSerialized]
 	public CharacterCollisionState2D collision = new CharacterCollisionState2D();
-	[HideInInspector][NonSerialized]
 	public Vector3 velocity;
     public bool isGrounded { get { return collision.below; } }
 
 	#endregion
 
+
+	private PlayerEngineData data;
 
 	/// <summary>
 	/// holder for our raycast origin corners (TR, TL, BR, BL)
@@ -147,26 +103,43 @@ public class CharacterController2D : MonoBehaviour
 
 	private List<CharacterCollisionState2D> collisionBuffer;
 
+	private GameObject instance;
+
+	#region internal types
+
+    private struct CharacterRaycastOrigins
+    {
+        public Vector3 topLeft;
+        public Vector3 bottomRight;
+        public Vector3 bottomLeft;
+    }
+
+    #endregion
+
+	public CharacterController2D(GameObject engineInstance, BoxCollider2D collider, Rigidbody2D rigidbody)
+    {
+		// TODO: TMP
+		platformMask |= 1 << LayerMask.NameToLayer("Obstacle");
+
+		data = ScriptableObject.CreateInstance<PlayerEngineData>();
+
+		instance = engineInstance;
+
+		// add our one-way platforms to our normal platform mask so that we can land on them from above
+        platformMask |= oneWayPlatformMask;
+
+        // cache some components
+		transform = instance.transform;
+		boxCollider = collider;
+		rigidBody2D = rigidbody;
+
+        collisionBuffer = new List<CharacterCollisionState2D>(4);
+    }
+
 	#region Monobehaviour
 
-	void Awake()
-	{
-		// add our one-way platforms to our normal platform mask so that we can land on them from above
-		platformMask |= oneWayPlatformMask;
-
-		// cache some components
-		transform = GetComponent<Transform>();
-		boxCollider = GetComponent<BoxCollider2D>();
-		rigidBody2D = GetComponent<Rigidbody2D>();
-
-		// here, we trigger our properties that have setters with bodies
-		skinWidth = _skinWidth;
-
-		collisionBuffer = new List<CharacterCollisionState2D>(4);
-	}
-
 	public bool isCollisionBuffered(Direction2D direction, int windowSize) {
-		Debug.AssertFormat(windowSize <= collisionBuffer.Count, "You blew it using collisionBuffer. Requested window exceeds buffer size.");
+		Debug.AssertFormat(windowSize <= collisionBuffer.Count, "You blew it. Requested window size exceeds collision buffer size.");
 
 		var result = false;
 
@@ -258,10 +231,10 @@ public class CharacterController2D : MonoBehaviour
             moveVertically( ref deltaMovement, oldCollisionState );
 
 		// move then update our state
-		if( usePhysicsForMovement )
+		if( data.usePhysicsForMovement )
 		{
-			GetComponent<Rigidbody2D>().MovePosition( transform.position + deltaMovement );
-			velocity = GetComponent<Rigidbody2D>().velocity;
+			rigidBody2D.MovePosition( transform.position + deltaMovement );
+			velocity = rigidBody2D.velocity;
 		}
 		else
 		{
@@ -270,7 +243,7 @@ public class CharacterController2D : MonoBehaviour
 
 			// only calculate velocity if we have a non-zero deltaTime
             if( FrameCounter.Instance.deltaTime > 0 ) {
-                velocity = deltaMovement / Time.deltaTime;
+				velocity = deltaMovement / FrameCounter.Instance.deltaTime;
             }
 		}
 
@@ -281,7 +254,7 @@ public class CharacterController2D : MonoBehaviour
 		// Add to the collision buffer.
 		collisionBuffer.Add(new CharacterCollisionState2D(collision));
 
-		if (collisionBuffer.Count > COLLISION_BUFFER_MAX) {
+		if (collisionBuffer.Count > data.collisionBufferMax) {
 			// TODO: Change collision buffer to be linked list so this is better
 			collisionBuffer.RemoveAt(0);
 		}
@@ -323,11 +296,11 @@ public class CharacterController2D : MonoBehaviour
 	{
 		// figure out the distance between our rays in both directions
 		// horizontal
-		var colliderUseableHeight = boxCollider.size.y * Mathf.Abs( transform.localScale.y ) - ( 2f * _skinWidth );
+		var colliderUseableHeight = boxCollider.size.y * Mathf.Abs( transform.localScale.y ) - ( 2f * data.skinWidth );
 		_verticalDistanceBetweenRays = colliderUseableHeight / ( totalHorizontalRays - 1 );
 
 		// vertical
-		var colliderUseableWidth = boxCollider.size.x * Mathf.Abs( transform.localScale.x ) - ( 2f * _skinWidth );
+		var colliderUseableWidth = boxCollider.size.x * Mathf.Abs( transform.localScale.x ) - ( 2f * data.skinWidth );
 		_horizontalDistanceBetweenRays = colliderUseableWidth / ( totalVerticalRays - 1 );
 	}
 
@@ -346,7 +319,7 @@ public class CharacterController2D : MonoBehaviour
 	{
 		// our raycasts need to be fired from the bounds inset by the skinWidth
 		var modifiedBounds = boxCollider.bounds;
-		modifiedBounds.Expand( -2f * _skinWidth );
+		modifiedBounds.Expand( -2f * data.skinWidth );
 
 		_raycastOrigins.topLeft = new Vector2( modifiedBounds.min.x, modifiedBounds.max.y );
 		_raycastOrigins.bottomRight = new Vector2( modifiedBounds.max.x, modifiedBounds.min.y );
@@ -362,7 +335,7 @@ public class CharacterController2D : MonoBehaviour
     private void moveHorizontally( ref Vector3 deltaMovement, CharacterCollisionState2D oldCollisionState )
 	{
 		var isGoingRight = deltaMovement.x > 0;
-		var rayDistance = Mathf.Abs( deltaMovement.x ) + _skinWidth;
+		var rayDistance = Mathf.Abs( deltaMovement.x ) + data.skinWidth;
 		var rayDirection = isGoingRight ? Vector2.right : -Vector2.right;
 		var initialRayOrigin = isGoingRight ? _raycastOrigins.bottomRight : _raycastOrigins.bottomLeft;
 
@@ -370,7 +343,7 @@ public class CharacterController2D : MonoBehaviour
 		{
 			var ray = new Vector2( initialRayOrigin.x, initialRayOrigin.y + i * _verticalDistanceBetweenRays );
 
-			//DrawRay( ray, rayDirection * rayDistance, Color.red );
+			DrawRay( ray, rayDirection * rayDistance, Color.red );
 
 			// if we are grounded we will include oneWayPlatforms only on the first ray (the bottom one). this will allow us to
 			// walk up sloped oneWayPlatforms
@@ -396,12 +369,12 @@ public class CharacterController2D : MonoBehaviour
 				// remember to remove the skinWidth from our deltaMovement
 				if( isGoingRight )
 				{
-					deltaMovement.x -= _skinWidth;
+					deltaMovement.x -= data.skinWidth;
 					collision.right = true;
 				}
 				else
 				{
-					deltaMovement.x += _skinWidth;
+					deltaMovement.x += data.skinWidth;
 					collision.left = true;
 				}
 
@@ -455,7 +428,7 @@ public class CharacterController2D : MonoBehaviour
     private void moveVertically( ref Vector3 deltaMovement, CharacterCollisionState2D oldCollisionState )
 	{
 		var isGoingUp = deltaMovement.y > 0;
-		var rayDistance = Mathf.Abs( deltaMovement.y ) + _skinWidth;
+		var rayDistance = Mathf.Abs( deltaMovement.y ) + data.skinWidth;
 		var rayDirection = isGoingUp ? Vector2.up : -Vector2.up;
 		var initialRayOrigin = isGoingUp ? _raycastOrigins.topLeft : _raycastOrigins.bottomLeft;
 
@@ -483,12 +456,12 @@ public class CharacterController2D : MonoBehaviour
 				// remember to remove the skinWidth from our deltaMovement
 				if( isGoingUp )
 				{
-					deltaMovement.y -= _skinWidth;
+					deltaMovement.y -= data.skinWidth;
 					collision.above = true;
 				}
 				else
 				{
-					deltaMovement.y += _skinWidth;
+					deltaMovement.y += data.skinWidth;
 					collision.below = true;
 				}
 
@@ -533,7 +506,7 @@ public class CharacterController2D : MonoBehaviour
 			{
 				// going down we want to speed up in most cases so the slopeSpeedMultiplier curve should be > 1 for negative angles
 				var slopeModifier = slopeSpeedMultiplier.Evaluate( -angle );
-				deltaMovement.y = _raycastHit.point.y - slopeRay.y - skinWidth;
+				deltaMovement.y = _raycastHit.point.y - slopeRay.y - data.skinWidth;
 				deltaMovement.x *= slopeModifier;
 				collision.movingDownSlope = true;
 				collision.slopeAngle = angle;
@@ -544,11 +517,11 @@ public class CharacterController2D : MonoBehaviour
     private void checkProximity()
     {
         // Initialize check parameters for below.
-        var checkDepth = skinWidth;
+		var checkDepth = data.skinWidth;
         var origin = _raycastOrigins.bottomLeft;
-        var size = new Vector2(boxCollider.bounds.size.x - skinWidth, checkDepth);
+		var size = new Vector2(boxCollider.bounds.size.x - data.skinWidth, checkDepth);
         var direction = Vector2.down;
-        var checkDistance = skinWidth * 2;
+		var checkDistance = data.skinWidth * 2;
 
         // Vertical checks.
 
@@ -561,7 +534,7 @@ public class CharacterController2D : MonoBehaviour
         // Check above
         origin.y = _raycastOrigins.topLeft.y;
         direction = Vector2.up;
-        collision.above = Physics2D.BoxCast(origin, size, 0, direction, skinWidth, platformMask);
+		collision.above = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, platformMask);
 
         // Horizontal checks.
 
@@ -570,17 +543,17 @@ public class CharacterController2D : MonoBehaviour
 
         // Adjust check size.
         size.x = checkDepth;
-        size.y = boxCollider.bounds.size.y - skinWidth;
+		size.y = boxCollider.bounds.size.y - data.skinWidth;
 
         // Check right.
         origin.x = _raycastOrigins.bottomRight.x;
         direction = Vector2.right;
-        collision.right = Physics2D.BoxCast(origin, size, 0, direction, skinWidth, platformMask);
+		collision.right = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, platformMask);
 
         // Check left
         origin.x = _raycastOrigins.bottomLeft.x;
         direction = Vector2.left;
-        collision.left = Physics2D.BoxCast(origin, size, 0, direction, skinWidth, platformMask);
+		collision.left = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, platformMask);
     }
 
 	#endregion

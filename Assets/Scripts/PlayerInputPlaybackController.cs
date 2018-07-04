@@ -3,11 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 
 // Records and plays back player input
-[RequireComponent(
-        typeof(PlayerMotor),
-        typeof(PlayerCharacterInitializer)
-    )
-]
 public class PlayerInputPlaybackController : IPlayerInputPlaybackInformer {
 	public static EventHandler OnPlaybackStarted;
 	public static EventHandler<IPlayerInputPlaybackInformer> OnInformInitialData;

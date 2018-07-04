@@ -3,6 +3,9 @@
 [RequireComponent(typeof(PlayerMotor),
                   typeof(PlayerCharacterInitializer))]
 public class PlayerKeyboardInputController : PlayerInputController {
+	public PlayerKeyboardInputController(IPlayerInput inPlayer,
+	                                     InputBuffer inputBuffer) : base(inPlayer, inputBuffer) { }
+
 	public override void HandleUpdate() {
         // Horizontal control
 		if (Input.GetKey (KeyCode.RightArrow)) {

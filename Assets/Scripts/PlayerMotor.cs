@@ -1,9 +1,5 @@
 ﻿using UnityEngine;
 
-[RequireComponent(
-        typeof(CharacterController2D)
-    )
-]
 public class PlayerMotor : IPlayerInput, ITransform, IMotor
 {
 	// Reference to the GameObject the motor is "attached" to.
@@ -46,15 +42,16 @@ public class PlayerMotor : IPlayerInput, ITransform, IMotor
         motorDirection.y = -1;
 
 		FrameCounter.Instance.OnStart += HandleStart;
+		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
 	public void HandleStart()
     {
-        engine.warpToGrounded();
+        //engine.warpToGrounded();
 	}
 
 	// When update is called, all input has been processed.
-	public void Update()
+	public void HandleUpdate(int currentFrame)
     {
         if (engine.isGrounded)
         {
