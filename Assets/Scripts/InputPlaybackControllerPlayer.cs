@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 // Records and plays back player input
-public class PlayerInputPlaybackController {
+public class InputPlaybackControllerPlayer {
 	public static EventHandler OnPlaybackStarted;
 
 	private IPlayerInput player;
@@ -17,7 +17,7 @@ public class PlayerInputPlaybackController {
 #endif
     
 	// TODO: Keep map of played-back Transforms. At the end, iterate and assert.
-	public PlayerInputPlaybackController(IPlayerInput playerMotor, Entity playerTransform, InputBuffer inputBuffer) {
+	public InputPlaybackControllerPlayer(IPlayerInput playerMotor, Entity playerTransform, InputBuffer inputBuffer) {
 		player = playerMotor;
 		entity = playerTransform;
 		buffer = inputBuffer;

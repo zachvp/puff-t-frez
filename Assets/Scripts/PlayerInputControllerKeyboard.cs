@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(PlayerMotor),
-                  typeof(PlayerCharacterInitializer))]
-public class PlayerKeyboardInputController : PlayerInputController {
-	public PlayerKeyboardInputController(IPlayerInput inPlayer,
-	                                     InputBuffer inputBuffer) : base(inPlayer, inputBuffer) { }
+public class PlayerInputControllerKeyboard : PlayerInputController {
+	public PlayerInputControllerKeyboard(IPlayerInput inPlayer, InputBuffer inputBuffer)
+		: base(inPlayer, inputBuffer)
+	{ }
 
 	public override void HandleUpdate() {
         // Horizontal control

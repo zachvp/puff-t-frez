@@ -3,11 +3,13 @@
 // For any given GameObject in a scene, this handles position setting, collision
 // events, etc.
 public class Entity : MonoBehaviour, ITransform {
-	public Vector3 position {
+	public Vector3 position
+	{
     	get { return transform.position; }
 		private set { transform.position = value; }
 	}
-	public Vector3 localScale { 
+	public Vector3 localScale
+	{
 		get { return transform.localScale; }
 		private set { transform.localScale = value; }
 	}

@@ -2,7 +2,6 @@
 
 // TODO: Clean up magic values
 // TODO: Tie into replay system
-// TODO: Should use EngineEntity.
 public class IdleLimbMotor {
     private Transform root;
 	private Entity entity;

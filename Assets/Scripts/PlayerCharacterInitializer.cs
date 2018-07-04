@@ -11,11 +11,11 @@ public class PlayerCharacterInitializer : MonoBehaviour {
 		var rigidBody = bodyEntity.GetComponent<Rigidbody2D>();
 		var engine = new CharacterController2D(bodyEntity, boxCollider, rigidBody);
 		var motor = new PlayerMotor(engine);
-		var playback = new PlayerInputPlaybackController(motor, bodyEntity, buffer);
+		var playback = new InputPlaybackControllerPlayer(motor, bodyEntity, buffer);
 
 		// TODO: This should look up an available input controller from the
 		// connection manager/registry (yet to be created).
-		var inputController = new PlayerKeyboardInputController(motor, buffer);
+		var inputController = new PlayerInputControllerKeyboard(motor, buffer);
 
 		// Spawn the limbs
 		var handEntity = Instantiate(bodyEntity.handTemplate, bodyEntity.handAnchor.position, Quaternion.identity);

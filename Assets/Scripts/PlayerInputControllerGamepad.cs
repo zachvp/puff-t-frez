@@ -1,6 +1,6 @@
 ﻿using InControl;
 
-public class PlayerGamepadInputController : PlayerInputController
+public class PlayerInputControllerGamepad : PlayerInputController
 {
 	public override void HandleUpdate()
     {

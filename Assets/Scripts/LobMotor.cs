@@ -18,9 +18,7 @@ public class LobMotor : MonoBehaviour, ILobInput {
     private CallbackManager manager;
 
     private bool isInputAvailable;
-
-    // TODO: Nerf reset
-
+    
     public void Start() {
         manager = new CallbackManager();
 		isInputAvailable = true;
