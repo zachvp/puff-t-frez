@@ -8,7 +8,7 @@ public class Test : MonoBehaviour
         // Bit shift the index of the layer (8) to get a bit mask
 		RaycastHit2D hit;
 		LayerMask mask = LayerMask.NameToLayer("Obstacle");
-		var direction = Vector3.down;
+		var direction = transform.TransformDirection(Vector3.down);
 		var distance = 1024;
 
 		// Does the ray intersect any objects excluding the player layer

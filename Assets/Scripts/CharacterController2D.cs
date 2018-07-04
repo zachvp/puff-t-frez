@@ -118,22 +118,21 @@ public class CharacterController2D
 
 	public CharacterController2D(GameObject engineInstance, BoxCollider2D collider, Rigidbody2D rigidbody)
     {
-		// TODO: TMP
-		platformMask |= 1 << LayerMask.NameToLayer("Obstacle");
-
+		collisionBuffer = new List<CharacterCollisionState2D>(4);
 		data = ScriptableObject.CreateInstance<PlayerEngineData>();
 
+		// TODO: TMP
+		platformMask |= 1 << LayerMask.NameToLayer("Obstacle");
+        
 		instance = engineInstance;
+		transform = instance.transform;
+        boxCollider = collider;
+        rigidBody2D = rigidbody;
 
 		// add our one-way platforms to our normal platform mask so that we can land on them from above
         platformMask |= oneWayPlatformMask;
 
-        // cache some components
-		transform = instance.transform;
-		boxCollider = collider;
-		rigidBody2D = rigidbody;
-
-        collisionBuffer = new List<CharacterCollisionState2D>(4);
+		recalculateDistanceBetweenRays();
     }
 
 	#region Monobehaviour
@@ -147,7 +146,6 @@ public class CharacterController2D
 			var collision = collisionBuffer[i];
 
 			if (collision.Equals(direction)) {
-				Debug.LogFormat("DBG: Collision found in buffer");
 				result = true;
 				break;
 			}
