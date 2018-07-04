@@ -3,21 +3,24 @@
 // TODO: Clean up magic values
 // TODO: Tie into replay system
 // TODO: Should use EngineEntity.
-public class IdleLimbMotor : MonoBehaviour, ITransform {
-    public Transform root = null;
+public class IdleLimbMotor {
+    private Transform root;
+	private EngineEntity entity;
 
-    public PlayerMotor motor = null;
+	// TODO: Separate out into data class
+    public float snappiness = 16;
 
-    public float snappiness = 32;
+	public IdleLimbMotor(EngineEntity engineEntity, Transform rootTransform) {
+		root = rootTransform;
+		entity = engineEntity;
 
-    public void Awake() {
-        transform.position = root.transform.position;
-    }
+		FrameCounter.Instance.OnUpdate += HandleUpdate;
+	}
 
-	public void Update() {
-        var toTarget = root.transform.position - transform.position;
+	public void HandleUpdate(int currentFrame) {
+		var toTarget = root.position - entity.position;
         var sqrDistance = toTarget.sqrMagnitude;
-        var newPos = transform.position;
+		var newPos = entity.position;
 
         // Kind of a magic calculation. The idea is we want our speed to
         // increase as the distance increases. We then fudge that with a
@@ -28,17 +31,6 @@ public class IdleLimbMotor : MonoBehaviour, ITransform {
         newPos += velocity * FrameCounter.Instance.deltaTime;
 		newPos = CoreUtilities.NormalizePosition(newPos);
 
-        transform.position = newPos;
+		entity.SetPosition(newPos);
 	}
-
-    // ITransform
-    public void SetPosition(Vector3 position)
-    {
-		transform.position = position;
-    }
-
-    public void SetLocalScale(Vector3 scale)
-    {
-        transform.localScale = scale;
-    }
 }

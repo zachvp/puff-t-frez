@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 
 public class PlayerCharacterInitializer : MonoBehaviour {
-	public EngineEntity playerCharacterInstance;
+	public PlayerCharacterEngineEntity playerCharacterInstance;
 
 	private PlayerKeyboardInputController inputController;
 	private PlayerInputPlaybackController playback;
+	private IdleLimbMotor handMotor;
 
     public void Awake() {
         var buffer = new InputBuffer();
@@ -19,5 +20,10 @@ public class PlayerCharacterInitializer : MonoBehaviour {
 		// connection manager/registry (yet to be created).
 		playback = new PlayerInputPlaybackController(motor, instance, buffer);
 		inputController = new PlayerKeyboardInputController(motor, buffer);
+
+		// Spawn the limbs
+		var hand = Instantiate(instance.hand, instance.handAnchor.position, Quaternion.identity);
+
+		handMotor = new IdleLimbMotor(hand, instance.handAnchor);
 	}
 }
