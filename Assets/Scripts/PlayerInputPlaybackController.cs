@@ -7,7 +7,7 @@ public class PlayerInputPlaybackController {
 	public static EventHandler OnPlaybackStarted;
 
 	private IPlayerInput player;
-	private EngineEntity entity;
+	private Entity entity;
 
     private InputBuffer buffer;
     private Vector3 initialPosition;
@@ -17,7 +17,7 @@ public class PlayerInputPlaybackController {
 #endif
     
 	// TODO: Keep map of played-back Transforms. At the end, iterate and assert.
-	public PlayerInputPlaybackController(IPlayerInput playerMotor, EngineEntity playerTransform, InputBuffer inputBuffer) {
+	public PlayerInputPlaybackController(IPlayerInput playerMotor, Entity playerTransform, InputBuffer inputBuffer) {
 		player = playerMotor;
 		entity = playerTransform;
 		buffer = inputBuffer;

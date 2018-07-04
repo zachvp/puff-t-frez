@@ -46,7 +46,7 @@ public class CharacterController2D
 
 	private List<CharacterCollisionState2D> collisionBuffer;
 
-	private EngineEntity instance;
+	private Entity entity;
 
 	#region internal types
 
@@ -59,7 +59,7 @@ public class CharacterController2D
 
     #endregion
 
-	public CharacterController2D(EngineEntity engineInstance, BoxCollider2D collider, Rigidbody2D rigidbody)
+	public CharacterController2D(Entity entityInstance, BoxCollider2D collider, Rigidbody2D rigidbody)
     {
 		collisionBuffer = new List<CharacterCollisionState2D>(4);
 		data = ScriptableObject.CreateInstance<PlayerEngineData>();
@@ -67,7 +67,7 @@ public class CharacterController2D
 		// TODO: TMP
 		data.platformMask |= 1 << LayerMask.NameToLayer("Obstacle");
         
-		instance = engineInstance;
+		entity = entityInstance;
         boxCollider = collider;
         rigidBody2D = rigidbody;
 
@@ -127,7 +127,7 @@ public class CharacterController2D
 		_raycastHitsThisFrame.Clear();
 		_isGoingUpSlope = false;
 
-		var desiredPosition = instance.position + deltaMovement;
+		var desiredPosition = entity.position + deltaMovement;
 		primeRaycastOrigins( desiredPosition, deltaMovement );
 
 		// first, we check for a slope below us before moving
@@ -146,16 +146,16 @@ public class CharacterController2D
 		// move then update our state
 		if( data.usePhysicsForMovement )
 		{
-			rigidBody2D.MovePosition( instance.position + deltaMovement );
+			rigidBody2D.MovePosition( entity.position + deltaMovement );
 			velocity = rigidBody2D.velocity;
 		}
 		else
 		{
 			//transform.Translate( deltaMovement, Space.World );
-			var newPosition = instance.position + deltaMovement;
+			var newPosition = entity.position + deltaMovement;
 			newPosition = CoreUtilities.NormalizePosition(newPosition);
 
-			instance.SetPosition(newPosition);
+			entity.SetPosition(newPosition);
 
 			// only calculate velocity if we have a non-zero deltaTime
             if( FrameCounter.Instance.deltaTime > 0 ) {
@@ -212,11 +212,11 @@ public class CharacterController2D
 	{
 		// figure out the distance between our rays in both directions
 		// horizontal
-		var colliderUseableHeight = boxCollider.size.y * Mathf.Abs( instance.localScale.y ) - ( 2f * data.skinWidth );
+		var colliderUseableHeight = boxCollider.size.y * Mathf.Abs( entity.localScale.y ) - ( 2f * data.skinWidth );
 		_verticalDistanceBetweenRays = colliderUseableHeight / ( data.totalHorizontalRays - 1 );
 
 		// vertical
-		var colliderUseableWidth = boxCollider.size.x * Mathf.Abs( instance.localScale.x ) - ( 2f * data.skinWidth );
+		var colliderUseableWidth = boxCollider.size.x * Mathf.Abs( entity.localScale.x ) - ( 2f * data.skinWidth );
 		_horizontalDistanceBetweenRays = colliderUseableWidth / ( data.totalVerticalRays - 1 );
 	}
 
@@ -442,7 +442,7 @@ public class CharacterController2D
         // Vertical checks.
 
         // Get to center x
-		origin.x = instance.position.x;
+		origin.x = entity.position.x;
 
         // Check below
 		collision.below = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, data.platformMask);
@@ -455,7 +455,7 @@ public class CharacterController2D
         // Horizontal checks.
 
         // Get to center y.
-		origin.y = instance.position.y;
+		origin.y = entity.position.y;
 
         // Adjust check size.
         size.x = checkDepth;

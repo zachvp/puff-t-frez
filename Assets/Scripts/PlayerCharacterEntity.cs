@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 
-public class PlayerCharacterEngineEntity : EngineEntity {
+public class PlayerCharacterEntity : Entity {
 	// Anchors
 	public Transform handAnchor;
 	public Transform footAnchor;
 
 	// Limb references
-	public EngineEntity hand;
-	public EngineEntity foot;
+	public Entity handTemplate;
+	public Entity footTemplate;
 }

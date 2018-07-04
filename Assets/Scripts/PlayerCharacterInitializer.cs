@@ -1,29 +1,24 @@
 ﻿using UnityEngine;
 
 public class PlayerCharacterInitializer : MonoBehaviour {
-	public PlayerCharacterEngineEntity playerCharacterInstance;
-
-	private PlayerKeyboardInputController inputController;
-	private PlayerInputPlaybackController playback;
-	private IdleLimbMotor handMotor;
-
+	public PlayerCharacterEntity playerTemplate;
+    
     public void Awake() {
         var buffer = new InputBuffer();
-
-		var instance = Instantiate(playerCharacterInstance, transform.position, Quaternion.identity);
-		var collider = instance.GetComponent<BoxCollider2D>();
-		var rigidBody = instance.GetComponent<Rigidbody2D>();
-		var engine = new CharacterController2D(instance, collider, rigidBody);
+        
+		var bodyEntity = Instantiate(playerTemplate, transform.position, Quaternion.identity);
+		var boxCollider = bodyEntity.GetComponent<BoxCollider2D>();
+		var rigidBody = bodyEntity.GetComponent<Rigidbody2D>();
+		var engine = new CharacterController2D(bodyEntity, boxCollider, rigidBody);
 		var motor = new PlayerMotor(engine);
+		var playback = new PlayerInputPlaybackController(motor, bodyEntity, buffer);
 
 		// TODO: This should look up an available input controller from the
 		// connection manager/registry (yet to be created).
-		playback = new PlayerInputPlaybackController(motor, instance, buffer);
-		inputController = new PlayerKeyboardInputController(motor, buffer);
+		var inputController = new PlayerKeyboardInputController(motor, buffer);
 
 		// Spawn the limbs
-		var hand = Instantiate(instance.hand, instance.handAnchor.position, Quaternion.identity);
-
-		handMotor = new IdleLimbMotor(hand, instance.handAnchor);
+		var handEntity = Instantiate(bodyEntity.handTemplate, bodyEntity.handAnchor.position, Quaternion.identity);
+		var handMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchor);
 	}
 }

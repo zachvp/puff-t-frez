@@ -5,14 +5,16 @@
 // TODO: Should use EngineEntity.
 public class IdleLimbMotor {
     private Transform root;
-	private EngineEntity entity;
+	private Entity entity;
 
 	// TODO: Separate out into data class
     public float snappiness = 16;
 
-	public IdleLimbMotor(EngineEntity engineEntity, Transform rootTransform) {
+	public IdleLimbMotor(Entity engineEntity, Transform rootTransform) {
 		root = rootTransform;
 		entity = engineEntity;
+
+		entity.SetPosition(root.position);
 
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
