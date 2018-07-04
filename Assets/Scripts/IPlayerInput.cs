@@ -7,6 +7,6 @@ public interface IPlayerInput {
 }
 
 public interface ITransform {
-	Vector3 GetPosition();
     void SetPosition(Vector3 position);
+	void SetLocalScale(Vector3 scale);
 }

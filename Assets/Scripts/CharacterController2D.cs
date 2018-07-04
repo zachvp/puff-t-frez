@@ -8,12 +8,7 @@ public class CharacterController2D
 	#region events, properties and fields
 
 	public event Action<RaycastHit2D> onControllerCollidedEvent;
-	public event Action<Collider2D> onTriggerEnterEvent;
-	public event Action<Collision2D> onCollisionEnterEvent;
-	public event Action<Collider2D> onTriggerStayEvent;
-	public event Action<Collider2D> onTriggerExitEvent;
 
-	public Transform transform;
 	public BoxCollider2D boxCollider;
 	public Rigidbody2D rigidBody2D;
 
@@ -51,7 +46,7 @@ public class CharacterController2D
 
 	private List<CharacterCollisionState2D> collisionBuffer;
 
-	private GameObject instance;
+	private EngineEntity instance;
 
 	#region internal types
 
@@ -64,7 +59,7 @@ public class CharacterController2D
 
     #endregion
 
-	public CharacterController2D(GameObject engineInstance, BoxCollider2D collider, Rigidbody2D rigidbody)
+	public CharacterController2D(EngineEntity engineInstance, BoxCollider2D collider, Rigidbody2D rigidbody)
     {
 		collisionBuffer = new List<CharacterCollisionState2D>(4);
 		data = ScriptableObject.CreateInstance<PlayerEngineData>();
@@ -73,7 +68,6 @@ public class CharacterController2D
 		data.platformMask |= 1 << LayerMask.NameToLayer("Obstacle");
         
 		instance = engineInstance;
-		transform = instance.transform;
         boxCollider = collider;
         rigidBody2D = rigidbody;
 
@@ -106,34 +100,6 @@ public class CharacterController2D
 		return this.isCollisionBuffered(direction, collisionBuffer.Count);
 	}
 
-	// TODO: Handle these from gameObject instance
-	public void OnTriggerEnter2D( Collider2D col )
-	{
-		// Debug.Log("OnTriggerEnterEvent");
-		if( onTriggerEnterEvent != null )
-			onTriggerEnterEvent( col );
-	}
-
-	public void OnCollisionEnter2D( Collision2D collision )
-	{
-		if( onCollisionEnterEvent != null )
-			onCollisionEnterEvent( collision );
-	}
-
-
-	public void OnTriggerStay2D( Collider2D col )
-	{
-		if( onTriggerStayEvent != null )
-			onTriggerStayEvent( col );
-	}
-
-
-	public void OnTriggerExit2D( Collider2D col )
-	{
-		if( onTriggerExitEvent != null )
-			onTriggerExitEvent( col );
-	}
-
 	#endregion
 
 
@@ -161,7 +127,7 @@ public class CharacterController2D
 		_raycastHitsThisFrame.Clear();
 		_isGoingUpSlope = false;
 
-		var desiredPosition = transform.position + deltaMovement;
+		var desiredPosition = instance.position + deltaMovement;
 		primeRaycastOrigins( desiredPosition, deltaMovement );
 
 		// first, we check for a slope below us before moving
@@ -180,13 +146,16 @@ public class CharacterController2D
 		// move then update our state
 		if( data.usePhysicsForMovement )
 		{
-			rigidBody2D.MovePosition( transform.position + deltaMovement );
+			rigidBody2D.MovePosition( instance.position + deltaMovement );
 			velocity = rigidBody2D.velocity;
 		}
 		else
 		{
-			transform.Translate( deltaMovement, Space.World );
-			transform.position = CoreUtilities.NormalizePosition(transform.position);
+			//transform.Translate( deltaMovement, Space.World );
+			var newPosition = instance.position + deltaMovement;
+			newPosition = CoreUtilities.NormalizePosition(newPosition);
+
+			instance.SetPosition(newPosition);
 
 			// only calculate velocity if we have a non-zero deltaTime
             if( FrameCounter.Instance.deltaTime > 0 ) {
@@ -243,11 +212,11 @@ public class CharacterController2D
 	{
 		// figure out the distance between our rays in both directions
 		// horizontal
-		var colliderUseableHeight = boxCollider.size.y * Mathf.Abs( transform.localScale.y ) - ( 2f * data.skinWidth );
+		var colliderUseableHeight = boxCollider.size.y * Mathf.Abs( instance.localScale.y ) - ( 2f * data.skinWidth );
 		_verticalDistanceBetweenRays = colliderUseableHeight / ( data.totalHorizontalRays - 1 );
 
 		// vertical
-		var colliderUseableWidth = boxCollider.size.x * Mathf.Abs( transform.localScale.x ) - ( 2f * data.skinWidth );
+		var colliderUseableWidth = boxCollider.size.x * Mathf.Abs( instance.localScale.x ) - ( 2f * data.skinWidth );
 		_horizontalDistanceBetweenRays = colliderUseableWidth / ( data.totalVerticalRays - 1 );
 	}
 
@@ -473,7 +442,7 @@ public class CharacterController2D
         // Vertical checks.
 
         // Get to center x
-        origin.x = transform.position.x;
+		origin.x = instance.position.x;
 
         // Check below
 		collision.below = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, data.platformMask);
@@ -486,7 +455,7 @@ public class CharacterController2D
         // Horizontal checks.
 
         // Get to center y.
-        origin.y = transform.position.y;
+		origin.y = instance.position.y;
 
         // Adjust check size.
         size.x = checkDepth;

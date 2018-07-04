@@ -2,6 +2,7 @@
 
 // TODO: Clean up magic values
 // TODO: Tie into replay system
+// TODO: Should use EngineEntity.
 public class IdleLimbMotor : MonoBehaviour, ITransform {
     public Transform root = null;
 
@@ -31,13 +32,13 @@ public class IdleLimbMotor : MonoBehaviour, ITransform {
 	}
 
     // ITransform
-	public Vector3 GetPosition()
-    {
-		return transform.position;
-    }
-
     public void SetPosition(Vector3 position)
     {
 		transform.position = position;
+    }
+
+    public void SetLocalScale(Vector3 scale)
+    {
+        transform.localScale = scale;
     }
 }

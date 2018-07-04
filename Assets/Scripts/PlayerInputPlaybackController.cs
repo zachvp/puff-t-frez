@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 
 // Records and plays back player input
-public class PlayerInputPlaybackController : IPlayerInputPlaybackInformer {
+public class PlayerInputPlaybackController {
 	public static EventHandler OnPlaybackStarted;
-	public static EventHandler<IPlayerInputPlaybackInformer> OnInformInitialData;
 
-	private PlayerMotor player;
+	private IPlayerInput player;
+	private EngineEntity entity;
 
     private InputBuffer buffer;
     private Vector3 initialPosition;
@@ -17,28 +17,28 @@ public class PlayerInputPlaybackController : IPlayerInputPlaybackInformer {
 #endif
     
 	// TODO: Keep map of played-back Transforms. At the end, iterate and assert.
-	public PlayerInputPlaybackController(PlayerMotor playerMotor, InputBuffer inputBuffer) {
+	public PlayerInputPlaybackController(IPlayerInput playerMotor, EngineEntity playerTransform, InputBuffer inputBuffer) {
 		player = playerMotor;
+		entity = playerTransform;
 		buffer = inputBuffer;
+
+		initialPosition = entity.position;
+
+		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-	public void Start() {
-        initialPosition = player.GetPosition();
-
-		Events.Raise(OnInformInitialData, this);
-	}
-
-	public void Update() {
+	public void HandleUpdate(int currentFrame) {
         if (Input.GetKeyDown(KeyCode.R)) {
 			Events.Raise(OnPlaybackStarted);
 
-            finalPosition = player.GetPosition();
+			finalPosition = entity.position;
 
-            player.SetPosition(initialPosition);
+			entity.SetPosition(initialPosition);
 			CoreBehaviour.Instance.StartCoroutine(PlaybackFrames());
         }
 	}
 
+	// TODO: This is slightly off. Think it has to do with the frame buffer count mismatch.
     private IEnumerator PlaybackFrames() {
         var bufferCopy = new List<PlayerInputSnapshot>(buffer.inputBuffer);
         var timeCopy = new List<float>(FrameCounter.Instance.deltaTimes);
@@ -55,16 +55,11 @@ public class PlayerInputPlaybackController : IPlayerInputPlaybackInformer {
             yield return null;
         }
 
-        Debug.AssertFormat(player.GetPosition() == finalPosition, "Played back final position {0} did not match actual final position {1}", player.GetPosition(), finalPosition);
+		Debug.AssertFormat(entity.position == finalPosition, "Played back final position {0} did not match actual final position {1}", entity.position, finalPosition);
         Debug.LogFormat("Finished playback");
 
         yield break;
     }
-
-	// IPlayerInputPlaybackInformer
-	public void InformInitialTransform(Transform t) {
-		// TODO: waaat is this ^ ?
-	}
 
 	class PlaybackObject {
 		public StoreTransform initialTransform;
@@ -73,8 +68,4 @@ public class PlayerInputPlaybackController : IPlayerInputPlaybackInformer {
 			initialTransform = new StoreTransform(t);
 		}
 	}
-}
-
-public interface IPlayerInputPlaybackInformer {
-	void InformInitialTransform(Transform t);
 }

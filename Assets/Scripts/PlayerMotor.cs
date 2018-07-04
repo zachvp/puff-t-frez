@@ -1,10 +1,7 @@
 ﻿using UnityEngine;
 
-public class PlayerMotor : IPlayerInput, ITransform, IMotor
+public class PlayerMotor : IPlayerInput, IMotor
 {
-	// Reference to the GameObject the motor is "attached" to.
-	private GameObject instance;
-
     // Reference to the character controller engine.
     private CharacterController2D engine;
 
@@ -30,11 +27,10 @@ public class PlayerMotor : IPlayerInput, ITransform, IMotor
     private float deltaTime;
 
     // TODO: Move game logic to separate class (when can wall jump)
-	public PlayerMotor(GameObject engineInstance, CharacterController2D playerEngine)
+	public PlayerMotor(CharacterController2D playerEngine)
 	{
 		input = new PlayerInputSnapshot();
 
-		instance = engineInstance;
 		engine = playerEngine;
 		motorData = ScriptableObject.CreateInstance<PlayerMotorData>();
 
@@ -73,7 +69,7 @@ public class PlayerMotor : IPlayerInput, ITransform, IMotor
             additiveJumpFrameCount < motorData.frameLimitJumpAdditive &&
             jumpCount < motorData.jumpCountMax)
         {
-                ApplyJump();
+            ApplyJump();
         }
 
         // At this point, all the motor's velocity computations are complete,
@@ -97,15 +93,6 @@ public class PlayerMotor : IPlayerInput, ITransform, IMotor
 
     public void ApplyDeltaTime(float time) {
         deltaTime = time;
-    }
-
-    // ITransform functions
-    public Vector3 GetPosition() {
-        return instance.transform.position;
-    }
-
-    public void SetPosition(Vector3 position) {
-		instance.transform.position = position;
     }
 
     // IMotor functions
