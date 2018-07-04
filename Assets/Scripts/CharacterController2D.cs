@@ -13,58 +13,6 @@ public class CharacterController2D
 	public event Action<Collider2D> onTriggerStayEvent;
 	public event Action<Collider2D> onTriggerExitEvent;
 
-	/// <summary>
-	/// mask with all layers that the player should interact with
-	/// </summary>
-	public LayerMask platformMask = 0;
-
-	/// <summary>
-	/// mask with all layers that trigger events should fire when intersected
-	/// </summary>
-	public LayerMask triggerMask = 0;
-
-	/// <summary>
-	/// mask with all layers that should act as one-way platforms. Note that one-way platforms should always be EdgeCollider2Ds. This is private because it does not support being
-	/// updated anytime outside of the inspector for now.
-	/// </summary>
-	[SerializeField]
-	private LayerMask oneWayPlatformMask = 0;
-
-	/// <summary>
-	/// the max slope angle that the CC2D can climb
-	/// </summary>
-	/// <value>The slope limit.</value>
-	[Range( 0, 90f )]
-	public float slopeLimit = 30f;
-
-	/// <summary>
-	/// the threshold in the change in vertical movement between frames that constitutes jumping
-	/// </summary>
-	/// <value>The jumping threshold.</value>
-	public float jumpingThreshold = 0.07f;
-
-
-	/// <summary>
-	/// curve for multiplying speed based on slope (negative = down slope and positive = up slope)
-	/// </summary>
-	public AnimationCurve slopeSpeedMultiplier = new AnimationCurve( new Keyframe( -90, 1.5f ), new Keyframe( 0, 1 ), new Keyframe( 90, 0 ) );
-
-	[Range( 2, 20 )]
-	public int totalHorizontalRays = 8;
-	[Range( 2, 20 )]
-	public int totalVerticalRays = 8;
-
-
-	/// <summary>
-	/// this is used to calculate the downward ray that is cast to check for slopes. We use the somewhat arbitrary value 75 degrees
-	/// to calculate the length of the ray that checks for slopes.
-	/// </summary>
-	private float _slopeLimitTangent = Mathf.Tan( 75f * Mathf.Deg2Rad );
-
-	[Range( 0.8f, 0.999f )]
-	public float triggerHelperBoxColliderScale = 0.95f;
-
-
 	public Transform transform;
 	public BoxCollider2D boxCollider;
 	public Rigidbody2D rigidBody2D;
@@ -122,7 +70,7 @@ public class CharacterController2D
 		data = ScriptableObject.CreateInstance<PlayerEngineData>();
 
 		// TODO: TMP
-		platformMask |= 1 << LayerMask.NameToLayer("Obstacle");
+		data.platformMask |= 1 << LayerMask.NameToLayer("Obstacle");
         
 		instance = engineInstance;
 		transform = instance.transform;
@@ -130,7 +78,7 @@ public class CharacterController2D
         rigidBody2D = rigidbody;
 
 		// add our one-way platforms to our normal platform mask so that we can land on them from above
-        platformMask |= oneWayPlatformMask;
+		data.platformMask |= data.oneWayPlatformMask;
 
 		recalculateDistanceBetweenRays();
     }
@@ -158,6 +106,7 @@ public class CharacterController2D
 		return this.isCollisionBuffered(direction, collisionBuffer.Count);
 	}
 
+	// TODO: Handle these from gameObject instance
 	public void OnTriggerEnter2D( Collider2D col )
 	{
 		// Debug.Log("OnTriggerEnterEvent");
@@ -295,11 +244,11 @@ public class CharacterController2D
 		// figure out the distance between our rays in both directions
 		// horizontal
 		var colliderUseableHeight = boxCollider.size.y * Mathf.Abs( transform.localScale.y ) - ( 2f * data.skinWidth );
-		_verticalDistanceBetweenRays = colliderUseableHeight / ( totalHorizontalRays - 1 );
+		_verticalDistanceBetweenRays = colliderUseableHeight / ( data.totalHorizontalRays - 1 );
 
 		// vertical
 		var colliderUseableWidth = boxCollider.size.x * Mathf.Abs( transform.localScale.x ) - ( 2f * data.skinWidth );
-		_horizontalDistanceBetweenRays = colliderUseableWidth / ( totalVerticalRays - 1 );
+		_horizontalDistanceBetweenRays = colliderUseableWidth / ( data.totalVerticalRays - 1 );
 	}
 
 	#endregion
@@ -337,7 +286,7 @@ public class CharacterController2D
 		var rayDirection = isGoingRight ? Vector2.right : -Vector2.right;
 		var initialRayOrigin = isGoingRight ? _raycastOrigins.bottomRight : _raycastOrigins.bottomLeft;
 
-		for( var i = 0; i < totalHorizontalRays; i++ )
+		for( var i = 0; i < data.totalHorizontalRays; i++ )
 		{
 			var ray = new Vector2( initialRayOrigin.x, initialRayOrigin.y + i * _verticalDistanceBetweenRays );
 
@@ -346,9 +295,9 @@ public class CharacterController2D
 			// if we are grounded we will include oneWayPlatforms only on the first ray (the bottom one). this will allow us to
 			// walk up sloped oneWayPlatforms
             if( i == 0 && oldCollisionState.below) {
-				_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, platformMask );
+				_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, data.platformMask );
 			} else {
-				_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, platformMask & ~oneWayPlatformMask);
+				_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, data.platformMask & ~data.oneWayPlatformMask);
 			}
 
 			if( _raycastHit )
@@ -395,14 +344,14 @@ public class CharacterController2D
 			return false;
 
 		// if we can walk on slopes and our angle is small enough we need to move up
-		if( angle < slopeLimit )
+		if( angle < data.slopeLimit )
 		{
 			// we only need to adjust the deltaMovement if we are not jumping
 			// TODO: this uses a magic number which isn't ideal!
-			if( deltaMovement.y < jumpingThreshold )
+			if( deltaMovement.y < data.jumpingThreshold )
 			{
 				// apply the slopeModifier to slow our movement up the slope
-				var slopeModifier = slopeSpeedMultiplier.Evaluate( angle );
+				var slopeModifier = data.slopeSpeedMultiplier.Evaluate( angle );
 				deltaMovement.x *= slopeModifier;
 
 				// we dont set collisions on the sides for this since a slope is not technically a side collision
@@ -434,11 +383,11 @@ public class CharacterController2D
 		initialRayOrigin.x += deltaMovement.x;
 
 		// if we are moving up, we should ignore the layers in oneWayPlatformMask
-		var mask = platformMask;
+		var mask = data.platformMask;
         if( isGoingUp && !oldCollisionState.below)
-			mask &= ~oneWayPlatformMask;
+			mask &= ~data.oneWayPlatformMask;
 
-		for( var i = 0; i < totalVerticalRays; i++ )
+		for( var i = 0; i < data.totalVerticalRays; i++ )
 		{
 			var ray = new Vector2( initialRayOrigin.x + i * _horizontalDistanceBetweenRays, initialRayOrigin.y );
 
@@ -486,11 +435,11 @@ public class CharacterController2D
 		var rayDirection = -Vector2.up;
 
 		// the ray distance is based on our slopeLimit
-		var slopeCheckRayDistance = _slopeLimitTangent * ( _raycastOrigins.bottomRight.x - centerOfCollider );
+		var slopeCheckRayDistance = data.slopeLimitTangent * ( _raycastOrigins.bottomRight.x - centerOfCollider );
 
 		var slopeRay = new Vector2( centerOfCollider, _raycastOrigins.bottomLeft.y );
 		DrawRay( slopeRay, rayDirection * slopeCheckRayDistance, Color.yellow );
-		_raycastHit = Physics2D.Raycast( slopeRay, rayDirection, slopeCheckRayDistance, platformMask );
+		_raycastHit = Physics2D.Raycast( slopeRay, rayDirection, slopeCheckRayDistance, data.platformMask );
 		if( _raycastHit )
 		{
 			// bail out if we have no slope
@@ -503,7 +452,7 @@ public class CharacterController2D
 			if( isMovingDownSlope )
 			{
 				// going down we want to speed up in most cases so the slopeSpeedMultiplier curve should be > 1 for negative angles
-				var slopeModifier = slopeSpeedMultiplier.Evaluate( -angle );
+				var slopeModifier = data.slopeSpeedMultiplier.Evaluate( -angle );
 				deltaMovement.y = _raycastHit.point.y - slopeRay.y - data.skinWidth;
 				deltaMovement.x *= slopeModifier;
 				collision.movingDownSlope = true;
@@ -527,12 +476,12 @@ public class CharacterController2D
         origin.x = transform.position.x;
 
         // Check below
-        collision.below = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, platformMask);
+		collision.below = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, data.platformMask);
 
         // Check above
         origin.y = _raycastOrigins.topLeft.y;
         direction = Vector2.up;
-		collision.above = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, platformMask);
+		collision.above = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);
 
         // Horizontal checks.
 
@@ -546,12 +495,12 @@ public class CharacterController2D
         // Check right.
         origin.x = _raycastOrigins.bottomRight.x;
         direction = Vector2.right;
-		collision.right = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, platformMask);
+		collision.right = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);
 
         // Check left
         origin.x = _raycastOrigins.bottomLeft.x;
         direction = Vector2.left;
-		collision.left = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, platformMask);
+		collision.left = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);
     }
 
 	#endregion
