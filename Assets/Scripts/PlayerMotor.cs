@@ -30,7 +30,8 @@ public class PlayerMotor : IPlayerInput, ITransform, IMotor
     private float deltaTime;
 
     // TODO: Move game logic to separate class (when can wall jump)
-	public PlayerMotor(GameObject engineInstance, CharacterController2D playerEngine) {
+	public PlayerMotor(GameObject engineInstance, CharacterController2D playerEngine)
+	{
 		input = new PlayerInputSnapshot();
 
 		instance = engineInstance;
@@ -47,7 +48,7 @@ public class PlayerMotor : IPlayerInput, ITransform, IMotor
 
 	public void HandleStart()
     {
-        //engine.warpToGrounded();
+        engine.warpToGrounded();
 	}
 
 	// When update is called, all input has been processed.
