@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
 
-// DBG Only?
-using UnityEngine;
-
 public class CallbackManager {
     private SortedDictionary<int, Queue<Callback>> postedCallbacks;
 
@@ -28,7 +25,6 @@ public class CallbackManager {
     }
 
 	public void PostCallbackWithFrameDelay(int delay, Callback callback) {
-		Debug.LogFormat("Callback posted! Frame: {0}", FrameCounter.Instance.count);
 		var fireFrame = FrameCounter.Instance.count + delay;
 
         // Check for existing entry at this time
@@ -55,7 +51,6 @@ public class Callback {
     }
 
     public void Fire() {
-		Debug.LogFormat("Callback fired! Frame: {0}", FrameCounter.Instance.count);
         Events.Raise(handler);
     }
 }

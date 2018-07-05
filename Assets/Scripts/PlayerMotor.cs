@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerMotor : IPlayerInput, IMotor
+public class PlayerMotor : Motor, IPlayerInput, IMotor
 {
     // Reference to the character controller engine.
     private CharacterController2D engine;
@@ -101,6 +101,7 @@ public class PlayerMotor : IPlayerInput, IMotor
     }
 
     public Vector3 GetDirection() {
+		Debug.LogFormat("Motor dir: {0}", motorDirection);
         return motorDirection;
     }
 

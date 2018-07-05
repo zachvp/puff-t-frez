@@ -27,11 +27,11 @@ public class PlayerCharacterInitializer : MonoBehaviour {
 		var handMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchor);
 
 		var handGrenade = Instantiate(handGrenadeTemplate, handEntity.position, handEntity.rotation);
-		var grenadeMotor = new LobMotor(handGrenade, bodyEntity.handAnchor);
+		var grenadeMotor = new LobMotor(handGrenade, handEntity.transform);
 		var grenadeInput = new PlayerHandGrenadeInputControllerKeyboard(marionette);
 
         // Attach the limb input
-		marionette.AttachBody(motor);
+		marionette.AttachBody(motor, motor);
 		marionette.AttachHandGrenade(grenadeMotor);
 	}
 }

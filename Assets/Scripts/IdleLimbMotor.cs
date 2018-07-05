@@ -2,7 +2,7 @@
 
 // TODO: Clean up magic values
 // TODO: Tie into replay system
-public class IdleLimbMotor {
+public class IdleLimbMotor : Motor {
     private Transform root;
 	private Entity entity;
 

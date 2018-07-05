@@ -1,85 +1,82 @@
 ﻿using UnityEngine;
 
-public class LobMotor : ILobInput {
-	// TODO: This should live in scriptable object data class.
-    public int speed = 1400;
-    public int speedFalloff = 0;
-	public Vector3 direction = new Vector3(1, 1, 0);
-    public int forceFrameLength = 8;
-    public int gravity = 100;
-
+public class LobMotor : Motor, ILobInput
+{
 	private Entity entity;
 	private Transform root;
 	private int forceFrameCount;
     private Vector3 velocity;
-    private CallbackManager manager;
-    private bool isInputAvailable;
+	private Vector3 direction;
+	private LobMotorData data;
     
-	public LobMotor(Entity entityInstance, Transform rootInstance) {
-		manager = new CallbackManager();
+	private enum State { FOLLOW, LOB }
+	private State state;
+    
+	public LobMotor(Entity entityInstance, Transform rootInstance)
+	{
+		data = ScriptableObject.CreateInstance<LobMotorData>();
 
+		state = State.FOLLOW;
 		entity = entityInstance;
 		root = rootInstance;
 
-		isInputAvailable = true;
-
-		FrameCounter.Instance.OnUpdate += HandleUpdate;
+		HandleFrameUpdate(HandleUpdate);
 	}
 
-    public void HandleUpdate(int currentFrame, float deltaTime) {
-        // Determine if force should be applied 
-        if (forceFrameCount > 0) {
-            var multiplier = (1 - (forceFrameCount / forceFrameLength));
-
-            velocity = speed * direction * multiplier;
-            --forceFrameCount;
-        }
-
-        // Apply the horizontal falloff
-        if (Mathf.Abs(velocity.x) > 0) {
-            velocity.x -= speedFalloff;
-        }
-
-        // Apply gravity
-        velocity.y -= gravity;
-
-		var newPosition = entity.position + deltaTime * velocity;
-		newPosition = CoreUtilities.NormalizePosition(newPosition);
-        
-		entity.SetPosition(newPosition);
-		 //deltaPosition = CoreUtilities.NormalizePosition(deltaPosition);
-    }
-
-    public void Lob() {
-		// TODO: Input availability should be managed one level up - aka whoever calls Lob()
-		if (isInputAvailable)
+    public void HandleUpdate(int currentFrame, float deltaTime)
+	{
+		if (state == State.FOLLOW)
 		{
-			forceFrameCount = forceFrameLength;
-			isInputAvailable = false;
-			velocity = Vector3.zero;
-
-			// TODO: This should be an interface method (IBehaviour?).
 			entity.SetPosition(root.position);
-			entity.enabled = true;
+		}
+		else
+		{
+			// Determine if force should be applied 
+            if (forceFrameCount > 0)
+            {
+                var multiplier = (1 - (forceFrameCount / data.forceFrameLength));
 
-			// TODO: fix magic numbers
-			// TODO: Same as isInputAvailable task above
-			manager.PostCallbackWithFrameDelay(32, new Callback(HandleCallbackFired));
-			manager.PostCallbackWithFrameDelay(256, new Callback(HandleResetPosition));
+				velocity = data.speed * direction.normalized * multiplier;
+                --forceFrameCount;
+            }
+
+            // Apply gravity
+			velocity.y -= data.gravity;
+
+            var newPosition = entity.position + deltaTime * velocity;
+            newPosition = CoreUtilities.NormalizePosition(newPosition);
+
+            entity.SetPosition(newPosition);
 		}
     }
 
-    public void HandleCallbackFired() {
-        isInputAvailable = true;
+    // ILobmotor begin
+	public void Lob(Direction2D lobDirection)
+	{
+		Debug.AssertFormat(lobDirection == Direction2D.LEFT || lobDirection == Direction2D.RIGHT, "Invalid direction given: {0}", direction);
+
+		if (lobDirection == Direction2D.RIGHT)
+		{
+			direction = new Vector3(1, 1, 0);
+		}
+		else
+		{
+			direction = new Vector3(-1, 1, 0);
+		}
+
+		forceFrameCount = data.forceFrameLength;
+		state = State.LOB;
+    }
+        
+    public void Freeze()
+	{
+		ClearFrameUpdate(HandleUpdate);
     }
 
-    public void HandleResetPosition () {
-		Freeze();
-		entity.SetPosition(root.position);
-    }
-
-    public void Freeze() {
-        entity.enabled = false;
-		velocity = Vector3.zero;
-    }
+	public void Reset()
+	{
+		state = State.FOLLOW;
+		HandleFrameUpdate(HandleUpdate);
+	}
+    // ILobMotor end
 }
