@@ -2,14 +2,17 @@
 using System;
 using System.Collections.Generic;
 
-public class InputBuffer {
-    public List<PlayerInputSnapshot> inputBuffer { get; private set; }
+public class InputBuffer<T>
+{
+    public List<T> inputBuffer { get; private set; }
 
-	public InputBuffer() {
-        inputBuffer = new List<PlayerInputSnapshot> ();
+	public InputBuffer()
+	{
+        inputBuffer = new List<T> ();
 	}
 
-    public void AddInput(PlayerInputSnapshot input) {
+    public void AddInput(T input)
+	{
 		inputBuffer.Add (input);
 	}
 }

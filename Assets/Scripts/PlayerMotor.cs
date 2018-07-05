@@ -26,7 +26,6 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     // The provided time between frames.
     private float deltaTime;
 
-    // TODO: Move game logic to separate class (when can wall jump)
 	public PlayerMotor(CharacterController2D playerEngine)
 	{
 		input = new PlayerInputSnapshot();

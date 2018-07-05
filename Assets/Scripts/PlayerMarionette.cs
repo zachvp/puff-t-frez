@@ -46,7 +46,6 @@ public class PlayerMarionette : IPlayerMarionette
 		playerInput.ApplyInput(snapshot);
 	}
 
-	// TODO: Cleanup input available checks
 	public void ApplyGrenadeInput()
 	{
 		if (isGrenadeInputAvailable())
@@ -92,7 +91,6 @@ public class PlayerMarionette : IPlayerMarionette
     {
         var layer = collider.gameObject.layer;
 
-        // TODO: Define layer values as constants
 		if (layer == Constants.Layers.OBSTACLE)
         {
 			isHandCollided = true;

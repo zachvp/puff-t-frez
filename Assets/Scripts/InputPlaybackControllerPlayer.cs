@@ -3,21 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 
 // Records and plays back player input
-public class InputPlaybackControllerPlayer {
+public class InputPlaybackControllerPlayer
+{
 	public static EventHandler OnPlaybackStarted;
 
 	private IInputPlayerBody player;
 	private Entity entity;
 
-    private InputBuffer buffer;
+	private InputBuffer<PlayerInputSnapshot> buffer;
     private Vector3 initialPosition;
     
 #if DEBUG
     private Vector3 finalPosition;
 #endif
     
-	// TODO: Keep map of played-back Transforms. At the end, iterate and assert.
-	public InputPlaybackControllerPlayer(IInputPlayerBody playerMotor, Entity playerTransform, InputBuffer inputBuffer) {
+	public InputPlaybackControllerPlayer(IInputPlayerBody playerMotor,
+	                                     Entity playerTransform,
+	                                     InputBuffer<PlayerInputSnapshot> inputBuffer)
+	{
 		player = playerMotor;
 		entity = playerTransform;
 		buffer = inputBuffer;
@@ -27,7 +30,8 @@ public class InputPlaybackControllerPlayer {
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-	public void HandleUpdate(int currentFrame, float deltaTime) {
+	public void HandleUpdate(int currentFrame, float deltaTime)
+	{
         if (Input.GetKeyDown(KeyCode.R)) {
 			Events.Raise(OnPlaybackStarted);
 
@@ -39,7 +43,8 @@ public class InputPlaybackControllerPlayer {
 	}
 
 	// TODO: This is slightly off. Think it has to do with the frame buffer count mismatch.
-    private IEnumerator PlaybackFrames() {
+    private IEnumerator PlaybackFrames()
+	{
         var bufferCopy = new List<PlayerInputSnapshot>(buffer.inputBuffer);
         var timeCopy = new List<float>(FrameCounter.Instance.deltaTimes);
         var i = 0;
@@ -60,12 +65,4 @@ public class InputPlaybackControllerPlayer {
 
         yield break;
     }
-
-	class PlaybackObject {
-		public StoreTransform initialTransform;
-
-		public PlaybackObject(Transform t) {
-			initialTransform = new StoreTransform(t);
-		}
-	}
 }

@@ -25,7 +25,6 @@ public class PlayerInputControllerGamepad : PlayerInputController
             }
         }
 
-        // TODO: Maybe handle when left analog is up and d-pad is down?
         HandleInputChecksFinished(false, false);
     }
 }
