@@ -10,7 +10,6 @@
 
     public CharacterCollisionState2D() { }
 
-    // TODO: Remove when triggers are implemented.
     public CharacterCollisionState2D(CharacterCollisionState2D other)
     {
         right = other.right;

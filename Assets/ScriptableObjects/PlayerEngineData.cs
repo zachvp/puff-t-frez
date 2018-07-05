@@ -16,7 +16,7 @@ public class PlayerEngineData : ScriptableObject
     /// <summary>
     /// mask with all layers that the player should interact with
     /// </summary>
-	public LayerMask platformMask = 0;
+	public LayerMask platformMask = 1 << Constants.Layers.OBSTACLE;
 
 	/// <summary>
     /// mask with all layers that trigger events should fire when intersected
@@ -65,4 +65,6 @@ public class PlayerEngineData : ScriptableObject
     /// curve for multiplying speed based on slope (negative = down slope and positive = up slope)
     /// </summary>
     public AnimationCurve slopeSpeedMultiplier = new AnimationCurve(new Keyframe(-90, 1.5f), new Keyframe(0, 1), new Keyframe(90, 0));
+
+
 }
