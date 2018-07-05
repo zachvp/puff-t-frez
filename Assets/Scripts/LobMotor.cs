@@ -23,8 +23,6 @@ public class LobMotor : Motor, ILobInput
 		state = State.FOLLOW;
 		entity = entityInstance;
 		root = rootInstance;
-
-		entity.OnTriggerEnter += HandleTriggerEnter;
 	}
 
     // Handlers begin
@@ -57,17 +55,6 @@ public class LobMotor : Motor, ILobInput
             entity.SetPosition(newPosition);
 		}
     }
-
-	public void HandleTriggerEnter(Collider2D collider)
-	{
-		var layer = collider.gameObject.layer;
-
-		// TODO: Define layer values as constants
-		if (layer == LayerMask.NameToLayer("Obstacle")) {
-			Freeze();
-		}
-	}
-
     // Handlers end
 
     // ILobmotor begin

@@ -3,7 +3,6 @@
 // Responsible for
 //    Passing input to limbs
 //    Enabling/disabling limbs
-
 public class PlayerMarionette : IPlayerMarionette
 {
 	private IPlayerInput playerInput;
@@ -12,7 +11,8 @@ public class PlayerMarionette : IPlayerMarionette
 	private IBehavior handBehavior;
 
 	private ILobInput handGrenadeInput;
-	private IBehavior handGrenadeBehavior;
+	private Entity handGrenadeEntity;
+	private bool isHandCollided;
 
 	private CallbackManager manager;
 
@@ -31,10 +31,12 @@ public class PlayerMarionette : IPlayerMarionette
 		handBehavior = behavior;
 	}
 
-	public void AttachHandGrenade(ILobInput lobInput, IBehavior behavior) {
+	public void AttachHandGrenade(ILobInput lobInput, Entity entity) {
 		handGrenadeInput = lobInput;
-		handGrenadeBehavior = behavior;
+		handGrenadeEntity = entity;
 		handGrenadeInput.Reset();
+
+		handGrenadeEntity.OnTriggerEnter += HandleTriggerEnterHandGrenade;
 	}
 
 	// IPlayerMarionette begin
@@ -44,18 +46,16 @@ public class PlayerMarionette : IPlayerMarionette
 	}
 
 	// TODO: Cleanup input available checks
-	// TODO: Need to handle direction
 	public void ApplyGrenadeInput()
 	{
 		// TODO: fix magic numbers
-		if (inputCount < 4)
+		if (inputCount < 4 && !isHandCollided)
 		{
 			if (inputCount == 0)
             {
 				// Handle initial launch
 				handBehavior.SetActive(false);
                 handGrenadeInput.Reset();
-                manager.PostCallbackWithFrameDelay(160, new Callback(HandleResetPosition));
             }
 
 			var mult = 0.9f;
@@ -79,13 +79,28 @@ public class PlayerMarionette : IPlayerMarionette
 	}
 	// IPlayerMarionette end
     
-    // TODO: fix magic numbers
+    // Handlers begin
     public void HandleResetPosition()
     {
 		inputCount = 0;
+		isHandCollided = false;
 		handBehavior.SetActive(true);
 		handGrenadeInput.Reset();
     }
+
+	public void HandleTriggerEnterHandGrenade(Collider2D collider)
+    {
+        var layer = collider.gameObject.layer;
+
+        // TODO: Define layer values as constants
+        if (layer == LayerMask.NameToLayer("Obstacle"))
+        {
+			isHandCollided = true;
+			handGrenadeInput.Freeze();
+			manager.PostCallbackWithFrameDelay(64, new Callback(HandleResetPosition));
+        }
+    }
+    // Handlers end
 }
 
 public interface IPlayerMarionette
