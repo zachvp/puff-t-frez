@@ -15,11 +15,12 @@ public class PlayerMarionette : IPlayerMarionette
 	private bool isHandCollided;
 
 	private CallbackManager manager;
-
 	private int inputCount;
+	private PlayerMarionetteData data;
         
 	public PlayerMarionette() {
 		manager = new CallbackManager();
+		data = ScriptableObject.CreateInstance<PlayerMarionetteData>();
 	}
 
 	public void AttachBody(IPlayerInput body, IMotor motor) {
@@ -48,8 +49,7 @@ public class PlayerMarionette : IPlayerMarionette
 	// TODO: Cleanup input available checks
 	public void ApplyGrenadeInput()
 	{
-		// TODO: fix magic numbers
-		if (inputCount < 4 && !isHandCollided)
+		if (isGrenadeInputAvailable())
 		{
 			if (inputCount == 0)
             {
@@ -58,15 +58,15 @@ public class PlayerMarionette : IPlayerMarionette
                 handGrenadeInput.Reset();
             }
 
-			var mult = 0.9f;
+			var addVelocity = playerMotor.GetVelocity() * data.lobVelocityCoefficient;
 
 			if (playerMotor.GetDirection().x < 0)
 			{
-				handGrenadeInput.Lob(Direction2D.LEFT, playerMotor.GetVelocity() * mult);
+				handGrenadeInput.Lob(Direction2D.LEFT, addVelocity);
 			}
 			else
 			{
-				handGrenadeInput.Lob(Direction2D.RIGHT, playerMotor.GetVelocity() * mult);
+				handGrenadeInput.Lob(Direction2D.RIGHT, addVelocity);
 			}
 
 			inputCount++;
@@ -93,14 +93,21 @@ public class PlayerMarionette : IPlayerMarionette
         var layer = collider.gameObject.layer;
 
         // TODO: Define layer values as constants
-        if (layer == LayerMask.NameToLayer("Obstacle"))
+		if (layer == Constants.Layers.OBSTACLE)
         {
 			isHandCollided = true;
 			handGrenadeInput.Freeze();
-			manager.PostCallbackWithFrameDelay(64, new Callback(HandleResetPosition));
+			manager.PostCallbackWithFrameDelay(data.frameDelayReset, new Callback(HandleResetPosition));
         }
     }
-    // Handlers end
+	// Handlers end
+
+	// Private begin
+	private bool isGrenadeInputAvailable()
+	{
+		return inputCount < data.inputCountLob && !isHandCollided;
+	}
+    // Private end
 }
 
 public interface IPlayerMarionette
