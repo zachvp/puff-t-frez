@@ -10,9 +10,9 @@ public class PlayerInputSnapshot {
         released = new PlayerInput();
     }
 
-    public PlayerInputSnapshot(PlayerInput pressed, PlayerInput released) {
-        this.pressed = pressed;
-        this.released = released;
+    public PlayerInputSnapshot(PlayerInput pressedInput, PlayerInput releasedInput) {
+        pressed = pressedInput;
+        released = releasedInput;
     }
 }
 

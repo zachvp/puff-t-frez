@@ -18,7 +18,7 @@ public class IdleLimbMotor {
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-	public void HandleUpdate(int currentFrame) {
+	public void HandleUpdate(int currentFrame, float deltaTime) {
 		var toTarget = root.position - entity.position;
         var sqrDistance = toTarget.sqrMagnitude;
 		var newPos = entity.position;
@@ -29,7 +29,7 @@ public class IdleLimbMotor {
         var speed = snappiness * toTarget.magnitude;
         var velocity = toTarget.normalized * speed;
 
-        newPos += velocity * FrameCounter.Instance.deltaTime;
+		newPos += velocity * deltaTime;
 		newPos = CoreUtilities.NormalizePosition(newPos);
 
 		entity.SetPosition(newPos);

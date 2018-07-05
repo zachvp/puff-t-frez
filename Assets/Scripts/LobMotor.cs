@@ -49,6 +49,7 @@ public class LobMotor : MonoBehaviour, ILobInput {
 
         velocity += direction * inputDampening;
 
+		// TODO: Use passed-in delta time.
         transform.Translate(velocity * FrameCounter.Instance.deltaTime, Space.Self);
 		transform.position = CoreUtilities.NormalizePosition(transform.position);
     }

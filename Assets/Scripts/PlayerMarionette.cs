@@ -4,7 +4,8 @@
 //    Passing input to limbs
 //    Enabling/disabling limbs
 public class PlayerMarionette {
-	public IPlayerInput playerInput;
+	private IPlayerInput playerInput;
+
     
 	// TODO: Remove plan
     // Player character init
@@ -16,4 +17,11 @@ public class PlayerMarionette {
 	public PlayerMarionette(IPlayerInput inPlayerInput) {
 		playerInput = inPlayerInput;
 	}
+
+
+}
+
+public interface IPlayerMarionette {
+	void ApplyPlayerInput(PlayerInputSnapshot snapshot);
+	void ApplyDeltaTime(float deltaTime);
 }

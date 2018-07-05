@@ -27,7 +27,7 @@ public class InputPlaybackControllerPlayer {
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-	public void HandleUpdate(int currentFrame) {
+	public void HandleUpdate(int currentFrame, float deltaTime) {
         if (Input.GetKeyDown(KeyCode.R)) {
 			Events.Raise(OnPlaybackStarted);
 

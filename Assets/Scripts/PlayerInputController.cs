@@ -20,7 +20,7 @@ public class PlayerInputController {
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-	public void HandleUpdate(int currentFrame) {
+	public void HandleUpdate(int currentFrame, float deltaTime) {
 		inputRelease = new PlayerInput();
         lastInput = new PlayerInput(input);
 
@@ -78,8 +78,6 @@ public class PlayerInputController {
 		var snapshot = new PlayerInputSnapshot(input, inputRelease);
 
         player.ApplyInput(snapshot);
-        player.ApplyDeltaTime(FrameCounter.Instance.deltaTime);
-
         buffer.AddInput(snapshot);
 
         Debug.AssertFormat(Mathf.Abs(input.movement.x) <= 1, "Input exceeded bounds: {0}", input);

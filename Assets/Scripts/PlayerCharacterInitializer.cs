@@ -9,6 +9,7 @@ public class PlayerCharacterInitializer : MonoBehaviour {
 		var bodyEntity = Instantiate(playerTemplate, transform.position, Quaternion.identity);
 		var boxCollider = bodyEntity.GetComponent<BoxCollider2D>();
 		var rigidBody = bodyEntity.GetComponent<Rigidbody2D>();
+
 		var engine = new CharacterController2D(bodyEntity, boxCollider, rigidBody);
 		var motor = new PlayerMotor(engine);
 		var playback = new InputPlaybackControllerPlayer(motor, bodyEntity, buffer);

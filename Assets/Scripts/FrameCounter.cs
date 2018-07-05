@@ -7,7 +7,7 @@ public class FrameCounter : MonoSingleton<FrameCounter>
 	// The basic tick that doesn't try to be before/after anything else.
 	public EventHandler OnAwake;
 	public EventHandler OnStart;
-    public EventHandler<int> OnUpdate;
+    public EventHandler<int, float> OnUpdate;
 
 	public int count { get; private set; }
     public float deltaTime { 
@@ -25,7 +25,7 @@ public class FrameCounter : MonoSingleton<FrameCounter>
 	}
 
     public void Update() {
-        Events.Raise(OnUpdate, count);
+		Events.Raise(OnUpdate, count, deltaTime);
     }
 
 	public void Start() {
