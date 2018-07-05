@@ -44,7 +44,7 @@ public class PlayerMotor : Motor, IPlayerInput, IMotor
 
 	public void HandleStart()
     {
-        engine.warpToGrounded();
+        //engine.warpToGrounded();
 	}
 
 	// When update is called, all input has been processed.

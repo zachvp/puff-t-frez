@@ -25,8 +25,6 @@ public class LobMotor : Motor, ILobInput
 		root = rootInstance;
 
 		entity.OnTriggerEnter += HandleTriggerEnter;
-
-		Reset();
 	}
 
     // Handlers begin
@@ -81,7 +79,9 @@ public class LobMotor : Motor, ILobInput
 		entity.SetActive(true);
 		HandleFrameUpdate(HandleUpdate);
 
-		Debug.AssertFormat(lobDirection == Direction2D.LEFT || lobDirection == Direction2D.RIGHT, "Invalid direction given: {0}", direction);
+		Debug.AssertFormat(lobDirection == Direction2D.LEFT ||
+		                   lobDirection == Direction2D.RIGHT,
+		                   "Invalid direction given: {0}", direction);
 
 		if (lobDirection == Direction2D.RIGHT)
 		{

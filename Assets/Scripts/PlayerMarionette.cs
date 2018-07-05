@@ -8,7 +8,12 @@ public class PlayerMarionette : IPlayerMarionette
 {
 	private IPlayerInput playerInput;
 	private IMotor playerMotor;
+
+	private IBehavior handBehavior;
+
 	private ILobInput handGrenadeInput;
+	private IBehavior handGrenadeBehavior;
+
 	private CallbackManager manager;
 
 	private int inputCount;
@@ -22,8 +27,14 @@ public class PlayerMarionette : IPlayerMarionette
 		playerMotor = motor;
 	}
 
-	public void AttachHandGrenade(ILobInput lobInput) {
+	public void AttachHand(IBehavior behavior) {
+		handBehavior = behavior;
+	}
+
+	public void AttachHandGrenade(ILobInput lobInput, IBehavior behavior) {
 		handGrenadeInput = lobInput;
+		handGrenadeBehavior = behavior;
+		handGrenadeInput.Reset();
 	}
 
 	// IPlayerMarionette begin
@@ -41,6 +52,8 @@ public class PlayerMarionette : IPlayerMarionette
 		{
 			if (inputCount == 0)
             {
+				// Handle initial launch
+				handBehavior.SetActive(false);
                 handGrenadeInput.Reset();
                 manager.PostCallbackWithFrameDelay(160, new Callback(HandleResetPosition));
             }
@@ -70,6 +83,7 @@ public class PlayerMarionette : IPlayerMarionette
     public void HandleResetPosition()
     {
 		inputCount = 0;
+		handBehavior.SetActive(true);
 		handGrenadeInput.Reset();
     }
 }

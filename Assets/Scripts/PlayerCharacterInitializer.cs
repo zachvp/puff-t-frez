@@ -14,9 +14,11 @@ public class PlayerCharacterInitializer : MonoBehaviour {
 		var boxCollider = bodyEntity.GetComponent<BoxCollider2D>();
 		var rigidBody = bodyEntity.GetComponent<Rigidbody2D>();
 
-		var engine = new CharacterController2D(bodyEntity, boxCollider, rigidBody);
-		var motor = new PlayerMotor(engine);
-		var playback = new InputPlaybackControllerPlayer(motor, bodyEntity, buffer);
+		var bodyEngine = new CharacterController2D(bodyEntity, boxCollider, rigidBody);
+		var bodyMotor = new PlayerMotor(bodyEngine);
+
+		// TODO: This will likely need to be re-worked to account for all limbs
+		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);
 
 		// TODO: This should look up an available input controller from the
 		// connection manager/registry (yet to be created).
@@ -26,12 +28,13 @@ public class PlayerCharacterInitializer : MonoBehaviour {
 		var handEntity = Instantiate(handTemplate, bodyEntity.handAnchor.position, Quaternion.identity);
 		var handMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchor);
 
-		var handGrenade = Instantiate(handGrenadeTemplate, handEntity.position, handEntity.rotation);
-		var grenadeMotor = new LobMotor(handGrenade, handEntity.transform);
+		var grenadeEntity = Instantiate(handGrenadeTemplate, handEntity.position, handEntity.rotation);
+		var grenadeMotor = new LobMotor(grenadeEntity, handEntity.transform);
 		var grenadeInput = new PlayerHandGrenadeInputControllerKeyboard(marionette);
 
         // Attach the limb input
-		marionette.AttachBody(motor, motor);
-		marionette.AttachHandGrenade(grenadeMotor);
+		marionette.AttachBody(bodyMotor, bodyMotor);
+		marionette.AttachHand(handEntity);
+		marionette.AttachHandGrenade(grenadeMotor, grenadeEntity);
 	}
 }
