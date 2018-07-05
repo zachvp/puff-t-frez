@@ -1,15 +1,14 @@
 ﻿using UnityEngine;
 
-// TODO: Clean up magic values
 // TODO: Tie into replay system
 public class IdleLimbMotor : Motor {
     private Transform root;
 	private Entity entity;
-
-	// TODO: Separate out into data class
-    public float snappiness = 16;
-
+	private IdleLimbMotorData data;
+    
 	public IdleLimbMotor(Entity engineEntity, Transform rootTransform) {
+		data = ScriptableObject.CreateInstance<IdleLimbMotorData>();
+
 		root = rootTransform;
 		entity = engineEntity;
 
@@ -26,7 +25,7 @@ public class IdleLimbMotor : Motor {
         // Kind of a magic calculation. The idea is we want our speed to
         // increase as the distance increases. We then fudge that with a
         // user-defined param.
-        var speed = snappiness * toTarget.magnitude;
+        var speed = data.snappiness * toTarget.magnitude;
         var velocity = toTarget.normalized * speed;
 
 		newPos += velocity * deltaTime;
