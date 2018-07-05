@@ -2,11 +2,11 @@
 
 public class LobMotor : ILobInput {
 	// TODO: This should live in scriptable object data class.
-    public int speed = 400;
-    public int speedFalloff = 50;
+    public int speed = 1400;
+    public int speedFalloff = 0;
 	public Vector3 direction = new Vector3(1, 1, 0);
-    public int forceFrameLength = 32;
-    public int gravity = 50;
+    public int forceFrameLength = 8;
+    public int gravity = 100;
 
 	private Entity entity;
 	private Transform root;
@@ -42,8 +42,11 @@ public class LobMotor : ILobInput {
 
         // Apply gravity
         velocity.y -= gravity;
+
+		var newPosition = entity.position + deltaTime * velocity;
+		newPosition = CoreUtilities.NormalizePosition(newPosition);
         
-		entity.SetPosition(deltaTime * velocity);
+		entity.SetPosition(newPosition);
 		 //deltaPosition = CoreUtilities.NormalizePosition(deltaPosition);
     }
 
@@ -53,11 +56,11 @@ public class LobMotor : ILobInput {
 		{
 			forceFrameCount = forceFrameLength;
 			isInputAvailable = false;
+			velocity = Vector3.zero;
 
 			// TODO: This should be an interface method (IBehaviour?).
 			entity.SetPosition(root.position);
 			entity.enabled = true;
-
 
 			// TODO: fix magic numbers
 			// TODO: Same as isInputAvailable task above
