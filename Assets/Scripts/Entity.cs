@@ -6,12 +6,17 @@ public class Entity : MonoBehaviour, ITransform {
 	public Vector3 position
 	{
     	get { return transform.position; }
-		private set { transform.position = value; }
+		private set { SetPosition(value); }
 	}
 	public Vector3 localScale
 	{
 		get { return transform.localScale; }
-		private set { transform.localScale = value; }
+		private set { SetLocalScale(value); }
+	}
+	public Quaternion rotation
+	{
+		get { return transform.rotation; }
+		private set { SetRotation(value); }
 	}
 
 	// Trigger events
@@ -30,6 +35,10 @@ public class Entity : MonoBehaviour, ITransform {
 
 	public void SetLocalScale(Vector3 scale) {
 		transform.localScale = scale;
+	}
+
+	public void SetRotation(Quaternion rotation) {
+		transform.rotation = rotation;
 	}
 
     // Monobehaviour events

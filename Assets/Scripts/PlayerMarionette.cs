@@ -18,9 +18,9 @@ public class PlayerMarionette : IPlayerMarionette {
     //        ....
 
 	// TODO: Consider reworking the names of these params
-	public PlayerMarionette(IPlayerInput inPlayerInput, Entity inHandGrenadeTemplate) {
+	public PlayerMarionette(IPlayerInput inPlayerInput, ILobInput lobInput) {
 		playerInput = inPlayerInput;
-		handGrenadeTemplate = inHandGrenadeTemplate;
+		handGrenadeInput = lobInput;
 
 		// TODO: Spawn hand grenade and deactivate it.
 	}

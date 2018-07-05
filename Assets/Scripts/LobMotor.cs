@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
 
 public class LobMotor : ILobInput {
-    // Serialized fields
-    public Transform root;
-
 	// TODO: This should live in scriptable object data class.
     public int speed = 400;
     public int speedFalloff = 50;
@@ -13,15 +10,17 @@ public class LobMotor : ILobInput {
 	public int inputDampening = -20;
 
 	private Entity entity;
+	private Transform root;
 	private int forceFrameCount;
     private Vector3 velocity;
     private CallbackManager manager;
     private bool isInputAvailable;
     
-	public LobMotor(Entity entityInstance) {
+	public LobMotor(Entity entityInstance, Transform rootInstance) {
 		manager = new CallbackManager();
 
 		entity = entityInstance;
+		root = rootInstance;
 
 		isInputAvailable = true;
 	}
@@ -56,9 +55,12 @@ public class LobMotor : ILobInput {
 		if (isInputAvailable)
 		{
 			forceFrameCount = forceFrameLength;
-			// TODO: This should be an interface method (IBehaviour?).
-			entity.enabled = true;
 			isInputAvailable = false;
+
+			// TODO: This should be an interface method (IBehaviour?).
+			entity.SetPosition(root.position);
+			entity.enabled = true;
+
 
 			// TODO: fix magic numbers
 			// TODO: Same as isInputAvailable task above

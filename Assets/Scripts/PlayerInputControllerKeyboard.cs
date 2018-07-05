@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
 public class PlayerInputControllerKeyboard : PlayerInputController {
-	public PlayerInputControllerKeyboard(IPlayerInput inPlayer, InputBuffer inputBuffer)
-		: base(inPlayer, inputBuffer)
+	public PlayerInputControllerKeyboard(IPlayerInput playerInput, InputBuffer inputBuffer)
+		: base(playerInput, inputBuffer)
 	{ }
 
 	public override void HandleUpdate() {
