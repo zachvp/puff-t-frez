@@ -1,36 +1,32 @@
 ﻿using UnityEngine;
 
-public class LobMotor : MonoBehaviour, ILobInput {
+public class LobMotor : ILobInput {
     // Serialized fields
     public Transform root;
 
+	// TODO: This should live in scriptable object data class.
     public int speed = 400;
     public int speedFalloff = 50;
-    public Vector3 direction = Vector3.one;
+	public Vector3 direction = Vector3.right;
     public int forceFrameLength = 32;
     public int gravity = 100;
-    private int forceFrameCount;
+	public int inputDampening = -20;
 
+	private Entity entity;
+	private int forceFrameCount;
     private Vector3 velocity;
-
-    private int inputDampening;
-
     private CallbackManager manager;
-
     private bool isInputAvailable;
     
-    public void Start() {
-        manager = new CallbackManager();
+	public LobMotor(Entity entityInstance) {
+		manager = new CallbackManager();
+
+		entity = entityInstance;
+
 		isInputAvailable = true;
-        
-        inputDampening -= 20;
-    }
+	}
 
-    public void Update() {
-        if (isInputAvailable && Input.GetKeyDown(KeyCode.D)) {
-            Lob();
-        }
-
+    public void HandleUpdate(int currentFrame, float deltaTime) {
         // Determine if force should be applied 
         if (forceFrameCount > 0) {
             var multiplier = (1 - (forceFrameCount / forceFrameLength));
@@ -49,19 +45,26 @@ public class LobMotor : MonoBehaviour, ILobInput {
 
         velocity += direction * inputDampening;
 
-		// TODO: Use passed-in delta time.
-        transform.Translate(velocity * FrameCounter.Instance.deltaTime, Space.Self);
-		transform.position = CoreUtilities.NormalizePosition(transform.position);
+		var newPosition = velocity * deltaTime;
+		newPosition = CoreUtilities.NormalizePosition(newPosition);
+
+		entity.SetPosition(newPosition);
     }
 
     public void Lob() {
-        forceFrameCount = forceFrameLength;
-        enabled = true;
-        isInputAvailable = false;
+		// TODO: Input availability should be managed one level up - aka whoever calls Lob()
+		if (isInputAvailable)
+		{
+			forceFrameCount = forceFrameLength;
+			// TODO: This should be an interface method (IBehaviour?).
+			entity.enabled = true;
+			isInputAvailable = false;
 
-        // TODO: fix magic numbers
-		manager.PostCallbackWithFrameDelay(32, new Callback(HandleCallbackFired));
-		manager.PostCallbackWithFrameDelay(256, new Callback(HandleResetPosition));
+			// TODO: fix magic numbers
+			// TODO: Same as isInputAvailable task above
+			manager.PostCallbackWithFrameDelay(32, new Callback(HandleCallbackFired));
+			manager.PostCallbackWithFrameDelay(256, new Callback(HandleResetPosition));
+		}
     }
 
     public void HandleCallbackFired() {
@@ -70,11 +73,11 @@ public class LobMotor : MonoBehaviour, ILobInput {
 
     public void HandleResetPosition () {
 		Freeze();
-		transform.position = root.position;
+		entity.SetPosition(root.position);
     }
 
     public void Freeze() {
-        enabled = false;
+        entity.enabled = false;
 		velocity = Vector3.zero;
     }
 }

@@ -2,6 +2,9 @@
 
 public class PlayerCharacterInitializer : MonoBehaviour {
 	public PlayerCharacterEntity playerTemplate;
+	public Entity handTemplate;
+    public Entity footTemplate;
+	public Entity handGrenadeTemplate;
     
     public void Awake() {
         var buffer = new InputBuffer();
@@ -19,7 +22,9 @@ public class PlayerCharacterInitializer : MonoBehaviour {
 		var inputController = new PlayerInputControllerKeyboard(motor, buffer);
 
 		// Spawn the limbs
-		var handEntity = Instantiate(bodyEntity.handTemplate, bodyEntity.handAnchor.position, Quaternion.identity);
+		var handEntity = Instantiate(handTemplate, bodyEntity.handAnchor.position, Quaternion.identity);
 		var handMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchor);
+
+		var marionette = new PlayerMarionette(motor, handGrenadeTemplate);
 	}
 }

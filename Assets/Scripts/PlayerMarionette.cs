@@ -3,6 +3,7 @@
 // Responsible for
 //    Passing input to limbs
 //    Enabling/disabling limbs
+
 public class PlayerMarionette : IPlayerMarionette {
 	private IPlayerInput playerInput;
 	private ILobInput handGrenadeInput;
@@ -16,9 +17,12 @@ public class PlayerMarionette : IPlayerMarionette {
     //        limb 1
     //        ....
 
-	public PlayerMarionette(IPlayerInput inPlayerInput, ILobInput inHandGrenadeInput) {
+	// TODO: Consider reworking the names of these params
+	public PlayerMarionette(IPlayerInput inPlayerInput, Entity inHandGrenadeTemplate) {
 		playerInput = inPlayerInput;
-		handGrenadeInput = inHandGrenadeInput;
+		handGrenadeTemplate = inHandGrenadeTemplate;
+
+		// TODO: Spawn hand grenade and deactivate it.
 	}
 
 	public void ApplyPlayerInput(PlayerInputSnapshot snapshot) {
