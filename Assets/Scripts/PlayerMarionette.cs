@@ -5,12 +5,12 @@
 //    Enabling/disabling limbs
 public class PlayerMarionette : IPlayerMarionette
 {
-	private IPlayerInput playerInput;
+	private IInputPlayerBody playerInput;
 	private IMotor playerMotor;
 
 	private IBehavior handBehavior;
 
-	private ILobInput handGrenadeInput;
+	private IInputLob handGrenadeInput;
 	private Entity handGrenadeEntity;
 	private bool isHandCollided;
 
@@ -23,7 +23,7 @@ public class PlayerMarionette : IPlayerMarionette
 		data = ScriptableObject.CreateInstance<PlayerMarionetteData>();
 	}
 
-	public void AttachBody(IPlayerInput body, IMotor motor) {
+	public void AttachBody(IInputPlayerBody body, IMotor motor) {
 		playerInput = body;
 		playerMotor = motor;
 	}
@@ -32,7 +32,7 @@ public class PlayerMarionette : IPlayerMarionette
 		handBehavior = behavior;
 	}
 
-	public void AttachHandGrenade(ILobInput lobInput, Entity entity) {
+	public void AttachHandGrenade(IInputLob lobInput, Entity entity) {
 		handGrenadeInput = lobInput;
 		handGrenadeEntity = entity;
 		handGrenadeInput.Reset();
@@ -108,12 +108,4 @@ public class PlayerMarionette : IPlayerMarionette
 		return inputCount < data.inputCountLob && !isHandCollided;
 	}
     // Private end
-}
-
-public interface IPlayerMarionette
-{
-	void ApplyPlayerInput(PlayerInputSnapshot snapshot);
-	void ApplyGrenadeInput();
-
-	void ApplyDeltaTime(float deltaTime);
 }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerMotor : Motor, IPlayerInput, IMotor
+public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 {
     // Reference to the character controller engine.
     private CharacterController2D engine;

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class InputPlaybackControllerPlayer {
 	public static EventHandler OnPlaybackStarted;
 
-	private IPlayerInput player;
+	private IInputPlayerBody player;
 	private Entity entity;
 
     private InputBuffer buffer;
@@ -17,7 +17,7 @@ public class InputPlaybackControllerPlayer {
 #endif
     
 	// TODO: Keep map of played-back Transforms. At the end, iterate and assert.
-	public InputPlaybackControllerPlayer(IPlayerInput playerMotor, Entity playerTransform, InputBuffer inputBuffer) {
+	public InputPlaybackControllerPlayer(IInputPlayerBody playerMotor, Entity playerTransform, InputBuffer inputBuffer) {
 		player = playerMotor;
 		entity = playerTransform;
 		buffer = inputBuffer;

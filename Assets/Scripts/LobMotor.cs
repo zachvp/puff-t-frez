@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class LobMotor : Motor, ILobInput
+public class LobMotor : Motor, IInputLob
 {
 	private Entity entity;
 	private Transform root;
