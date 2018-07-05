@@ -1,7 +1,8 @@
-﻿// TODO: Might make sense to have this be general, one-off and freeze input
+﻿using UnityEngine;
+
 public interface ILobInput {
     // TODO: Add params?
-	void Lob(Direction2D direction);
+	void Lob(Direction2D direction, Vector3 baseVelocity);
     void Freeze();
 	void Reset();
 }

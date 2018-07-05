@@ -11,12 +11,10 @@ public class PlayerMarionette : IPlayerMarionette
 	private ILobInput handGrenadeInput;
 	private CallbackManager manager;
 
-	private bool isInputAvailable;
 	private int inputCount;
         
 	public PlayerMarionette() {
 		manager = new CallbackManager();
-		isInputAvailable = true;
 	}
 
 	public void AttachBody(IPlayerInput body, IMotor motor) {
@@ -38,26 +36,25 @@ public class PlayerMarionette : IPlayerMarionette
 	// TODO: Need to handle direction
 	public void ApplyGrenadeInput()
 	{
-		if (isInputAvailable)
+		// TODO: fix magic numbers
+		if (inputCount < 4)
 		{
-			isInputAvailable = false;
-			// TODO: fix magic numbers
-            
-			manager.PostCallbackWithFrameDelay(36, new Callback(HandleCallbackFired));
-            
+			if (inputCount == 0)
+            {
+                handGrenadeInput.Reset();
+                manager.PostCallbackWithFrameDelay(256, new Callback(HandleResetPosition));
+            }
+
+			var mult = 0.9f;
+
 			if (playerMotor.GetDirection().x < 0)
 			{
-				handGrenadeInput.Lob(Direction2D.LEFT);
+				handGrenadeInput.Lob(Direction2D.LEFT, playerMotor.GetVelocity() * mult);
 			}
 			else
 			{
-				handGrenadeInput.Lob(Direction2D.RIGHT);
+				handGrenadeInput.Lob(Direction2D.RIGHT, playerMotor.GetVelocity() * mult);
 			}
-
-			if (inputCount == 0)
-            {
-                manager.PostCallbackWithFrameDelay(256, new Callback(HandleResetPosition));
-            }
 
 			inputCount++;
 		}
@@ -68,18 +65,11 @@ public class PlayerMarionette : IPlayerMarionette
 		playerInput.ApplyDeltaTime(deltaTime);
 	}
 	// IPlayerMarionette end
-
-    // CallbackManager handlers
-	public void HandleCallbackFired()
-    {
-        isInputAvailable = true;
-    }
+    
     // TODO: fix magic numbers
     public void HandleResetPosition()
     {
-		isInputAvailable = true;
 		inputCount = 0;
-		//handGrenadeInput.Freeze();
 		handGrenadeInput.Reset();
     }
 }
