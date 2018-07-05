@@ -8,6 +8,7 @@ public class PlayerCharacterInitializer : MonoBehaviour {
     
     public void Awake() {
         var buffer = new InputBuffer();
+		var marionette = new PlayerMarionette();
         
 		var bodyEntity = Instantiate(playerTemplate, transform.position, Quaternion.identity);
 		var boxCollider = bodyEntity.GetComponent<BoxCollider2D>();
@@ -19,7 +20,7 @@ public class PlayerCharacterInitializer : MonoBehaviour {
 
 		// TODO: This should look up an available input controller from the
 		// connection manager/registry (yet to be created).
-		var inputController = new PlayerInputControllerKeyboard(motor, buffer);
+		var inputController = new PlayerInputControllerKeyboard(marionette, buffer);
 
 		// Spawn the limbs
 		var handEntity = Instantiate(handTemplate, bodyEntity.handAnchor.position, Quaternion.identity);
@@ -27,8 +28,10 @@ public class PlayerCharacterInitializer : MonoBehaviour {
 
 		var handGrenade = Instantiate(handGrenadeTemplate, handEntity.position, handEntity.rotation);
 		var grenadeMotor = new LobMotor(handGrenade, bodyEntity.handAnchor);
-		var grenadeInput = new PlayerHandGrenadeInputControllerKeyboard(grenadeMotor);
+		var grenadeInput = new PlayerHandGrenadeInputControllerKeyboard(marionette);
 
-		var marionette = new PlayerMarionette(motor, grenadeMotor);
+        // Attach the limb input
+		marionette.AttachBody(motor);
+		marionette.AttachHandGrenade(grenadeMotor);
 	}
 }

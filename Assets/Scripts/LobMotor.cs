@@ -4,10 +4,9 @@ public class LobMotor : ILobInput {
 	// TODO: This should live in scriptable object data class.
     public int speed = 400;
     public int speedFalloff = 50;
-	public Vector3 direction = Vector3.right;
+	public Vector3 direction = new Vector3(1, 1, 0);
     public int forceFrameLength = 32;
-    public int gravity = 100;
-	public int inputDampening = -20;
+    public int gravity = 50;
 
 	private Entity entity;
 	private Transform root;
@@ -23,6 +22,8 @@ public class LobMotor : ILobInput {
 		root = rootInstance;
 
 		isInputAvailable = true;
+
+		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
     public void HandleUpdate(int currentFrame, float deltaTime) {
@@ -41,13 +42,9 @@ public class LobMotor : ILobInput {
 
         // Apply gravity
         velocity.y -= gravity;
-
-        velocity += direction * inputDampening;
-
-		var newPosition = velocity * deltaTime;
-		newPosition = CoreUtilities.NormalizePosition(newPosition);
-
-		entity.SetPosition(newPosition);
+        
+		entity.SetPosition(deltaTime * velocity);
+		 //deltaPosition = CoreUtilities.NormalizePosition(deltaPosition);
     }
 
     public void Lob() {

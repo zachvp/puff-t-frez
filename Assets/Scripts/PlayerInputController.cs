@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 public class PlayerInputController {
-	protected IPlayerInput player;
+	protected IPlayerMarionette player;
 
 	protected PlayerInput input;
 	protected PlayerInput inputRelease;
@@ -11,7 +11,7 @@ public class PlayerInputController {
 
 	public PlayerInputController() { }
 
-	public PlayerInputController(IPlayerInput inPlayer, InputBuffer inputBuffer) {
+	public PlayerInputController(IPlayerMarionette inPlayer, InputBuffer inputBuffer) {
 		input = new PlayerInput();
 
 		player = inPlayer;
@@ -77,7 +77,7 @@ public class PlayerInputController {
 
 		var snapshot = new PlayerInputSnapshot(input, inputRelease);
 
-        player.ApplyInput(snapshot);
+		player.ApplyPlayerInput(snapshot);
         buffer.AddInput(snapshot);
 
         Debug.AssertFormat(Mathf.Abs(input.movement.x) <= 1, "Input exceeded bounds: {0}", input);

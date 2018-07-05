@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+// TODO: Refactor to reference player body
 public interface IPlayerInput {
     // Input functions
     void ApplyInput(PlayerInputSnapshot input);
