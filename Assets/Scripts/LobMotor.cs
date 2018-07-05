@@ -3,13 +3,13 @@
 public class LobMotor : Motor, ILobInput
 {
 	private Entity entity;
-	private LobMotorData data;
-    private LobMotorData backupData;
 	private Transform root;
 	private int forceFrameCount;
     private Vector3 velocity;
 	private Vector3 direction;
 	private int additiveSpeed; 
+	private LobMotorData data;
+    private LobMotorData backupData;
     
 	private enum State { FOLLOW, LOB }
 	private State state;
@@ -41,6 +41,7 @@ public class LobMotor : Motor, ILobInput
                 var multiplier = (1 - (forceFrameCount / data.forceFrameLength));
 
 				velocity = (data.speed + additiveSpeed) * direction * multiplier;
+
                 --forceFrameCount;
 			} else {
 				additiveSpeed = 1;
@@ -62,20 +63,22 @@ public class LobMotor : Motor, ILobInput
 		forceFrameCount = data.forceFrameLength;
         state = State.LOB;
 
-		entity.gameObject.SetActive(true);
+		entity.SetActive(true);
 		HandleFrameUpdate(HandleUpdate);
 
 		Debug.AssertFormat(lobDirection == Direction2D.LEFT || lobDirection == Direction2D.RIGHT, "Invalid direction given: {0}", direction);
 
 		if (lobDirection == Direction2D.RIGHT)
 		{
-			direction = new Vector3(1, 1, 0).normalized;
+			direction = data.directionRight;
 		}
 		else
 		{
-			direction = new Vector3(-1, 1, 0).normalized;
+			direction = data.directionLeft;
 		}
 
+        // To handle cases when the motor is lobbed from an object in motion,
+        // we add the given velocity to our force frames.
 		additiveSpeed = Mathf.RoundToInt(Mathf.Abs(baseVelocity.x));
     }
         
@@ -91,7 +94,7 @@ public class LobMotor : Motor, ILobInput
 
 		state = State.FOLLOW;
 		ClearFrameUpdate(HandleUpdate);
-		entity.gameObject.SetActive(false); // TODO: Should be interface function
+		entity.SetActive(false);
 		entity.SetPosition(root.position);
 	}
     // ILobMotor end

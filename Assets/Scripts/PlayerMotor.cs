@@ -15,7 +15,7 @@ public class PlayerMotor : Motor, IPlayerInput, IMotor
     private Vector2 motorDirection;
 
     // The configuration data driving movement and physics.
-    private PlayerMotorData motorData;
+	private PlayerMotorData data;
 
     // The amount of frames the motor has been jumping.
     private int additiveJumpFrameCount;
@@ -32,7 +32,7 @@ public class PlayerMotor : Motor, IPlayerInput, IMotor
 		input = new PlayerInputSnapshot();
 
 		engine = playerEngine;
-		motorData = ScriptableObject.CreateInstance<PlayerMotorData>();
+		data = ScriptableObject.CreateInstance<PlayerMotorData>();
 
 		// Define the initial motor direction to be facing right going down.
         motorDirection.x = 1;
@@ -60,14 +60,14 @@ public class PlayerMotor : Motor, IPlayerInput, IMotor
         }
 
         // Check all frames since jump was initiated for a release of the jump button.
-        if (input.released.jump && jumpCount < motorData.jumpCountMax)
+        if (input.released.jump && jumpCount < data.jumpCountMax)
         {
             jumpCount++;
         }
 
         if (input.pressed.jump &&
-            additiveJumpFrameCount < motorData.frameLimitJumpAdditive &&
-            jumpCount < motorData.jumpCountMax)
+            additiveJumpFrameCount < data.frameLimitJumpAdditive &&
+            jumpCount < data.jumpCountMax)
         {
             ApplyJump();
         }
@@ -101,7 +101,6 @@ public class PlayerMotor : Motor, IPlayerInput, IMotor
     }
 
     public Vector3 GetDirection() {
-		Debug.LogFormat("Motor dir: {0}", motorDirection);
         return motorDirection;
     }
 
@@ -110,7 +109,7 @@ public class PlayerMotor : Motor, IPlayerInput, IMotor
         var movement = input.pressed.movement;
 
         // Horizontal movement.
-        velocity.x = movement.x * motorData.velocityHorizontalGroundMax;
+        velocity.x = movement.x * data.velocityHorizontalGroundMax;
 
         // Reset jump states if jump isn't pressed.
         if (!input.pressed.jump) {
@@ -131,10 +130,10 @@ public class PlayerMotor : Motor, IPlayerInput, IMotor
 
         // Motor is not grounded.
         // Air directional influence
-        velocity.x += movement.x * motorData.accelerationHorizontalAir;
+        velocity.x += movement.x * data.accelerationHorizontalAir;
 
         // Clamp horizontal velocity so it doesn't get out of control.
-        velocity.x = Mathf.Clamp(velocity.x, -motorData.velocityHorizontalAirMax, motorData.velocityHorizontalAirMax);
+        velocity.x = Mathf.Clamp(velocity.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
 
         // Check for wall collision in air, which should zero out x velocity.
         if (Mathf.Abs(input.pressed.movement.x) < 1 &&
@@ -150,29 +149,29 @@ public class PlayerMotor : Motor, IPlayerInput, IMotor
             // Check if .left is in buffer up to Y frames back
             if (engine.isCollisionBuffered(Direction2D.LEFT))
             {
-                velocity.y = motorData.velocityWallJumpVertical;
-                velocity.x = motorData.velocityWallJumpHorizontal;
+                velocity.y = data.velocityWallJumpVertical;
+                velocity.x = data.velocityWallJumpHorizontal;
             }
             if (engine.isCollisionBuffered(Direction2D.RIGHT))
             {
-                velocity.y = motorData.velocityWallJumpVertical;
-                velocity.x = -motorData.velocityWallJumpHorizontal;
+                velocity.y = data.velocityWallJumpVertical;
+                velocity.x = -data.velocityWallJumpHorizontal;
             }
         }
 
         // Cut short the jump if the motor bumped something above.
         if (engine.collision.above)
         {
-            additiveJumpFrameCount = motorData.frameLimitJumpAdditive;
+            additiveJumpFrameCount = data.frameLimitJumpAdditive;
             velocity.y = 0;
         }
 
         // Apply gravity if motor does not have jump immunity or if there is no
         // jump input.
-        if (additiveJumpFrameCount > motorData.frameLimitJumpGravityImmunity ||
+        if (additiveJumpFrameCount > data.frameLimitJumpGravityImmunity ||
             !input.pressed.jump)
         {
-            velocity.y -= motorData.gravity;
+            velocity.y -= data.gravity;
         }
     }
 
@@ -182,9 +181,9 @@ public class PlayerMotor : Motor, IPlayerInput, IMotor
     {
         // Initial jump push off the ground.
         if (additiveJumpFrameCount < 1) {
-            velocity.y = motorData.velocityJumpImpulse;
+            velocity.y = data.velocityJumpImpulse;
         } else {
-            velocity.y += Mathf.RoundToInt(motorData.velocityJumpMax / additiveJumpFrameCount);
+            velocity.y += Mathf.RoundToInt(data.velocityJumpMax / additiveJumpFrameCount);
         }
 
         additiveJumpFrameCount++;
