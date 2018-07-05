@@ -19,6 +19,11 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
 		private set { SetRotation(value); }
 	}
 
+	public Collider2D Collider
+	{
+		get { return _collider; }
+	}
+
 	// Trigger events
 	public EventHandler<Collider2D> OnTriggerEnter;
 	public EventHandler<Collider2D> OnTriggerStay;
@@ -26,6 +31,8 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
 
     // Collision events
 	public EventHandler<Collision2D> OnCollisionEnter;
+
+	private Collider2D _collider;
 
 	// ITransform begin
     public void SetPosition(Vector3 position)
@@ -49,9 +56,14 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
 	{
 		gameObject.SetActive(isActive);
 	}
-    // IBehavior end
+	// IBehavior end
 
-    // Monobehaviour events
+	// Monobehaviour events
+	public void Awake()
+	{
+		_collider = GetComponent<Collider2D>();
+	}
+
 	public void OnTriggerEnter2D(Collider2D collider)
 	{
 		Events.Raise(OnTriggerEnter, collider);

@@ -42,7 +42,7 @@ public class PlayerMarionette : IPlayerMarionette
 			if (inputCount == 0)
             {
                 handGrenadeInput.Reset();
-                manager.PostCallbackWithFrameDelay(256, new Callback(HandleResetPosition));
+                manager.PostCallbackWithFrameDelay(160, new Callback(HandleResetPosition));
             }
 
 			var mult = 0.9f;
