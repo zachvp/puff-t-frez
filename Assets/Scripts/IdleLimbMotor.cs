@@ -6,11 +6,11 @@ public class IdleLimbMotor : Motor {
 	private Entity entity;
 	private IdleLimbMotorData data;
     
-	public IdleLimbMotor(Entity engineEntity, Transform rootTransform) {
+	public IdleLimbMotor(Entity entityInstance, Transform rootTransform) {
 		data = ScriptableObject.CreateInstance<IdleLimbMotorData>();
 
 		root = rootTransform;
-		entity = engineEntity;
+		entity = entityInstance;
 
 		entity.SetPosition(root.position);
 

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+// TODO: Motor data scriptable object should be public serialized members too.
+//       Can then pass data to motor classes.
 public class PlayerCharacterInitializer : MonoBehaviour
 {
 	public PlayerCharacterEntity bodyTemplate;
@@ -32,6 +34,9 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var grenadeEntity = Instantiate(handGrenadeTemplate, handEntity.position, handEntity.rotation);
 		var grenadeMotor = new LobMotor(grenadeEntity, handEntity.transform);
 		var grenadeInput = new PlayerHandGrenadeInputControllerKeyboard(marionette);
+
+		var footEntity = Instantiate(footTemplate, bodyEntity.footAnchor.position, Quaternion.identity);
+		var footMotor = new IdleLimbMotor(footEntity, bodyEntity.footAnchor);
 
         // Playback
 		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);
