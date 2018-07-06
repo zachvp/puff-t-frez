@@ -7,10 +7,10 @@ public class CharacterController2D
 {
 	#region events, properties and fields
 
-	public event Action<RaycastHit2D> onControllerCollidedEvent;
+	public event Action<RaycastHit2D> OnControllerCollidedEvent;
 
-	public BoxCollider2D boxCollider;
-	public Rigidbody2D rigidBody2D;
+	public BoxCollider2D collider;
+	public Rigidbody2D rigidBody;
 
 	public CharacterCollisionState2D collision = new CharacterCollisionState2D();
 	public Vector3 velocity;
@@ -59,56 +59,62 @@ public class CharacterController2D
 
     #endregion
 
-	public CharacterController2D(Entity entityInstance, BoxCollider2D collider, Rigidbody2D rigidbody)
+	public CharacterController2D(Entity entityInstance,
+	                             BoxCollider2D colliderInstance,
+	                             Rigidbody2D rigidbodyInstance)
     {
 		collisionBuffer = new LinkedList<CharacterCollisionState2D>();
 		data = ScriptableObject.CreateInstance<PlayerEngineData>();
-                
-		entity = entityInstance;
-        boxCollider = collider;
-        rigidBody2D = rigidbody;
+
+
+		SetDependencies(entityInstance, colliderInstance, rigidbodyInstance);
 
 		// add our one-way platforms to our normal platform mask so that we can land on them from above
 		data.platformMask |= data.oneWayPlatformMask;
 
-		recalculateDistanceBetweenRays();
+		RecalculateDistanceBetweenRays();
     }
 
-	#region Monobehaviour
-
-	public bool isCollisionBuffered(Direction2D direction) {
-		var result = false;
-
-		foreach (CharacterCollisionState2D collision in collisionBuffer)
-		{
-			if (collision.Equals(direction))
-            {
-                result = true;
-                break;
-            }
-		}
-
-		return result;
-	}
-
-	#endregion
-
-
 	//[System.Diagnostics.Conditional( "DEBUG_CC2D_RAYS" )]
-	private void DrawRay( Vector3 start, Vector3 dir, Color color )
+	private void DrawRay(Vector3 start, Vector3 dir, Color color)
 	{
-		Debug.DrawRay( start, dir, color );
+		Debug.DrawRay(start, dir, color);
 	}
 
 
 	#region Public
+
+	public void SetDependencies(Entity entityInstance,
+	                            BoxCollider2D colliderInstance,
+	                            Rigidbody2D rigidbodyInstance)
+	{
+		entity = entityInstance;
+		collider = colliderInstance;
+		rigidBody = rigidbodyInstance;
+	}
+
+	public bool IsCollisionBuffered(Direction2D direction)
+    {
+        var result = false;
+
+        foreach (CharacterCollisionState2D collisionState in collisionBuffer)
+        {
+			if (collisionState.Equals(direction))
+            {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
 
 	/// <summary>
 	/// attempts to move the character to position + deltaMovement. Any colliders in the way will cause the movement to
 	/// stop when run into.
 	/// </summary>
 	/// <param name="deltaMovement">Delta movement.</param>
-	public void move( Vector3 deltaMovement)
+	public void Move( Vector3 deltaMovement)
 	{
         // save off our current grounded state which we will use for becameGroundedThisFrame
         var oldCollisionState = new CharacterCollisionState2D(collision);
@@ -137,8 +143,8 @@ public class CharacterController2D
 		// move then update our state
 		if( data.usePhysicsForMovement )
 		{
-			rigidBody2D.MovePosition( entity.position + deltaMovement );
-			velocity = rigidBody2D.velocity;
+			rigidBody.MovePosition( entity.position + deltaMovement );
+			velocity = rigidBody.velocity;
 		}
 		else
 		{
@@ -174,10 +180,10 @@ public class CharacterController2D
 			velocity.y = 0;
 
 		// send off the collision events if we have a listener
-		if( onControllerCollidedEvent != null )
+		if( OnControllerCollidedEvent != null )
 		{
 			for( var i = 0; i < _raycastHitsThisFrame.Count; i++ )
-				onControllerCollidedEvent( _raycastHitsThisFrame[i] );
+				OnControllerCollidedEvent( _raycastHitsThisFrame[i] );
 		}
 	}
 
@@ -185,11 +191,11 @@ public class CharacterController2D
 	/// <summary>
 	/// moves directly down until grounded
 	/// </summary>
-	public void warpToGrounded()
+	public void WarpToGrounded()
 	{
 		do
 		{
-            move( new Vector3( 0, -1f, 0 ) );
+            Move( new Vector3( 0, -1f, 0 ) );
 		} while( !isGrounded );
 	}
 
@@ -198,15 +204,15 @@ public class CharacterController2D
 	/// this should be called anytime you have to modify the BoxCollider2D at runtime. It will recalculate the distance between the rays used for collision detection.
 	/// It is also used in the skinWidth setter in case it is changed at runtime.
 	/// </summary>
-	public void recalculateDistanceBetweenRays()
+	public void RecalculateDistanceBetweenRays()
 	{
 		// figure out the distance between our rays in both directions
 		// horizontal
-		var colliderUseableHeight = boxCollider.size.y * Mathf.Abs( entity.localScale.y ) - ( 2f * data.skinWidth );
+		var colliderUseableHeight = collider.size.y * Mathf.Abs( entity.localScale.y ) - ( 2f * data.skinWidth );
 		_verticalDistanceBetweenRays = colliderUseableHeight / ( data.totalHorizontalRays - 1 );
 
 		// vertical
-		var colliderUseableWidth = boxCollider.size.x * Mathf.Abs( entity.localScale.x ) - ( 2f * data.skinWidth );
+		var colliderUseableWidth = collider.size.x * Mathf.Abs( entity.localScale.x ) - ( 2f * data.skinWidth );
 		_horizontalDistanceBetweenRays = colliderUseableWidth / ( data.totalVerticalRays - 1 );
 	}
 
@@ -224,7 +230,7 @@ public class CharacterController2D
 	private void primeRaycastOrigins( Vector3 futurePosition, Vector3 deltaMovement )
 	{
 		// our raycasts need to be fired from the bounds inset by the skinWidth
-		var modifiedBounds = boxCollider.bounds;
+		var modifiedBounds = collider.bounds;
 		modifiedBounds.Expand( -2f * data.skinWidth );
 
 		_raycastOrigins.topLeft = new Vector2( modifiedBounds.min.x, modifiedBounds.max.y );
@@ -403,8 +409,10 @@ public class CharacterController2D
 		{
 			// bail out if we have no slope
 			var angle = Vector2.Angle( _raycastHit.normal, Vector2.up );
-			if( angle == 0 )
+			if(Mathf.RoundToInt(angle) == 0)
+			{
 				return;
+			}
 
 			// we are moving down the slope if our normal and movement direction are in the same x direction
 			var isMovingDownSlope = Mathf.Sign( _raycastHit.normal.x ) == Mathf.Sign( deltaMovement.x );
@@ -425,7 +433,7 @@ public class CharacterController2D
         // Initialize check parameters for below.
 		var checkDepth = data.skinWidth;
         var origin = _raycastOrigins.bottomLeft;
-		var size = new Vector2(boxCollider.bounds.size.x - data.skinWidth, checkDepth);
+		var size = new Vector2(collider.bounds.size.x - data.skinWidth, checkDepth);
         var direction = Vector2.down;
 		var checkDistance = data.skinWidth * 2;
 
@@ -449,7 +457,7 @@ public class CharacterController2D
 
         // Adjust check size.
         size.x = checkDepth;
-		size.y = boxCollider.bounds.size.y - data.skinWidth;
+		size.y = collider.bounds.size.y - data.skinWidth;
 
         // Check right.
         origin.x = _raycastOrigins.bottomRight.x;

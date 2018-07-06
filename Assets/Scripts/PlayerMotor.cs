@@ -76,7 +76,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         ComputeMotorDirection();
 
         // Update the controller with the computed velocity.
-        engine.move(deltaTime * velocity);
+        engine.Move(deltaTime * velocity);
 
         if (Mathf.Abs(engine.velocity.y) < 0.01) {
             // Kind of a hack. The normally computed velocity is unreliable.
@@ -146,12 +146,12 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         {
             // Buffer collision state X frames
             // Check if .left is in buffer up to Y frames back
-            if (engine.isCollisionBuffered(Direction2D.LEFT))
+            if (engine.IsCollisionBuffered(Direction2D.LEFT))
             {
                 velocity.y = data.velocityWallJumpVertical;
                 velocity.x = data.velocityWallJumpHorizontal;
             }
-            if (engine.isCollisionBuffered(Direction2D.RIGHT))
+            if (engine.IsCollisionBuffered(Direction2D.RIGHT))
             {
                 velocity.y = data.velocityWallJumpVertical;
                 velocity.x = -data.velocityWallJumpHorizontal;

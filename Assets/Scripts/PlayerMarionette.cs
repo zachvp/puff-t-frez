@@ -5,8 +5,11 @@
 //    Enabling/disabling limbs
 public class PlayerMarionette : IPlayerMarionette
 {
-	private IInputPlayerBody playerInput;
-	private IMotor playerMotor;
+	private IInputPlayerBody bodyInput;
+	private IMotor bodyMotor;
+	private Entity bodyEntity;
+
+	private Entity bodyCrouchEntity;
 
 	private IBehavior handBehavior;
 
@@ -18,21 +21,32 @@ public class PlayerMarionette : IPlayerMarionette
 	private int inputCount;
 	private PlayerMarionetteData data;
         
-	public PlayerMarionette() {
+	public PlayerMarionette()
+	{
 		manager = new CallbackManager();
 		data = ScriptableObject.CreateInstance<PlayerMarionetteData>();
 	}
 
-	public void AttachBody(IInputPlayerBody body, IMotor motor) {
-		playerInput = body;
-		playerMotor = motor;
+	public void AttachBody(IInputPlayerBody body, IMotor motor, Entity entity)
+	{
+		bodyInput = body;
+		bodyMotor = motor;
+		bodyEntity = entity;
 	}
 
-	public void AttachHand(IBehavior behavior) {
+	public void AttachBodyCrouch(Entity entity)
+	{
+		bodyCrouchEntity = entity;
+		bodyCrouchEntity.SetActive(false);
+	}
+
+	public void AttachHand(IBehavior behavior)
+	{
 		handBehavior = behavior;
 	}
 
-	public void AttachHandGrenade(IInputLob lobInput, Entity entity) {
+	public void AttachHandGrenade(IInputLob lobInput, Entity entity)
+	{
 		handGrenadeInput = lobInput;
 		handGrenadeEntity = entity;
 		handGrenadeInput.Reset();
@@ -43,7 +57,27 @@ public class PlayerMarionette : IPlayerMarionette
 	// IPlayerMarionette begin
 	public void ApplyPlayerInput(PlayerInputSnapshot snapshot)
 	{
-		playerInput.ApplyInput(snapshot);
+		if (snapshot.pressed.crouch)
+		{
+			var crouchPosition = bodyEntity.position;
+
+			crouchPosition.y -= bodyEntity.localScale.y;
+
+			//bodyEntity.SetActive(false);
+			//bodyCrouchEntity.SetActive(true);
+			//bodyCrouchEntity.SetPosition(crouchPosition);
+		}
+		else 
+		{
+			bodyInput.ApplyInput(snapshot);
+		}
+
+		// TODO: Need to check for obstacle above crouch - use crouch motor
+		if (snapshot.released.crouch)
+		{
+			//bodyEntity.SetActive(true);
+			//bodyCrouchEntity.SetActive(false);
+		}
 	}
 
 	public void ApplyGrenadeInput()
@@ -57,9 +91,9 @@ public class PlayerMarionette : IPlayerMarionette
                 handGrenadeInput.Reset();
             }
 
-			var addVelocity = playerMotor.GetVelocity() * data.lobVelocityCoefficient;
+			var addVelocity = bodyMotor.GetVelocity() * data.lobVelocityCoefficient;
 
-			if (playerMotor.GetDirection().x < 0)
+			if (bodyMotor.GetDirection().x < 0)
 			{
 				handGrenadeInput.Lob(Direction2D.LEFT, addVelocity);
 			}
@@ -74,7 +108,7 @@ public class PlayerMarionette : IPlayerMarionette
 
 	public void ApplyDeltaTime(float deltaTime)
 	{
-		playerInput.ApplyDeltaTime(deltaTime);
+		bodyInput.ApplyDeltaTime(deltaTime);
 	}
 	// IPlayerMarionette end
     

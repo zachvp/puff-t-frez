@@ -12,17 +12,19 @@ public class PlayerCharacterInitializer : MonoBehaviour
 	{
 		// TODO: This should be a marionette input snapshot buffer
 		var buffer = new InputBuffer<PlayerInputSnapshot>();
+
 		var marionette = new PlayerMarionette();
         
 		var bodyEntity = Instantiate(bodyTemplate, transform.position, Quaternion.identity);
-		var boxCollider = bodyEntity.GetComponent<BoxCollider2D>();
-		var rigidBody = bodyEntity.GetComponent<Rigidbody2D>();
+		var bodyCollider = bodyEntity.GetComponent<BoxCollider2D>();
+		var bodyRigidBody = bodyEntity.GetComponent<Rigidbody2D>();
 
-		var bodyEngine = new CharacterController2D(bodyEntity, boxCollider, rigidBody);
+		var bodyEngine = new CharacterController2D(bodyEntity, bodyCollider, bodyRigidBody);
 		var bodyMotor = new PlayerMotor(bodyEngine);
 
-		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);
-
+		// Crouch
+		var bodyCrouchEntity = Instantiate(bodyCrouchTemplate, transform.position, Quaternion.identity);
+        
 		// TODO: This should look up an available input controller from the
 		// connection manager/registry (yet to be created).
 		var inputController = new PlayerInputControllerKeyboard(marionette, buffer);
@@ -35,8 +37,12 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var grenadeMotor = new LobMotor(grenadeEntity, handEntity.transform);
 		var grenadeInput = new PlayerHandGrenadeInputControllerKeyboard(marionette);
 
+        // Playback
+		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);
+
         // Attach the limb input
-		marionette.AttachBody(bodyMotor, bodyMotor);
+		marionette.AttachBody(bodyMotor, bodyMotor, bodyEntity);
+		marionette.AttachBodyCrouch(bodyCrouchEntity);
 		marionette.AttachHand(handEntity);
 		marionette.AttachHandGrenade(grenadeMotor, grenadeEntity);
 	}

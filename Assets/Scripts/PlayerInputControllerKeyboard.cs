@@ -7,21 +7,26 @@ public class PlayerInputControllerKeyboard : PlayerInputController {
 
 	public override void HandleUpdate() {
         // Horizontal control
-		if (Input.GetKey (KeyCode.RightArrow)) {
+		if (Input.GetKey (KeyCode.RightArrow))
+		{
             HandleInputRight();
 		}
 
-		if (Input.GetKey (KeyCode.LeftArrow)) {
+		if (Input.GetKey (KeyCode.LeftArrow))
+		{
             HandleInputLeft();
 		}
 
-		// Vertical control
-		if (Input.GetKey (KeyCode.UpArrow)) {
+		// Vertical control, jump, crouch
+		if (Input.GetKey (KeyCode.UpArrow))
+		{
             HandleInputUp();
             HandleInputJump();
 		}
-		if (Input.GetKey (KeyCode.DownArrow)) {
+		if (Input.GetKey (KeyCode.DownArrow))
+		{
             HandleInputDown();
+			HandleInputCrouch();
 		}
 
 		// Check if the input direction should be neutralized

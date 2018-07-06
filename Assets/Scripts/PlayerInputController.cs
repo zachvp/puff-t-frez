@@ -63,6 +63,11 @@ public class PlayerInputController
 		input.jump = true;
 	}
 
+    protected void HandleInputCrouch()
+	{
+		input.crouch = true;
+	}
+
 	protected void HandleInputChecksFinished(bool isConcurrentHorizontalInput, bool isConcurrentVerticalInput)
 	{
 		var isNoHorizontalInput = Mathf.RoundToInt(input.movement.x) == 0;
@@ -86,10 +91,14 @@ public class PlayerInputController
 		{
             inputRelease.movement.y = 1;
         }
-        if (!input.jump && lastInput.jump)
+		if (lastInput.jump && !input.jump)
 		{
             inputRelease.jump = true;
         }
+		if (lastInput.crouch && !input.crouch)
+		{
+			inputRelease.crouch = true;
+		}
 
 		var snapshot = new PlayerInputSnapshot(input, inputRelease);
 
