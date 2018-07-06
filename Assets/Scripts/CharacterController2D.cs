@@ -168,9 +168,9 @@ public class CharacterController2D
             }
 		}
 
-        // After translation, update proximity check so collision state is fresh.
-        // Without this, collision state doesn't get updated if there's no delta movement.
-        checkProximity();
+		// After translation, update proximity check so collision state is fresh.
+		// Without this, collision state doesn't get updated if there's no delta movement.
+		collision = CheckProximity(data.skinWidth * 2, Direction2D.ALL);
 
 		// Add to the collision buffer.
 		collisionBuffer.AddFirst(new CharacterCollisionState2D(collision));
@@ -436,14 +436,15 @@ public class CharacterController2D
 		}
 	}
 
-    private void checkProximity()
+	public CharacterCollisionState2D CheckProximity(float distance, Direction2D mask)
     {
         // Initialize check parameters for below.
 		var checkDepth = data.skinWidth;
         var origin = _raycastOrigins.bottomLeft;
 		var size = new Vector2(collider.bounds.size.x - data.skinWidth, checkDepth);
         var direction = Vector2.down;
-		var checkDistance = data.skinWidth * 2;
+		var checkDistance = distance;
+		var proximityCollision = new CharacterCollisionState2D();
 
         // Vertical checks.
 
@@ -451,12 +452,18 @@ public class CharacterController2D
 		origin.x = entity.position.x;
 
         // Check below
-		collision.below = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, data.platformMask);
+		if ((mask | Direction2D.BELOW) == mask)
+		{
+			proximityCollision.below = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, data.platformMask);
+		}
 
         // Check above
-        origin.y = _raycastOrigins.topLeft.y;
-        direction = Vector2.up;
-		collision.above = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);
+		if ((mask | Direction2D.ABOVE) == mask)
+		{
+			origin.y = _raycastOrigins.topLeft.y;
+            direction = Vector2.up;
+            proximityCollision.above = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);
+		}        
 
         // Horizontal checks.
 
@@ -468,14 +475,22 @@ public class CharacterController2D
 		size.y = collider.bounds.size.y - data.skinWidth;
 
         // Check right.
-        origin.x = _raycastOrigins.bottomRight.x;
-        direction = Vector2.right;
-		collision.right = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);
+		if ((mask | Direction2D.RIGHT) == mask)
+		{
+			origin.x = _raycastOrigins.bottomRight.x;
+            direction = Vector2.right;
+            proximityCollision.right = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);			
+		}
 
         // Check left
-        origin.x = _raycastOrigins.bottomLeft.x;
-        direction = Vector2.left;
-		collision.left = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);
+		if ((mask | Direction2D.LEFT) == mask)
+		{
+			origin.x = _raycastOrigins.bottomLeft.x;
+            direction = Vector2.left;
+            proximityCollision.left = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);
+		}
+
+		return proximityCollision;
     }
 
 	#endregion

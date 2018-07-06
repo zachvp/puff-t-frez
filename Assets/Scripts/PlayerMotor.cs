@@ -30,6 +30,9 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     // The provided time between frames.
     private float deltaTime;
 
+	private enum State { NEUTRAL, CROUCH }
+	private State state;
+
 	public PlayerMotor(Entity playerEntity, CharacterController2D playerEngine)
 	{
 		input = new PlayerInputSnapshot();
@@ -122,32 +125,41 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         }
 
         // TODO: This should be tied to crouch input.
-		if (input.pressed.crouch && crouchInputCount <= 0)
+		if (state == State.NEUTRAL)
         {
-			var newBounds = entity.localScale;
-			var crouchPosition = entity.position;
+			if (input.pressed.crouch)
+			{
+				var newBounds = entity.localScale;
+                var crouchPosition = entity.position;
 
-            newBounds.y /= 2;
-			crouchPosition.y -= entity.localScale.y;
+                newBounds.y /= 2;
+                crouchPosition.y -= entity.localScale.y;
 
-			entity.SetLocalScale(newBounds);
-			entity.SetPosition(crouchPosition);
-            crouchInputCount++;
+                entity.SetLocalScale(newBounds);
+                entity.SetPosition(crouchPosition);
+                state = State.CROUCH;	
+			}
         }
+		else if (state == State.CROUCH)
+		{
+			if (!input.pressed.crouch)
+			{
+				var check = engine.CheckProximity(entity.localScale.y, Direction2D.ABOVE);
 
-        // TODO: Need to check for obstacle above crouch - use crouch motor
-		if (input.released.crouch && crouchInputCount >= 0)
-        {
-			var newBounds = entity.localScale;
-			var crouchPosition = entity.position;
+                if (!check.above)
+                {
+                    var newBounds = entity.localScale;
+                    var crouchPosition = entity.position;
 
-            newBounds.y *= 2;
-            crouchPosition.y += newBounds.y;
+                    newBounds.y *= 2;
+                    crouchPosition.y += newBounds.y;
 
-			entity.SetLocalScale(newBounds);
-			entity.SetPosition(crouchPosition);
-            crouchInputCount--;
-        }
+                    entity.SetLocalScale(newBounds);
+                    entity.SetPosition(crouchPosition);
+                    state = State.NEUTRAL;
+                }
+			}
+		}
     }
 
     private void HandleNotGrounded() {
