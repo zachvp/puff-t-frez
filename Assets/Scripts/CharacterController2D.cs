@@ -455,6 +455,7 @@ public class CharacterController2D
 		if ((mask | Direction2D.BELOW) == mask)
 		{
 			proximityCollision.below = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, data.platformMask);
+
 		}
 
         // Check above
