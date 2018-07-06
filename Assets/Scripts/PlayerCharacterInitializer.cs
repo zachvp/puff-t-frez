@@ -41,7 +41,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);
 
         // Attach the limb input
-		marionette.AttachBody(bodyMotor, bodyMotor, bodyEntity);
+		marionette.AttachBody(bodyMotor, bodyMotor, bodyEntity, bodyEngine);
 		marionette.AttachBodyCrouch(bodyCrouchEntity);
 		marionette.AttachHand(handEntity);
 		marionette.AttachHandGrenade(grenadeMotor, grenadeEntity);

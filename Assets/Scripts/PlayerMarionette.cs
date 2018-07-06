@@ -9,6 +9,8 @@ public class PlayerMarionette : IPlayerMarionette
 	private IMotor bodyMotor;
 	private Entity bodyEntity;
 
+	private CharacterController2D bodyEngine;
+
 	private Entity bodyCrouchEntity;
 
 	private IBehavior handBehavior;
@@ -27,11 +29,15 @@ public class PlayerMarionette : IPlayerMarionette
 		data = ScriptableObject.CreateInstance<PlayerMarionetteData>();
 	}
 
-	public void AttachBody(IInputPlayerBody body, IMotor motor, Entity entity)
+	public void AttachBody(IInputPlayerBody body,
+	                       IMotor motor,
+	                       Entity entity,
+	                       CharacterController2D engine)
 	{
 		bodyInput = body;
 		bodyMotor = motor;
 		bodyEntity = entity;
+		bodyEngine = engine;
 	}
 
 	public void AttachBodyCrouch(Entity entity)
@@ -57,26 +63,34 @@ public class PlayerMarionette : IPlayerMarionette
 	// IPlayerMarionette begin
 	public void ApplyPlayerInput(PlayerInputSnapshot snapshot)
 	{
+		// TODO: ZVP FIXXX
 		if (snapshot.pressed.crouch)
 		{
 			var crouchPosition = bodyEntity.position;
 
 			crouchPosition.y -= bodyEntity.localScale.y;
+            
+			bodyEntity.SetActive(false);
 
-			//bodyEntity.SetActive(false);
-			//bodyCrouchEntity.SetActive(true);
-			//bodyCrouchEntity.SetPosition(crouchPosition);
+			bodyEngine.SetDependencies(bodyCrouchEntity, bodyCrouchEntity.GetComponent<BoxCollider2D>(), bodyCrouchEntity.GetComponent<Rigidbody2D>());
+
+			bodyCrouchEntity.SetActive(true);
+			bodyCrouchEntity.SetPosition(crouchPosition);
 		}
 		else 
 		{
-			bodyInput.ApplyInput(snapshot);
+			
 		}
+
+		bodyInput.ApplyInput(snapshot);
 
 		// TODO: Need to check for obstacle above crouch - use crouch motor
 		if (snapshot.released.crouch)
 		{
-			//bodyEntity.SetActive(true);
-			//bodyCrouchEntity.SetActive(false);
+			bodyEngine.SetDependencies(bodyEntity, bodyEntity.GetComponent<BoxCollider2D>(), bodyEntity.GetComponent<Rigidbody2D>());
+
+			bodyEntity.SetActive(true);
+			bodyCrouchEntity.SetActive(false);
 		}
 	}
 
