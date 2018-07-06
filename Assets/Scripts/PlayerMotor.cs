@@ -2,6 +2,8 @@
 
 public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 {
+	private Entity entity;
+
     // Reference to the character controller engine.
     private CharacterController2D engine;
 
@@ -23,13 +25,16 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     // How many times a jump has been performed.
     private int jumpCount;
 
+	private int crouchInputCount;
+
     // The provided time between frames.
     private float deltaTime;
 
-	public PlayerMotor(CharacterController2D playerEngine)
+	public PlayerMotor(Entity playerEntity, CharacterController2D playerEngine)
 	{
 		input = new PlayerInputSnapshot();
 
+		entity = playerEntity;
 		engine = playerEngine;
 		data = ScriptableObject.CreateInstance<PlayerMotorData>();
 
@@ -117,9 +122,31 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         }
 
         // TODO: This should be tied to crouch input.
-        if (movement.y < 0)
+		if (input.pressed.crouch && crouchInputCount <= 0)
         {
-            // TODO: Perform crouch
+			var newBounds = entity.localScale;
+			var crouchPosition = entity.position;
+
+            newBounds.y /= 2;
+			crouchPosition.y -= entity.localScale.y;
+
+			entity.SetLocalScale(newBounds);
+			entity.SetPosition(crouchPosition);
+            crouchInputCount++;
+        }
+
+        // TODO: Need to check for obstacle above crouch - use crouch motor
+		if (input.released.crouch && crouchInputCount >= 0)
+        {
+			var newBounds = entity.localScale;
+			var crouchPosition = entity.position;
+
+            newBounds.y *= 2;
+            crouchPosition.y += newBounds.y;
+
+			entity.SetLocalScale(newBounds);
+			entity.SetPosition(crouchPosition);
+            crouchInputCount--;
         }
     }
 

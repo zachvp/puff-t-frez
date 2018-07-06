@@ -16,7 +16,7 @@ public class PlayerMarionette : IPlayerMarionette
 	private bool isHandCollided;
 
 	private CallbackManager manager;
-	private int inputCount;
+	private int inputCount; // TODO: Should this be handled in hand grenade controller?
 	private PlayerMarionetteData data;
         
 	public PlayerMarionette()
@@ -49,24 +49,6 @@ public class PlayerMarionette : IPlayerMarionette
 	// IPlayerMarionette begin
 	public void ApplyPlayerInput(PlayerInputSnapshot snapshot)
 	{
-		// TODO: ZVP FIXXX
-		if (snapshot.pressed.crouch)
-		{
-			var crouchPosition = bodyEntity.position;
-
-			crouchPosition.y -= bodyEntity.localScale.y;
-		}
-		else 
-		{
-			
-		}
-        
-		// TODO: Need to check for obstacle above crouch - use crouch motor
-		if (snapshot.released.crouch)
-		{
-			
-		}
-
 		bodyInput.ApplyInput(snapshot);
 	}
 

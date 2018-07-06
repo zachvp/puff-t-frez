@@ -29,6 +29,8 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
 	public EventHandler<Collider2D> OnTriggerStay;
 	public EventHandler<Collider2D> OnTriggerExit;
 
+	public EventHandler<Vector3> OnScaleChange;
+
     // Collision events
 	public EventHandler<Collision2D> OnCollisionEnter;
 
@@ -43,6 +45,8 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
 	public void SetLocalScale(Vector3 scale)
 	{
 		transform.localScale = scale;
+
+		Events.Raise(OnScaleChange, scale);
 	}
 
 	public void SetRotation(Quaternion rotation)

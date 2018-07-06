@@ -91,6 +91,14 @@ public class CharacterController2D
 		entity = entityInstance;
 		collider = colliderInstance;
 		rigidBody = rigidbodyInstance;
+
+		entity.OnScaleChange += HandleScaleChange;
+	}
+
+	public void HandleScaleChange(Vector3 scale)
+	{
+		// TODO: Number of rays should be based on scale.
+		RecalculateDistanceBetweenRays();
 	}
 
 	public bool IsCollisionBuffered(Direction2D direction)
