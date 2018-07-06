@@ -3,7 +3,6 @@
 public class PlayerCharacterInitializer : MonoBehaviour
 {
 	public PlayerCharacterEntity bodyTemplate;
-	public PlayerCharacterEntity bodyCrouchTemplate;
 	public Entity handTemplate;
     public Entity footTemplate;
 	public Entity handGrenadeTemplate;
@@ -22,9 +21,6 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var bodyEngine = new CharacterController2D(bodyEntity, bodyCollider, bodyRigidBody);
 		var bodyMotor = new PlayerMotor(bodyEngine);
 
-		// Crouch
-		var bodyCrouchEntity = Instantiate(bodyCrouchTemplate, transform.position, Quaternion.identity);
-        
 		// TODO: This should look up an available input controller from the
 		// connection manager/registry (yet to be created).
 		var inputController = new PlayerInputControllerKeyboard(marionette, buffer);
@@ -41,8 +37,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);
 
         // Attach the limb input
-		marionette.AttachBody(bodyMotor, bodyMotor, bodyEntity, bodyEngine);
-		marionette.AttachBodyCrouch(bodyCrouchEntity);
+		marionette.AttachBody(bodyMotor, bodyMotor, bodyEntity);
 		marionette.AttachHand(handEntity);
 		marionette.AttachHandGrenade(grenadeMotor, grenadeEntity);
 	}
