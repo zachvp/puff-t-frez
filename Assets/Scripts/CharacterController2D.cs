@@ -18,7 +18,6 @@ public class CharacterController2D
 
 	#endregion
 
-
 	private PlayerEngineData data;
 
 	/// <summary>
@@ -303,6 +302,28 @@ public class CharacterController2D
 		}
 	}
 
+	private void MoveHorizontalCast(ref Vector3 deltaMovement, CharacterCollisionState2D oldCollisionState)
+	{
+		var isGoingRight = deltaMovement.x > 0;
+		var castDistance = Mathf.Abs(deltaMovement.x) + data.skinWidth;
+		var castDirection = isGoingRight ? Vector2.right : -Vector2.right;
+		var origin = new Vector3(collider.bounds.min.x, entity.position.y, 0); // TODO: Should use collider Y coordinate
+		RaycastHit2D hit;
+
+		if (isGoingRight)
+		{
+			origin.x = collider.bounds.max.x;
+		}
+
+		// TODO: Handle slope
+		hit = Physics2D.BoxCast(origin, collider.size, 0, castDirection, castDistance, data.platformMask);
+
+		if (hit)
+		{
+			
+		}
+	}
+
 
 	/// <summary>
 	/// handles adjusting deltaMovement if we are going up a slope.
@@ -455,7 +476,6 @@ public class CharacterController2D
 		if ((mask | Direction2D.BELOW) == mask)
 		{
 			proximityCollision.below = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, data.platformMask);
-
 		}
 
         // Check above
