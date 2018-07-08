@@ -3,6 +3,7 @@
 // Responsible for
 //    Passing input to limbs
 //    Enabling/disabling limbs
+using UnityEngine.UI;
 public class PlayerMarionette : IPlayerMarionette
 {
 	private IInputPlayerBody bodyInput;
@@ -101,8 +102,12 @@ public class PlayerMarionette : IPlayerMarionette
         {
 			isHandCollided = true;
 			handGrenadeInput.Freeze();
-			manager.PostCallbackWithFrameDelay(data.frameDelayReset, new Callback(HandleResetPosition));
+			//manager.PostCallbackWithFrameDelay(data.frameDelayReset, new Callback(HandleResetPosition));
         }
+		else if (layer == Constants.Layers.ENTITY && isHandCollided)
+		{
+			HandleResetPosition();
+		}
     }
 	// Handlers end
 

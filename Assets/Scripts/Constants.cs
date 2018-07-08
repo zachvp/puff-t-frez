@@ -3,6 +3,7 @@
 	public static class Layers
 	{
 		public const int OBSTACLE = 8;
+		public const int ENTITY = 9;
 	}
 
     public static class Input
