@@ -8,20 +8,19 @@ public class PlayerInputControllerGamepad : PlayerInputController
 		{
             var device = InputManager.Devices[0];
 
-			// TODO: Use magic values for dead zone.
-            if (device.LeftStick.Value.x > 0.1f)
+			if (device.LeftStick.Value.x > Constants.Input.DEAD_ZONE)
 			{
                 HandleInputRight();
             }
-            if (device.LeftStick.Value.x < -0.1f)
+			if (device.LeftStick.Value.x < -Constants.Input.DEAD_ZONE)
 			{
                 HandleInputLeft();
             }
-            if (device.LeftStick.Value.y > 0.1f)
+			if (device.LeftStick.Value.y > Constants.Input.DEAD_ZONE)
 			{
                 HandleInputUp();
             }
-            if (device.LeftStick.Value.y < -0.1f)
+			if (device.LeftStick.Value.y < -Constants.Input.DEAD_ZONE)
 			{
                 HandleInputDown();
             }
