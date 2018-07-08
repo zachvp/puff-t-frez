@@ -132,6 +132,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 				var newBounds = entity.localScale;
                 var crouchPosition = entity.position;
 
+				newBounds.x *= 1.5f;
                 newBounds.y /= 2;
                 crouchPosition.y -= entity.localScale.y;
 
@@ -151,6 +152,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
                     var newBounds = entity.localScale;
                     var crouchPosition = entity.position;
 
+					newBounds.x /= 1.5f;
                     newBounds.y *= 2;
                     crouchPosition.y += newBounds.y;
 
