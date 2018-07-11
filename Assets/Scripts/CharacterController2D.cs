@@ -515,5 +515,51 @@ public class CharacterController2D
 		return proximityCollision;
     }
 
+	private RaycastHit2D checkBelow(float distance, float depth)
+	{
+        var origin = _raycastOrigins.bottomLeft;
+		var size = new Vector2(collider.bounds.size.x - data.skinWidth, depth);
+        var direction = Vector2.down;
+
+		return Physics2D.BoxCast(origin, size, 0, direction, distance, data.platformMask);
+	}
+
+	private RaycastHit2D checkAbove(float distance, float depth)
+    {
+        var size = new Vector2(collider.bounds.size.x - data.skinWidth, depth);
+
+		return Physics2D.BoxCast(_raycastOrigins.bottomLeft,
+		                         size,
+		                         0,
+		                         Vector2.up,
+		                         distance,
+		                         data.platformMask);
+    }
+
+	private RaycastHit2D checkRight(float distance, float depth)
+    {
+		var size = new Vector2(depth, collider.bounds.size.y - data.skinWidth);
+
+		return Physics2D.BoxCast(_raycastOrigins.bottomRight,
+		                         size,
+		                         0,
+		                         Vector2.right,
+		                         distance,
+		                         data.platformMask);
+    }
+
+	private RaycastHit2D checkLeft(float distance, float depth)
+    {
+        // Initialize check parameters for below.
+		var size = new Vector2(depth, collider.bounds.size.y - data.skinWidth);
+
+		return Physics2D.BoxCast(_raycastOrigins.bottomLeft,
+                                 size,
+                                 0,
+		                         Vector2.left,
+                                 distance,
+                                 data.platformMask);
+    }
+
 	#endregion
 }
