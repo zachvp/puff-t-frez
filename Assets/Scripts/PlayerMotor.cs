@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 {
@@ -24,15 +25,12 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 
     // How many times a jump has been performed.
     private int jumpCount;
-
-	private int crouchInputCount;
-
+    
     // The provided time between frames.
     private float deltaTime;
 
-	private enum State { NEUTRAL, CROUCH }
 	private State state;
-
+    
 	public PlayerMotor(Entity playerEntity, CharacterController2D playerEngine)
 	{
 		input = new PlayerInputSnapshot();
@@ -45,13 +43,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         motorDirection.x = 1;
         motorDirection.y = -1;
 
-		FrameCounter.Instance.OnStart += HandleStart;
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
-	}
-
-	public void HandleStart()
-    {
-        //engine.warpToGrounded();
 	}
 
 	// When update is called, all input has been processed.
@@ -66,7 +58,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
             HandleNotGrounded();
         }
 
-        // Check all frames since jump was initiated for a release of the jump button.
+		// Check all frames since jump was initiated for a release of the jump button.
         if (input.released.jump && jumpCount < data.jumpCountMax)
         {
             jumpCount++;
@@ -78,7 +70,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         {
             ApplyJump();
         }
-
+        
         // At this point, all the motor's velocity computations are complete,
         // so we can determine the motor's direction.
         ComputeMotorDirection();
@@ -86,6 +78,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         // Update the controller with the computed velocity.
         engine.Move(deltaTime * velocity);
 
+		// TODO: Fix magic number
         if (Mathf.Abs(engine.velocity.y) < 0.01) {
             // Kind of a hack. The normally computed velocity is unreliable.
             // The only other case velocity is used is in handling slopes.
@@ -112,9 +105,10 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     }
 
     private void HandleGrounded() {
-        //Debug.LogFormat("GROUNDED");
         var movement = input.pressed.movement;
 
+		FlagsHelper.Unset(ref state, State.JUMP);
+        
         // Horizontal movement.
         velocity.x = movement.x * data.velocityHorizontalGroundMax;
 
@@ -124,24 +118,24 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
             jumpCount = 0;
         }
 
-        // TODO: This should be tied to crouch input.
-		if (state == State.NEUTRAL)
+		if (!FlagsHelper.IsSet(state, State.CROUCH))
         {
 			if (input.pressed.crouch)
 			{
 				var newBounds = entity.localScale;
                 var crouchPosition = entity.position;
 
+				// TODO: Clean up magic values
 				newBounds.x *= 1.5f;
                 newBounds.y /= 2;
                 crouchPosition.y -= entity.localScale.y;
 
                 entity.SetLocalScale(newBounds);
                 entity.SetPosition(crouchPosition);
-                state = State.CROUCH;	
+				FlagsHelper.Set(ref state, State.CROUCH);
 			}
         }
-		else if (state == State.CROUCH)
+		else if (FlagsHelper.IsSet(state, State.CROUCH))
 		{
 			if (!input.pressed.crouch)
 			{
@@ -152,20 +146,20 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
                     var newBounds = entity.localScale;
                     var crouchPosition = entity.position;
 
+					// TODO: Clean up magic numbers
 					newBounds.x /= 1.5f;
                     newBounds.y *= 2;
                     crouchPosition.y += newBounds.y;
 
                     entity.SetLocalScale(newBounds);
                     entity.SetPosition(crouchPosition);
-                    state = State.NEUTRAL;
+					FlagsHelper.Unset(ref state, State.CROUCH);
                 }
 			}
 		}
     }
 
     private void HandleNotGrounded() {
-        //Debug.LogFormat("NOT GROUNDED");
         var movement = input.pressed.movement;
 
         // Motor is not grounded.
@@ -209,7 +203,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         // Apply gravity if motor does not have jump immunity or if there is no
         // jump input.
         if (additiveJumpFrameCount > data.frameLimitJumpGravityImmunity ||
-            !input.pressed.jump)
+		    !FlagsHelper.IsSet(state, State.JUMP))
         {
             velocity.y -= data.gravity;
         }
@@ -220,13 +214,20 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     private void ApplyJump()
     {
         // Initial jump push off the ground.
-        if (additiveJumpFrameCount < 1) {
-            velocity.y = data.velocityJumpImpulse;
-        } else {
-            velocity.y += Mathf.RoundToInt(data.velocityJumpMax / additiveJumpFrameCount);
+		if (additiveJumpFrameCount < 1)
+		{
+			if (engine.isGrounded)
+			{
+				FlagsHelper.Set(ref state, State.JUMP);
+				velocity.y = data.velocityJumpImpulse;
+				additiveJumpFrameCount++;
+			}
         }
-
-        additiveJumpFrameCount++;
+		else
+		{
+            velocity.y += Mathf.RoundToInt(data.velocityJumpMax / additiveJumpFrameCount);
+			additiveJumpFrameCount++;
+        }
     }
 
     private void ComputeMotorDirection()
@@ -247,4 +248,12 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         Debug.AssertFormat((int) Mathf.Abs(motorDirection.x) == 1, "Motor X direction should always have a magnitude of one.");
         Debug.AssertFormat((int) Mathf.Abs(motorDirection.y) == 1, "Motor Y direction should always have a magnitude of one.");
     }
+
+	[Flags]
+	private enum State
+	{
+		NONE    = 1 << 0,
+		CROUCH  = 1 << 1,
+		JUMP    = 1 << 2
+	}
 }

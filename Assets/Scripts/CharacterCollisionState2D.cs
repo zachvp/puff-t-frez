@@ -1,5 +1,6 @@
 ﻿public class CharacterCollisionState2D
 {
+	// TODO: These direction bools can be condensed into flag
     public bool right;
     public bool left;
     public bool above;
