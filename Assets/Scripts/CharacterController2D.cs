@@ -489,10 +489,10 @@ public class CharacterController2D
 		return proximityCollision;
     }
 
-	private RaycastHit2D checkBelow(float distance, float depth)
+	private RaycastHit2D checkBelow(float distance, float thiccness)
 	{
 		var origin = new Vector2(entity.position.x, _raycastOrigins.bottomLeft.y);
-		var size = new Vector2(collider.bounds.size.x - data.skinWidth, depth);
+		var size = new Vector2(collider.bounds.size.x - data.skinWidth, thiccness);
 
 		return Physics2D.BoxCast(origin,
 		                         size,
@@ -502,10 +502,10 @@ public class CharacterController2D
 		                         data.platformMask);
 	}
 
-	private RaycastHit2D checkAbove(float distance, float depth)
+	private RaycastHit2D checkAbove(float distance, float thiccness)
     {
 		var origin = new Vector2(entity.position.x, _raycastOrigins.topLeft.y);
-        var size = new Vector2(collider.bounds.size.x - data.skinWidth, depth);
+        var size = new Vector2(collider.bounds.size.x - data.skinWidth, thiccness);
 
 		return Physics2D.BoxCast(origin,
 		                         size,
@@ -515,10 +515,10 @@ public class CharacterController2D
 		                         data.platformMask);
     }
 
-	private RaycastHit2D checkRight(float distance, float depth)
+	private RaycastHit2D checkRight(float distance, float thiccness)
     {
 		var origin = new Vector2(_raycastOrigins.bottomRight.x, entity.position.y);
-		var size = new Vector2(depth, collider.bounds.size.y - data.skinWidth);
+		var size = new Vector2(thiccness, collider.bounds.size.y - data.skinWidth);
 
 		return Physics2D.BoxCast(origin,
 		                         size,
@@ -528,10 +528,10 @@ public class CharacterController2D
 		                         data.platformMask);
     }
 
-	private RaycastHit2D checkLeft(float distance, float depth)
+	private RaycastHit2D checkLeft(float distance, float thiccness)
     {
 		var origin = new Vector2(_raycastOrigins.bottomLeft.x, entity.position.y);
-		var size = new Vector2(depth, collider.bounds.size.y - data.skinWidth);
+		var size = new Vector2(thiccness, collider.bounds.size.y - data.skinWidth);
 
 		return Physics2D.BoxCast(origin,
                                  size,
