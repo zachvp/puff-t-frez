@@ -18,9 +18,9 @@ public class IdleLimbMotor : Motor {
 	}
 
 	public void HandleUpdate(int currentFrame, float deltaTime) {
-		var toTarget = root.position - entity.position;
+		var toTarget = root.position - entity.Position;
         var sqrDistance = toTarget.sqrMagnitude;
-		var newPos = entity.position;
+		var newPos = entity.Position;
 
         // Kind of a magic calculation. The idea is we want our speed to
         // increase as the distance increases. We then fudge that with a

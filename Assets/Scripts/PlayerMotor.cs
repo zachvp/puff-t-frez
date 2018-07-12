@@ -30,7 +30,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     private float deltaTime;
 
 	private State state;
-    
+        
 	public PlayerMotor(PlayerCharacterEntity playerEntity, CharacterController2D playerEngine)
 	{
 		input = new PlayerInputSnapshot();
@@ -38,10 +38,6 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 		entity = playerEntity;
 		engine = playerEngine;
 		data = ScriptableObject.CreateInstance<PlayerMotorData>();
-
-		// Define the initial motor direction to be facing right going down.
-        motorDirection.x = 1;
-        motorDirection.y = -1;
 
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
@@ -122,14 +118,14 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         {
 			if (input.pressed.crouch)
 			{
-				var newBounds = entity.localScale;
-                var crouchPosition = entity.position;
+				var newBounds = entity.LocalScale;
+                var crouchPosition = entity.Position;
+
+				newBounds.x *= data.boundsMultiplierCrouchX;
+				newBounds.y *= data.boundsMultiplierCrouchY;
+                crouchPosition.y -= entity.LocalScale.y;
 
 				// TODO: Clean up magic values
-				newBounds.x *= 1.5f;
-                newBounds.y /= 2;
-                crouchPosition.y -= entity.localScale.y;
-
 				var sizeOffset = (newBounds.x * entity.Collider.size.x) / 2f;
 				var checkDistance = newBounds.x;
                 var hitLeft = engine.CheckLeft(checkDistance, 1);
@@ -153,19 +149,16 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 		{
 			if (!input.pressed.crouch)
 			{
-				var check = engine.CheckProximity(entity.localScale.y, Direction2D.ABOVE);
+				var check = engine.CheckProximity(entity.LocalScale.y, Direction2D.ABOVE);
 
                 if (!check.above)
                 {
-                    var newBounds = entity.localScale;
-                    var crouchPosition = entity.position;
+					var newBounds = entity.PriorTransform.localScale;
+                    var crouchPosition = entity.Position;
 
-					// TODO: Clean up magic numbers
-					newBounds.x /= 1.5f;
-                    newBounds.y *= 2;
                     crouchPosition.y += newBounds.y;
 
-                    entity.SetLocalScale(newBounds);
+					entity.SetLocalScale(newBounds);
                     entity.SetPosition(crouchPosition);
 					FlagsHelper.Unset(ref state, State.CROUCH);
                 }
@@ -258,10 +251,20 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         {
             motorDirection.y = velocity.y > 0 ? 1 : -1;
         }
-
-        Debug.AssertFormat((int) Mathf.Abs(motorDirection.x) == 1, "Motor X direction should always have a magnitude of one.");
-        Debug.AssertFormat((int) Mathf.Abs(motorDirection.y) == 1, "Motor Y direction should always have a magnitude of one.");
+        
+		Debug.AssertFormat((int) Mathf.Abs(motorDirection.x) == 1 ||
+		                   (int )Mathf.Abs(motorDirection.x) == 0,
+		                   "Motor X direction should always have a magnitude of one.");
+        Debug.AssertFormat((int) Mathf.Abs(motorDirection.y) == 1 ||
+		                   (int) Mathf.Abs(motorDirection.y) == 0,
+		                   "Motor Y direction should always have a magnitude of one.");
     }
+
+	private Vector3 GetWorldSpaceSize()
+	{
+		// TODO: impl
+		return Vector3.zero;
+	}
 
 	[Flags]
 	private enum State

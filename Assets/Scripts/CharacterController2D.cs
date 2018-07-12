@@ -131,7 +131,7 @@ public class CharacterController2D
 		_raycastHitsThisFrame.Clear();
 		_isGoingUpSlope = false;
 
-		var desiredPosition = entity.position + deltaMovement;
+		var desiredPosition = entity.Position + deltaMovement;
 		primeRaycastOrigins( desiredPosition, deltaMovement );
 
 		// first, we check for a slope below us before moving
@@ -150,13 +150,13 @@ public class CharacterController2D
 		// move then update our state
 		if( data.usePhysicsForMovement )
 		{
-			rigidBody.MovePosition( entity.position + deltaMovement );
+			rigidBody.MovePosition( entity.Position + deltaMovement );
 			velocity = rigidBody.velocity;
 		}
 		else
 		{
 			//transform.Translate( deltaMovement, Space.World );
-			var newPosition = entity.position + deltaMovement;
+			var newPosition = entity.Position + deltaMovement;
 			newPosition = CoreUtilities.NormalizePosition(newPosition);
 
 			entity.SetPosition(newPosition);
@@ -215,11 +215,11 @@ public class CharacterController2D
 	{
 		// figure out the distance between our rays in both directions
 		// horizontal
-		var colliderUseableHeight = collider.size.y * Mathf.Abs( entity.localScale.y ) - ( 2f * data.skinWidth );
+		var colliderUseableHeight = collider.size.y * Mathf.Abs( entity.LocalScale.y ) - ( 2f * data.skinWidth );
 		_verticalDistanceBetweenRays = colliderUseableHeight / ( data.totalHorizontalRays - 1 );
 
 		// vertical
-		var colliderUseableWidth = collider.size.x * Mathf.Abs( entity.localScale.x ) - ( 2f * data.skinWidth );
+		var colliderUseableWidth = collider.size.x * Mathf.Abs( entity.LocalScale.x ) - ( 2f * data.skinWidth );
 		_horizontalDistanceBetweenRays = colliderUseableWidth / ( data.totalVerticalRays - 1 );
 	}
 
@@ -491,7 +491,7 @@ public class CharacterController2D
 
 	public RaycastHit2D CheckBelow(float distance, float thiccness)
 	{
-		var origin = new Vector2(entity.position.x, _raycastOrigins.bottomLeft.y);
+		var origin = new Vector2(entity.Position.x, _raycastOrigins.bottomLeft.y);
 		var size = new Vector2(collider.bounds.size.x - data.skinWidth, thiccness);
 
 		return Physics2D.BoxCast(origin,
@@ -504,7 +504,7 @@ public class CharacterController2D
 
 	public RaycastHit2D CheckAbove(float distance, float thiccness)
     {
-		var origin = new Vector2(entity.position.x, _raycastOrigins.topLeft.y);
+		var origin = new Vector2(entity.Position.x, _raycastOrigins.topLeft.y);
         var size = new Vector2(collider.bounds.size.x - data.skinWidth, thiccness);
 
 		return Physics2D.BoxCast(origin,
@@ -517,7 +517,7 @@ public class CharacterController2D
 
 	public RaycastHit2D CheckRight(float distance, float thiccness)
     {
-		var origin = new Vector2(_raycastOrigins.bottomRight.x, entity.position.y);
+		var origin = new Vector2(_raycastOrigins.bottomRight.x, entity.Position.y);
 		var size = new Vector2(thiccness, collider.bounds.size.y - data.skinWidth);
 
 		return Physics2D.BoxCast(origin,
@@ -530,7 +530,7 @@ public class CharacterController2D
 
 	public RaycastHit2D CheckLeft(float distance, float thiccness)
     {
-		var origin = new Vector2(_raycastOrigins.bottomLeft.x, entity.position.y);
+		var origin = new Vector2(_raycastOrigins.bottomLeft.x, entity.Position.y);
 		var size = new Vector2(thiccness, collider.bounds.size.y - data.skinWidth);
 
 		return Physics2D.BoxCast(origin,

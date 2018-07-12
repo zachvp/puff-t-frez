@@ -31,7 +31,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var handEntity = Instantiate(handTemplate, bodyEntity.handAnchor.position, Quaternion.identity);
 		var handMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchor);
 
-		var grenadeEntity = Instantiate(handGrenadeTemplate, handEntity.position, handEntity.rotation);
+		var grenadeEntity = Instantiate(handGrenadeTemplate, handEntity.Position, handEntity.Rotation);
 		var grenadeMotor = new LobMotor(grenadeEntity, handEntity.transform);
 		var grenadeInput = new PlayerHandGrenadeInputControllerKeyboard(marionette);
 

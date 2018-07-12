@@ -1,19 +1,21 @@
 ﻿using UnityEngine;
 
+// TODO: In late update, round off positions and scales.
+
 // For any given GameObject in a scene, this handles position setting, collision
 // events, etc.
 public class Entity : MonoBehaviour, ITransform, IBehavior {
-	public Vector3 position
+	public Vector3 Position
 	{
     	get { return transform.position; }
 		private set { SetPosition(value); }
 	}
-	public Vector3 localScale
+	public Vector3 LocalScale
 	{
 		get { return transform.localScale; }
 		private set { SetLocalScale(value); }
 	}
-	public Quaternion rotation
+	public Quaternion Rotation
 	{
 		get { return transform.rotation; }
 		private set { SetRotation(value); }
@@ -22,6 +24,11 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
 	public Collider2D Collider
 	{
 		get { return _collider; }
+	}
+
+	public StoreTransform PriorTransform
+	{
+		get { return _priorTransform; }
 	}
 
 	// Trigger events
@@ -35,15 +42,18 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
 	public EventHandler<Collision2D> OnCollisionEnter;
 
 	protected Collider2D _collider;
+	protected StoreTransform _priorTransform;
 
 	// ITransform begin
     public void SetPosition(Vector3 position)
     {
+		_priorTransform.position = transform.position;
         transform.position = position;
     }
 
 	public void SetLocalScale(Vector3 scale)
 	{
+		_priorTransform.localScale = transform.localScale;
 		transform.localScale = scale;
 
 		Events.Raise(OnScaleChange, scale);
@@ -51,6 +61,7 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
 
 	public void SetRotation(Quaternion rotation)
 	{
+		_priorTransform.rotation = rotation;
 		transform.rotation = rotation;
 	}
     // ITransform end
@@ -65,6 +76,8 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
 	// Monobehaviour events
 	public void Awake()
 	{
+		_priorTransform = new StoreTransform();
+
 		_collider = GetComponent<Collider2D>();
 	}
 

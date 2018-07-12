@@ -13,6 +13,9 @@ public class PlayerMotorData : ScriptableObject {
     public int velocityWallJumpVertical = 3600;
 	public int gravity = 200;
 
+	public float boundsMultiplierCrouchX = 1.5f;
+	public float boundsMultiplierCrouchY = 0.5f;
+
 	/// <summary>
 	/// How many frames the additive jump will last.
 	/// </summary>

@@ -25,7 +25,7 @@ public class InputPlaybackControllerPlayer
 		entity = playerTransform;
 		buffer = inputBuffer;
 
-		initialPosition = entity.position;
+		initialPosition = entity.Position;
 
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
@@ -35,7 +35,7 @@ public class InputPlaybackControllerPlayer
         if (Input.GetKeyDown(KeyCode.R)) {
 			Events.Raise(OnPlaybackStarted);
 
-			finalPosition = entity.position;
+			finalPosition = entity.Position;
 
 			entity.SetPosition(initialPosition);
 			CoreBehaviour.Instance.StartCoroutine(PlaybackFrames());
@@ -60,7 +60,7 @@ public class InputPlaybackControllerPlayer
             yield return null;
         }
 
-		Debug.AssertFormat(entity.position == finalPosition, "Played back final position {0} did not match actual final position {1}", entity.position, finalPosition);
+		Debug.AssertFormat(entity.Position == finalPosition, "Played back final position {0} did not match actual final position {1}", entity.Position, finalPosition);
         Debug.LogFormat("Finished playback");
 
         yield break;

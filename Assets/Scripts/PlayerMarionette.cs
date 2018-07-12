@@ -68,6 +68,7 @@ public class PlayerMarionette : IPlayerMarionette
 
 			var addVelocity = bodyMotor.GetVelocity() * data.lobVelocityCoefficient;
 
+			// TODO: Should be based on input direction not motor direction.
 			if (bodyMotor.GetDirection().x < 0)
 			{
 				handGrenadeInput.Lob(Direction2D.LEFT, addVelocity);
@@ -92,7 +93,7 @@ public class PlayerMarionette : IPlayerMarionette
     {
 		inputCount = 0;
 		isHandCollided = false;
-		handEntity.SetPosition(handGrenadeEntity.position);
+		handEntity.SetPosition(handGrenadeEntity.Position);
 		handBehavior.SetActive(true);
 		handGrenadeInput.Reset();
     }
