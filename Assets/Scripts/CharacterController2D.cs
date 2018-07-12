@@ -460,56 +460,30 @@ public class CharacterController2D
 
 	public CharacterCollisionState2D CheckProximity(float distance, Direction2D mask)
     {
-        // Initialize check parameters for below.
-		var checkDepth = data.skinWidth;
-        var origin = _raycastOrigins.bottomLeft;
-		var size = new Vector2(collider.bounds.size.x - data.skinWidth, checkDepth);
-        var direction = Vector2.down;
-		var checkDistance = distance;
 		var proximityCollision = new CharacterCollisionState2D();
 
-        // Vertical checks.
-
-        // Get to center x
-		origin.x = entity.position.x;
-
-        // Check below
+		// Check below
 		if (FlagsHelper.IsSet(mask, Direction2D.BELOW))
 		{
-			proximityCollision.below = Physics2D.BoxCast(origin, size, 0, direction, checkDistance, data.platformMask);
+			proximityCollision.below = checkBelow(distance, data.skinWidth);
 		}
 
         // Check above
 		if (FlagsHelper.IsSet(mask, Direction2D.ABOVE))
 		{
-			origin.y = _raycastOrigins.topLeft.y;
-            direction = Vector2.up;
-            proximityCollision.above = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);
+			proximityCollision.above = checkAbove(distance, data.skinWidth);
 		}        
-
-        // Horizontal checks.
-
-        // Get to center y.
-		origin.y = entity.position.y;
-
-        // Adjust check size.
-        size.x = checkDepth;
-		size.y = collider.bounds.size.y - data.skinWidth;
 
         // Check right.
 		if (FlagsHelper.IsSet(mask, Direction2D.RIGHT))
 		{
-			origin.x = _raycastOrigins.bottomRight.x;
-            direction = Vector2.right;
-            proximityCollision.right = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);			
+			proximityCollision.right = checkRight(distance, data.skinWidth);
 		}
 
         // Check left
 		if (FlagsHelper.IsSet(mask, Direction2D.LEFT))
 		{
-			origin.x = _raycastOrigins.bottomLeft.x;
-            direction = Vector2.left;
-            proximityCollision.left = Physics2D.BoxCast(origin, size, 0, direction, data.skinWidth, data.platformMask);
+			proximityCollision.left = checkLeft(distance, data.skinWidth);
 		}
 
 		return proximityCollision;
@@ -530,9 +504,10 @@ public class CharacterController2D
 
 	private RaycastHit2D checkAbove(float distance, float depth)
     {
+		var origin = new Vector2(entity.position.x, _raycastOrigins.topLeft.y);
         var size = new Vector2(collider.bounds.size.x - data.skinWidth, depth);
 
-		return Physics2D.BoxCast(_raycastOrigins.bottomLeft,
+		return Physics2D.BoxCast(origin,
 		                         size,
 		                         0,
 		                         Vector2.up,
@@ -542,9 +517,10 @@ public class CharacterController2D
 
 	private RaycastHit2D checkRight(float distance, float depth)
     {
+		var origin = new Vector2(_raycastOrigins.bottomRight.x, entity.position.y);
 		var size = new Vector2(depth, collider.bounds.size.y - data.skinWidth);
 
-		return Physics2D.BoxCast(_raycastOrigins.bottomRight,
+		return Physics2D.BoxCast(origin,
 		                         size,
 		                         0,
 		                         Vector2.right,
@@ -554,10 +530,10 @@ public class CharacterController2D
 
 	private RaycastHit2D checkLeft(float distance, float depth)
     {
-        // Initialize check parameters for below.
+		var origin = new Vector2(_raycastOrigins.bottomLeft.x, entity.position.y);
 		var size = new Vector2(depth, collider.bounds.size.y - data.skinWidth);
 
-		return Physics2D.BoxCast(_raycastOrigins.bottomLeft,
+		return Physics2D.BoxCast(origin,
                                  size,
                                  0,
 		                         Vector2.left,
