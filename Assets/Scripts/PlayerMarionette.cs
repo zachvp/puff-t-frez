@@ -11,6 +11,7 @@ public class PlayerMarionette : IPlayerMarionette
 	private Entity bodyEntity;
         
 	private IBehavior handBehavior;
+	private Entity handEntity; 
 
 	private IInputLob handGrenadeInput;
 	private Entity handGrenadeEntity;
@@ -33,9 +34,10 @@ public class PlayerMarionette : IPlayerMarionette
 		bodyEntity = entity;
 	}
 
-	public void AttachHand(IBehavior behavior)
+	public void AttachHand(IBehavior behavior, Entity entity)
 	{
 		handBehavior = behavior;
+		handEntity = entity;
 	}
 
 	public void AttachHandGrenade(IInputLob lobInput, Entity entity)
@@ -90,6 +92,7 @@ public class PlayerMarionette : IPlayerMarionette
     {
 		inputCount = 0;
 		isHandCollided = false;
+		handEntity.SetPosition(handGrenadeEntity.position);
 		handBehavior.SetActive(true);
 		handGrenadeInput.Reset();
     }
@@ -102,7 +105,6 @@ public class PlayerMarionette : IPlayerMarionette
         {
 			isHandCollided = true;
 			handGrenadeInput.Freeze();
-			//manager.PostCallbackWithFrameDelay(data.frameDelayReset, new Callback(HandleResetPosition));
         }
 		else if (layer == Constants.Layers.ENTITY && isHandCollided)
 		{

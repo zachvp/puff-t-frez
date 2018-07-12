@@ -42,8 +42,9 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);
 
         // Attach the limb input
+		// TODO: Passing multiple of same object is smellyyy...Fix soon ya goon.
 		marionette.AttachBody(bodyMotor, bodyMotor, bodyEntity);
-		marionette.AttachHand(handEntity);
+		marionette.AttachHand(handEntity, handEntity);
 		marionette.AttachHandGrenade(grenadeMotor, grenadeEntity);
 	}
 }
