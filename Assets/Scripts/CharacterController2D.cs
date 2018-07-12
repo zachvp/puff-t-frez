@@ -465,31 +465,31 @@ public class CharacterController2D
 		// Check below
 		if (FlagsHelper.IsSet(mask, Direction2D.BELOW))
 		{
-			proximityCollision.below = checkBelow(distance, data.skinWidth);
+			proximityCollision.below = CheckBelow(distance, data.skinWidth);
 		}
 
         // Check above
 		if (FlagsHelper.IsSet(mask, Direction2D.ABOVE))
 		{
-			proximityCollision.above = checkAbove(distance, data.skinWidth);
+			proximityCollision.above = CheckAbove(distance, data.skinWidth);
 		}        
 
         // Check right.
 		if (FlagsHelper.IsSet(mask, Direction2D.RIGHT))
 		{
-			proximityCollision.right = checkRight(distance, data.skinWidth);
+			proximityCollision.right = CheckRight(distance, data.skinWidth);
 		}
 
         // Check left
 		if (FlagsHelper.IsSet(mask, Direction2D.LEFT))
 		{
-			proximityCollision.left = checkLeft(distance, data.skinWidth);
+			proximityCollision.left = CheckLeft(distance, data.skinWidth);
 		}
 
 		return proximityCollision;
     }
 
-	private RaycastHit2D checkBelow(float distance, float thiccness)
+	public RaycastHit2D CheckBelow(float distance, float thiccness)
 	{
 		var origin = new Vector2(entity.position.x, _raycastOrigins.bottomLeft.y);
 		var size = new Vector2(collider.bounds.size.x - data.skinWidth, thiccness);
@@ -502,7 +502,7 @@ public class CharacterController2D
 		                         data.platformMask);
 	}
 
-	private RaycastHit2D checkAbove(float distance, float thiccness)
+	public RaycastHit2D CheckAbove(float distance, float thiccness)
     {
 		var origin = new Vector2(entity.position.x, _raycastOrigins.topLeft.y);
         var size = new Vector2(collider.bounds.size.x - data.skinWidth, thiccness);
@@ -515,7 +515,7 @@ public class CharacterController2D
 		                         data.platformMask);
     }
 
-	private RaycastHit2D checkRight(float distance, float thiccness)
+	public RaycastHit2D CheckRight(float distance, float thiccness)
     {
 		var origin = new Vector2(_raycastOrigins.bottomRight.x, entity.position.y);
 		var size = new Vector2(thiccness, collider.bounds.size.y - data.skinWidth);
@@ -528,7 +528,7 @@ public class CharacterController2D
 		                         data.platformMask);
     }
 
-	private RaycastHit2D checkLeft(float distance, float thiccness)
+	public RaycastHit2D CheckLeft(float distance, float thiccness)
     {
 		var origin = new Vector2(_raycastOrigins.bottomLeft.x, entity.position.y);
 		var size = new Vector2(thiccness, collider.bounds.size.y - data.skinWidth);

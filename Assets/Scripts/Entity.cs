@@ -34,7 +34,7 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
     // Collision events
 	public EventHandler<Collision2D> OnCollisionEnter;
 
-	private Collider2D _collider;
+	protected Collider2D _collider;
 
 	// ITransform begin
     public void SetPosition(Vector3 position)

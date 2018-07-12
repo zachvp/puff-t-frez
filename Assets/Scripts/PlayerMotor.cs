@@ -3,7 +3,7 @@ using System;
 
 public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 {
-	private Entity entity;
+	private PlayerCharacterEntity entity;
 
     // Reference to the character controller engine.
     private CharacterController2D engine;
@@ -31,7 +31,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 
 	private State state;
     
-	public PlayerMotor(Entity playerEntity, CharacterController2D playerEngine)
+	public PlayerMotor(PlayerCharacterEntity playerEntity, CharacterController2D playerEngine)
 	{
 		input = new PlayerInputSnapshot();
 
@@ -129,6 +129,20 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 				newBounds.x *= 1.5f;
                 newBounds.y /= 2;
                 crouchPosition.y -= entity.localScale.y;
+
+				var sizeOffset = (newBounds.x * entity.Collider.size.x) / 2f;
+				var checkDistance = newBounds.x;
+                var hitLeft = engine.CheckLeft(checkDistance, 1);
+                var hitRight = engine.CheckRight(checkDistance, 1);
+
+				if (hitLeft)
+				{
+					crouchPosition.x = hitLeft.point.x + sizeOffset;
+				}
+				if (hitRight)
+				{
+					crouchPosition.x = hitRight.point.x - sizeOffset;
+				}
 
                 entity.SetLocalScale(newBounds);
                 entity.SetPosition(crouchPosition);
