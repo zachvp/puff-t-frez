@@ -15,6 +15,7 @@ public class PlayerMotorData : ScriptableObject {
 
 	public float boundsMultiplierCrouchX = 1.5f;
 	public float boundsMultiplierCrouchY = 0.5f;
+	public float velocityThresholdMin = 0.01f;
 
 	/// <summary>
 	/// How many frames the additive jump will last.

@@ -74,8 +74,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         // Update the controller with the computed velocity.
         engine.Move(deltaTime * velocity);
 
-		// TODO: Fix magic number
-        if (Mathf.Abs(engine.velocity.y) < 0.01) {
+		if (Mathf.Abs(engine.velocity.y) < data.velocityThresholdMin) {
             // Kind of a hack. The normally computed velocity is unreliable.
             // The only other case velocity is used is in handling slopes.
             velocity.y = 0;
@@ -126,11 +125,11 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
                 crouchPosition.y -= entity.LocalScale.y;
 
 				// TODO: Clean up magic values
-				var sizeOffset = (newBounds.x * entity.Collider.size.x) / 2f;
+				var sizeOffset = GetWorldSpaceSize(newBounds, entity.Collider, 0.5f).x;
 				var checkDistance = newBounds.x;
                 var hitLeft = engine.CheckLeft(checkDistance, 1);
                 var hitRight = engine.CheckRight(checkDistance, 1);
-
+                
 				if (hitLeft)
 				{
 					crouchPosition.x = hitLeft.point.x + sizeOffset;
@@ -260,10 +259,14 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 		                   "Motor Y direction should always have a magnitude of one.");
     }
 
-	private Vector3 GetWorldSpaceSize()
+	private Vector3 GetWorldSpaceSize(Vector2 bounds, BoxCollider2D collider, float multiplier)
 	{
-		// TODO: impl
-		return Vector3.zero;
+		var result = Vector3.zero;
+
+		result.x = bounds.x * collider.size.x;
+		result.y = bounds.y * collider.size.y;
+
+		return result * multiplier;
 	}
 
 	[Flags]
