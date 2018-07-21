@@ -65,7 +65,7 @@ public class PlayerMarionette : IPlayerMarionette
 			if (input.released.launch)
             {
 				Debug.LogFormat("launching!");
-                var bodyDirection = CoreUtilities.ConvertFrom(bodyMotor.GetDirection());
+                var bodyDirection = CoreUtilities.Convert(bodyMotor.GetDirection());
                 var direction = bodyDirection;
 
                 if (FlagsHelper.IsSet(input.pressed.direction, Direction2D.RIGHT))

@@ -103,7 +103,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     }
 
     private void HandleGrounded() {
-		var movement = CoreUtilities.ConvertFrom(input.held.direction);
+		var movement = CoreUtilities.Convert(input.held.direction);
 
 		FlagsHelper.Unset(ref state, State.JUMP);
         
@@ -169,7 +169,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     }
 
     private void HandleNotGrounded() {
-		var movement = CoreUtilities.ConvertFrom(input.held.direction);
+		var movement = CoreUtilities.Convert(input.held.direction);
 
         // Motor is not grounded.
         // Air directional influence

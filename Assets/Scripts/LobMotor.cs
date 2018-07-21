@@ -73,7 +73,7 @@ public class LobMotor : Motor, IInputLob
 		                   FlagsHelper.IsSet(lobDirection, Direction2D.RIGHT),
 		                   "Invalid direction given: {0}", direction);
 
-		direction = CoreUtilities.ConvertFrom(lobDirection);
+		direction = CoreUtilities.Convert(lobDirection);
 
         // To handle cases when the motor is lobbed from an object in motion,
         // we add the given velocity to our force frames.

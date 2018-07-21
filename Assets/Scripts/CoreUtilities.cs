@@ -37,7 +37,7 @@ public static class CoreUtilities
         return result * multiplier;
     }
         
-	public static Vector2 ConvertFrom(Direction2D direction)
+	public static Vector2 Convert(Direction2D direction)
 	{
 		var result = Vector2.zero;
 		var set = 1;
@@ -52,7 +52,7 @@ public static class CoreUtilities
 		return result;
 	}
 
-	public static Direction2D ConvertFrom(Vector2 vector)
+	public static Direction2D Convert(Vector2 vector)
 	{
 		var result = Direction2D.NONE;
 		var list = new List<Direction2D>()
