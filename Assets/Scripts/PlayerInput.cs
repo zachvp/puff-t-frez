@@ -1,27 +1,29 @@
 ﻿using UnityEngine;
 
 // Represents a snapshot of input in a single frame.
-public class PlayerInputSnapshot
+public class InputSnapshot<T> where T : new()
 {
-    public PlayerInput pressed;
-    public PlayerInput released;
+    public T pressed;
+    public T released;
 
-    public PlayerInputSnapshot()
+    public InputSnapshot()
 	{
-        pressed = new PlayerInput();
-        released = new PlayerInput();
+        pressed = new T();
+        released = new T();
     }
 
-    public PlayerInputSnapshot(PlayerInput pressedInput, PlayerInput releasedInput)
+    public InputSnapshot(T pressedInput, T releasedInput)
 	{
         pressed = pressedInput;
         released = releasedInput;
     }
 }
 
-public class PlayerInput {
+public class PlayerInput : IFactory<PlayerInput>
+{
     // Pressed states
     public Vector2 movement;
+	// TODO: Could bubble up player state to this class and use input mask
     public bool jump;
 	public bool crouch;
 
@@ -33,4 +35,30 @@ public class PlayerInput {
         jump = input.jump;
 		crouch = input.crouch;
     }
+
+    // IFactory
+	public PlayerInput Clone()
+	{
+		return new PlayerInput(this);
+	}
+}
+
+public class HandGrenadeInput : IFactory<HandGrenadeInput>
+{
+	public Vector2 direction;
+	public bool fired;
+
+	public HandGrenadeInput() {}
+
+	public HandGrenadeInput(HandGrenadeInput input)
+	{
+		direction = input.direction;
+		fired = input.fired;
+	}
+
+    // IFactory
+	public HandGrenadeInput Clone()
+	{
+		return new HandGrenadeInput(this);
+	}
 }

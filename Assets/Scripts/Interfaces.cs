@@ -1,16 +1,17 @@
 ﻿using UnityEngine;
+using InControl;
 
 public interface IInputPlayerBody
 {
     // Input functions
-    void ApplyInput(PlayerInputSnapshot input);
+	void ApplyInput(InputSnapshot<PlayerInput> input);
     void ApplyDeltaTime(float deltaTime);
 }
 
 public interface IPlayerMarionette
 {
-    void ApplyPlayerInput(PlayerInputSnapshot snapshot);
-    void ApplyGrenadeInput();
+	void ApplyPlayerInput(InputSnapshot<PlayerInput> snapshot);
+	void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> snapshot);
 
     void ApplyDeltaTime(float deltaTime);
 }
@@ -38,4 +39,23 @@ public interface IMotor
 {
     Vector3 GetVelocity();
     Vector3 GetDirection();
+}
+
+public interface IFactory<T>
+{
+	T Clone();
+}
+
+// TODO: This should be in a different class
+public class CoreObject : System.Object
+{
+	public CoreObject()
+	{
+		
+	}
+
+	public CoreObject(CoreObject other)
+	{
+		Debug.Assert(false, "TODO: This method must be implemented");
+	}
 }

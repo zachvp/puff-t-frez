@@ -12,7 +12,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     private Vector2 velocity;
 
     // The direction of input.
-    private PlayerInputSnapshot input;
+	private InputSnapshot<PlayerInput> input;
 
     // The direction the motor is facing.
     private Vector2 motorDirection;
@@ -33,7 +33,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         
 	public PlayerMotor(PlayerCharacterEntity playerEntity, CharacterController2D playerEngine)
 	{
-		input = new PlayerInputSnapshot();
+		input = new InputSnapshot<PlayerInput>();
 
 		entity = playerEntity;
 		engine = playerEngine;
@@ -82,7 +82,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     }
 
     // IPlayerInput functions
-    public void ApplyInput(PlayerInputSnapshot inputSnapshot) {
+	public void ApplyInput(InputSnapshot<PlayerInput> inputSnapshot) {
         input = inputSnapshot;
     }
 
@@ -124,8 +124,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 				newBounds.y *= data.boundsMultiplierCrouchY;
                 crouchPosition.y -= entity.LocalScale.y;
 
-				// TODO: Clean up magic values
-				var sizeOffset = GetWorldSpaceSize(newBounds, entity.Collider, 0.5f).x;
+				var sizeOffset = CoreUtilities.GetWorldSpaceSize(newBounds, entity.Collider, 0.5f).x;
 				var checkDistance = newBounds.x;
                 var hitLeft = engine.CheckLeft(checkDistance, 1);
                 var hitRight = engine.CheckRight(checkDistance, 1);
@@ -258,16 +257,6 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 		                   (int) Mathf.Abs(motorDirection.y) == 0,
 		                   "Motor Y direction should always have a magnitude of one.");
     }
-
-	private Vector3 GetWorldSpaceSize(Vector2 bounds, BoxCollider2D collider, float multiplier)
-	{
-		var result = Vector3.zero;
-
-		result.x = bounds.x * collider.size.x;
-		result.y = bounds.y * collider.size.y;
-
-		return result * multiplier;
-	}
 
 	[Flags]
 	private enum State

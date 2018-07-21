@@ -50,36 +50,24 @@ public class PlayerMarionette : IPlayerMarionette
 	}
 
 	// IPlayerMarionette begin
-	public void ApplyPlayerInput(PlayerInputSnapshot snapshot)
+	public void ApplyPlayerInput(InputSnapshot<PlayerInput> snapshot)
 	{
 		bodyInput.ApplyInput(snapshot);
 	}
 
-	public void ApplyGrenadeInput()
+	public void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> snapshot)
 	{
-		if (isGrenadeInputAvailable())
-		{
-			if (inputCount == 0)
-            {
-				// Handle initial launch
-				handBehavior.SetActive(false);
-                handGrenadeInput.Reset();
-            }
+		var addVelocity = bodyMotor.GetVelocity() * data.lobVelocityCoefficient;
 
-			var addVelocity = bodyMotor.GetVelocity() * data.lobVelocityCoefficient;
-
-			// TODO: Should be based on input direction not motor direction.
-			if (bodyMotor.GetDirection().x < 0)
-			{
-				handGrenadeInput.Lob(Direction2D.LEFT, addVelocity);
-			}
-			else
-			{
-				handGrenadeInput.Lob(Direction2D.RIGHT, addVelocity);
-			}
-
-			inputCount++;
-		}
+        // TODO: Should be based on input direction not motor direction.
+        if (bodyMotor.GetDirection().x < 0)
+        {
+            handGrenadeInput.Lob(Direction2D.LEFT, addVelocity);
+        }
+        else
+        {
+            handGrenadeInput.Lob(Direction2D.RIGHT, addVelocity);
+        }
 	}
 
 	public void ApplyDeltaTime(float deltaTime)

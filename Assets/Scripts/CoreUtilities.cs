@@ -10,4 +10,14 @@ public static class CoreUtilities {
 
 		return prime;
 	}
+
+	public static Vector3 GetWorldSpaceSize(Vector2 bounds, BoxCollider2D collider, float multiplier)
+    {
+        var result = Vector3.zero;
+
+        result.x = bounds.x * collider.size.x;
+        result.y = bounds.y * collider.size.y;
+
+        return result * multiplier;
+    }
 }

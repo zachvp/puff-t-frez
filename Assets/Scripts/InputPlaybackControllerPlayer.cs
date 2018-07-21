@@ -10,7 +10,7 @@ public class InputPlaybackControllerPlayer
 	private IInputPlayerBody player;
 	private Entity entity;
 
-	private InputBuffer<PlayerInputSnapshot> buffer;
+	private InputBuffer<InputSnapshot<PlayerInput>> buffer;
     private Vector3 initialPosition;
     
 #if DEBUG
@@ -19,7 +19,7 @@ public class InputPlaybackControllerPlayer
     
 	public InputPlaybackControllerPlayer(IInputPlayerBody playerMotor,
 	                                     Entity playerTransform,
-	                                     InputBuffer<PlayerInputSnapshot> inputBuffer)
+	                                     InputBuffer<InputSnapshot<PlayerInput>> inputBuffer)
 	{
 		player = playerMotor;
 		entity = playerTransform;
@@ -45,13 +45,13 @@ public class InputPlaybackControllerPlayer
 	// TODO: This is slightly off. Think it has to do with the frame buffer count mismatch.
     private IEnumerator PlaybackFrames()
 	{
-        var bufferCopy = new List<PlayerInputSnapshot>(buffer.inputBuffer);
+		var bufferCopy = new List<InputSnapshot<PlayerInput>>(buffer.inputBuffer);
         var timeCopy = new List<float>(FrameCounter.Instance.deltaTimes);
         var i = 0;
 
         Debug.AssertFormat(bufferCopy.Count == timeCopy.Count, "Input buffer length {0} different from DeltaTime length {1}", bufferCopy.Count, timeCopy.Count);
 
-        foreach (PlayerInputSnapshot input in bufferCopy) {
+		foreach (InputSnapshot<PlayerInput> input in bufferCopy) {
             var deltaTime = timeCopy[i];
 
             player.ApplyInput(input);

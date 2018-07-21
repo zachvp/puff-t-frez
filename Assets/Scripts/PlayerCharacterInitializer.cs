@@ -12,7 +12,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
     public void Awake()
 	{
 		// TODO: This should be a marionette input snapshot buffer
-		var buffer = new InputBuffer<PlayerInputSnapshot>();
+		var buffer = new InputBuffer<InputSnapshot<PlayerInput>>();
 
 		var marionette = new PlayerMarionette();
         

@@ -1,34 +1,23 @@
 ﻿using UnityEngine;
 
-public class PlayerInputController
+public class PlayerInputController : InputController<PlayerInput>
 {
 	protected IPlayerMarionette player;
-
-	protected PlayerInput input;
-	protected PlayerInput inputRelease;
-	protected PlayerInput lastInput;
-
-	protected InputBuffer<PlayerInputSnapshot> buffer;
-
+    
 	public PlayerInputController() { }
 
 	public PlayerInputController(IPlayerMarionette inPlayer, 
-	                             InputBuffer<PlayerInputSnapshot> inputBuffer)
+	                             InputBuffer<InputSnapshot<PlayerInput>> inputBuffer)
 	{
-		input = new PlayerInput();
-
 		player = inPlayer;
 		buffer = inputBuffer;
 
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-	public void HandleUpdate(int currentFrame, float deltaTime)
+	public override void HandleUpdate(int currentFrame, float deltaTime)
 	{
-		inputRelease = new PlayerInput();
-        lastInput = new PlayerInput(input);
-
-        input = new PlayerInput();
+		base.HandleUpdate(currentFrame, deltaTime);
 
 		HandleUpdate();
 	}
@@ -100,7 +89,7 @@ public class PlayerInputController
 			inputRelease.crouch = true;
 		}
 
-		var snapshot = new PlayerInputSnapshot(input, inputRelease);
+		var snapshot = new InputSnapshot<PlayerInput>(input, inputRelease);
 
 		player.ApplyPlayerInput(snapshot);
         buffer.AddInput(snapshot);

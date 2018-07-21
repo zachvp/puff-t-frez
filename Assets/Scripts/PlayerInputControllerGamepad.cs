@@ -2,8 +2,10 @@
 
 public class PlayerInputControllerGamepad : PlayerInputController
 {
-	public override void HandleUpdate()
+	public override void HandleUpdate(int currentFrame, float deltaTime)
     {
+		base.HandleUpdate(currentFrame, deltaTime);
+
         if (InputManager.Devices.Count > 0)
 		{
             var device = InputManager.Devices[0];

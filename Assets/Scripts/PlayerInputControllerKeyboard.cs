@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 
 public class PlayerInputControllerKeyboard : PlayerInputController {
-	public PlayerInputControllerKeyboard(IPlayerMarionette playerInput, InputBuffer<PlayerInputSnapshot> inputBuffer)
+	public PlayerInputControllerKeyboard(IPlayerMarionette playerInput, InputBuffer<InputSnapshot<PlayerInput>> inputBuffer)
 		: base(playerInput, inputBuffer)
 	{ }
 
-	public override void HandleUpdate() {
+	public override void HandleUpdate(int currentFrame, float deltaTime)
+	{
+		base.HandleUpdate(currentFrame, deltaTime);
+
         // Horizontal control
 		if (Input.GetKey (KeyCode.RightArrow))
 		{

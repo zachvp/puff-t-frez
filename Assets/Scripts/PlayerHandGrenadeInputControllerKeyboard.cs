@@ -11,8 +11,11 @@ public class PlayerHandGrenadeInputControllerKeyboard {
 	}
 
 	public void HandleUpdate(int currentFrame, float deltaTime) {
+		var input = new HandGrenadeInput();
+
 		if (Input.GetKeyDown(KeyCode.D)) {
-			marionette.ApplyGrenadeInput();
+			// TODO: Fix
+			//marionette.ApplyGrenadeInput();
 		}
 	}
 }
