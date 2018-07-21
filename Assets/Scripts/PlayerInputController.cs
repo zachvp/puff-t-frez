@@ -15,22 +15,22 @@ public class PlayerInputController : InputController<PlayerInput>
 
 	protected void HandleInputRight()
 	{
-		input.direction.x = 1;
+		FlagsHelper.Set(ref input.direction, Direction2D.RIGHT);
 	}
 
 	protected void HandleInputLeft()
 	{
-		input.direction.x = -1;
+		FlagsHelper.Set(ref input.direction, Direction2D.LEFT);
 	}
 
 	protected void HandleInputUp()
 	{
-		input.direction.y = 1;
+		FlagsHelper.Set(ref input.direction, Direction2D.ABOVE);
 	}
 
 	protected void HandleInputDown()
 	{
-		input.direction.y = -1;
+		FlagsHelper.Set(ref input.direction, Direction2D.BELOW);
 	}
 
 	protected void HandleInputJump()
@@ -47,11 +47,11 @@ public class PlayerInputController : InputController<PlayerInput>
 	{
 		if (isConcurrentHorizontalInput)
 		{
-			input.direction.x = 0;
+			FlagsHelper.Unset(ref input.direction, Direction2D.RIGHT | Direction2D.LEFT);
 		}
         if (isConcurrentVerticalInput)
 		{
-			input.direction.y = 0;
+			FlagsHelper.Unset(ref input.direction, Direction2D.ABOVE | Direction2D.BELOW);
 		}
 
 		// Check for releases.
@@ -64,8 +64,5 @@ public class PlayerInputController : InputController<PlayerInput>
 
 		player.ApplyPlayerInput(snapshot);
         buffer.AddInput(snapshot);
-
-        Debug.AssertFormat(Mathf.Abs(input.direction.x) <= 1, "Input exceeded bounds: {0}", input);
-        Debug.AssertFormat(Mathf.Abs(input.direction.y) <= 1, "Input exceeded bounds: {0}", input);
 	}
 }

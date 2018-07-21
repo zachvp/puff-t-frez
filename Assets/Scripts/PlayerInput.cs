@@ -21,9 +21,7 @@ public class InputSnapshot<T> where T : new()
 
 public class PlayerInput : IFactoryInput<PlayerInput>
 {
-    // Pressed states
-	public Vector2 direction;
-	// TODO: Could bubble up player state to this class and use input mask
+	public Direction2D direction;
     public bool jump;
 	public bool crouch;
 
@@ -49,7 +47,7 @@ public class PlayerInput : IFactoryInput<PlayerInput>
 
 		copy.jump = !jump;
 		copy.crouch = !crouch;
-		copy.direction = -direction;
+		copy.direction = ~direction;
 
 		return copy;
 	}

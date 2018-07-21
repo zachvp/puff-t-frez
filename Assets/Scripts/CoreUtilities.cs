@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System.IO.IsolatedStorage;
-using System;
 
 public static class CoreUtilities {
 	public static Vector3 NormalizePosition(Vector3 position) {
@@ -60,6 +58,40 @@ public static class CoreUtilities {
 			result.y = 1;
 		}
 
+
+		return result;
+	}
+
+	public static Vector2 ConvertFrom(Direction2D direction)
+	{
+		var result = Vector2.zero;
+		var set = 1;
+		var unset = 0;
+
+		result.x += FlagsHelper.IsSet(direction, Direction2D.RIGHT) ? set : unset;
+		result.x += FlagsHelper.IsSet(direction, Direction2D.LEFT) ? -set : unset;
+
+		result.y += FlagsHelper.IsSet(direction, Direction2D.ABOVE) ? set : unset;
+		result.y += FlagsHelper.IsSet(direction, Direction2D.BELOW) ? -set : unset;
+
+		return result;
+	}
+
+	public static Direction2D ConvertFrom(Vector2 vector)
+	{
+		var result = Direction2D.NONE;
+		var list = new List<Direction2D>()
+		{
+			vector.x > 0 ? Direction2D.RIGHT : Direction2D.NONE,
+			vector.x < 0 ? Direction2D.LEFT : Direction2D.NONE,
+			vector.y > 0 ? Direction2D.RIGHT : Direction2D.NONE,
+			vector.y < 0 ? Direction2D.BELOW : Direction2D.NONE
+		};
+                
+		foreach (Direction2D direction in list)
+		{
+			FlagsHelper.Set(ref result, direction);
+		}
 
 		return result;
 	}
