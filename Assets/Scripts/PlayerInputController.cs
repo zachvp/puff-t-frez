@@ -11,8 +11,6 @@ public class PlayerInputController : InputController<PlayerInput>
 	{
 		player = inPlayer;
 		buffer = inputBuffer;
-
-		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
 	public override void HandleUpdate(int currentFrame, float deltaTime)
