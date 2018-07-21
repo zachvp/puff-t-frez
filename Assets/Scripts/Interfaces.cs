@@ -46,4 +46,5 @@ public interface IFactoryInput<T>
 {
 	T Clone();
 	T Released(T oldInput);
+	T Pressed(T oldInput);
 }

@@ -36,47 +36,7 @@ public static class CoreUtilities
 
         return result * multiplier;
     }
-
-	public static Direction2D GetInputReleased(Direction2D oldInput, Direction2D newInput)
-	{
-		var result = Direction2D.NONE;
-		var check = 1;
-
-		for (var i = 0; i < 8; ++i)
-		{
-			var current = (Direction2D) (check << i);
-			if (FlagsHelper.IsSet(oldInput, current) &&
-			    !FlagsHelper.IsSet(newInput, current))
-			{
-				FlagsHelper.Set(ref result, current);
-			}
-		}
-
-		return result;
-	}
-
-	public static bool GetInputReleased(bool oldValue, bool newValue)
-	{
-		return oldValue && !newValue;
-	}
-
-	public static Vector2 GetInputReleased(Vector2 oldInput, Vector2 newInput)
-	{
-		var result = Vector2.zero;
-
-		if (Mathf.Abs(newInput.x) < 1 && Mathf.Abs(oldInput.x) > 0)
-		{
-			result.x = 1;
-		}
-		if (Mathf.Abs(newInput.y) < 1 && Mathf.Abs(oldInput.y) > 0)
-		{
-			result.y = 1;
-		}
-
-
-		return result;
-	}
-
+        
 	public static Vector2 ConvertFrom(Direction2D direction)
 	{
 		var result = Vector2.zero;

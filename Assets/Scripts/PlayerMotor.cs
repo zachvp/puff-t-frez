@@ -39,6 +39,9 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 		engine = playerEngine;
 		data = ScriptableObject.CreateInstance<PlayerMotorData>();
 
+		// TOOD: Move magic to data class
+		motorDirection = new Vector2(1, -1);
+
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
@@ -60,7 +63,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
             jumpCount++;
         }
 
-        if (input.pressed.jump &&
+		if (input.held.jump &&
             additiveJumpFrameCount < data.frameLimitJumpAdditive &&
             jumpCount < data.jumpCountMax)
         {
@@ -100,7 +103,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     }
 
     private void HandleGrounded() {
-		var movement = CoreUtilities.ConvertFrom(input.pressed.direction);
+		var movement = CoreUtilities.ConvertFrom(input.held.direction);
 
 		FlagsHelper.Unset(ref state, State.JUMP);
         
@@ -108,11 +111,12 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         velocity.x = movement.x * data.velocityHorizontalGroundMax;
 
         // Reset jump states if jump isn't pressed.
-        if (!input.pressed.jump) {
+		if (!input.held.jump) {
             additiveJumpFrameCount = 0;
             jumpCount = 0;
         }
 
+		// TODO: This outer check can probly be removed
 		if (!FlagsHelper.IsSet(state, State.CROUCH))
         {
 			if (input.pressed.crouch)
@@ -145,7 +149,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         }
 		else if (FlagsHelper.IsSet(state, State.CROUCH))
 		{
-			if (!input.pressed.crouch)
+			if (!input.held.crouch)
 			{
 				var check = engine.CheckProximity(entity.LocalScale.y, Direction2D.UP);
 
@@ -165,7 +169,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     }
 
     private void HandleNotGrounded() {
-		var movement = CoreUtilities.ConvertFrom(input.pressed.direction);
+		var movement = CoreUtilities.ConvertFrom(input.held.direction);
 
         // Motor is not grounded.
         // Air directional influence
@@ -175,16 +179,15 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         velocity.x = Mathf.Clamp(velocity.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
 
 		// Check for wall collision in air, which should zero out x velocity.
-		var isNeutralInput = FlagsHelper.IsSet(input.pressed.direction, Direction2D.LEFT | Direction2D.RIGHT);
+		var isNeutralInput = !FlagsHelper.IsSet(input.held.direction, Direction2D.LEFT | Direction2D.RIGHT);
         if (isNeutralInput && (engine.collision.Right || engine.collision.Left))
         {
             velocity.x = 0;
         }
 
 		// Check for wall jump.
-        if (jumpCount > 0 && input.pressed.jump)
+		if (jumpCount > 0 && input.held.jump)
         {
-			Debug.Log("wall jump meets jump conditions");
             // Buffer collision state X frames
             // Check if .left is in buffer up to Y frames back
             if (engine.IsCollisionBuffered(Direction2D.LEFT))

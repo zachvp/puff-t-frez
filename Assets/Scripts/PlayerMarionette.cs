@@ -50,27 +50,38 @@ public class PlayerMarionette : IPlayerMarionette
 	}
 
 	// IPlayerMarionette begin
-	public void ApplyPlayerInput(InputSnapshot<PlayerInput> snapshot)
+	public void ApplyPlayerInput(InputSnapshot<PlayerInput> input)
 	{
-		bodyInput.ApplyInput(snapshot);
+		bodyInput.ApplyInput(input);
 	}
 
-	public void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> snapshot)
+	public void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> input)
 	{
-		var addVelocity = bodyMotor.GetVelocity() * data.lobVelocityCoefficient;
+        if (IsGrenadeInputAvailable())
+		{
+			var addVelocity = bodyMotor.GetVelocity() * data.lobVelocityCoefficient;
 
-        // TODO: Should be based on input direction not motor direction.
-		if (snapshot.pressed.launch) {
-			handGrenadeInput.Reset();
-			handBehavior.SetActive(false);
+            // TODO: Should be based on input direction not motor direction.
+			if (input.released.launch)
+            {
+				Debug.LogFormat("launching!");
+                var bodyDirection = CoreUtilities.ConvertFrom(bodyMotor.GetDirection());
+                var direction = bodyDirection;
 
-			if (bodyMotor.GetDirection().x < 0)
-            {
-                handGrenadeInput.Lob(Direction2D.LEFT, addVelocity);
-            }
-            else
-            {
-                handGrenadeInput.Lob(Direction2D.RIGHT, addVelocity);
+                if (FlagsHelper.IsSet(input.pressed.direction, Direction2D.RIGHT))
+                {
+                    FlagsHelper.Set(ref direction, Direction2D.RIGHT);
+                }
+
+				if (inputCount == 0)
+				{
+					isHandCollided = false;
+					handGrenadeInput.Reset();
+                    handBehavior.SetActive(false);
+				}
+
+                handGrenadeInput.Lob(direction, addVelocity);
+				inputCount++;
             }
 		}
 	}
@@ -108,7 +119,7 @@ public class PlayerMarionette : IPlayerMarionette
 	// Handlers end
 
 	// Private begin
-	private bool isGrenadeInputAvailable()
+	private bool IsGrenadeInputAvailable()
 	{
 		return inputCount < data.inputCountLob && !isHandCollided;
 	}

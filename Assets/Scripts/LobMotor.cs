@@ -37,10 +37,14 @@ public class LobMotor : Motor, IInputLob
 			// Determine if force should be applied 
             if (forceFrameCount > 0)
             {
-                var multiplier = (1 - (forceFrameCount / data.forceFrameLength));
+                var multiplier = 1 - (forceFrameCount / data.forceFrameLength);
+				var speed = data.speed + additiveSpeed;
 
-				velocity = (data.speed + additiveSpeed) * direction * multiplier;
+				velocity = speed * data.multiplier * multiplier;
 
+                // Set the velocity direction based on the input direction.
+				velocity.x *= direction.x;
+                
                 --forceFrameCount;
 			} else {
 				additiveSpeed = 1;
@@ -65,18 +69,11 @@ public class LobMotor : Motor, IInputLob
 		entity.SetActive(true);
 		HandleFrameUpdate(HandleUpdate);
 
-		Debug.AssertFormat(lobDirection == Direction2D.LEFT ||
-		                   lobDirection == Direction2D.RIGHT,
+		Debug.AssertFormat(FlagsHelper.IsSet(lobDirection, Direction2D.LEFT) ||
+		                   FlagsHelper.IsSet(lobDirection, Direction2D.RIGHT),
 		                   "Invalid direction given: {0}", direction);
 
-		if (lobDirection == Direction2D.RIGHT)
-		{
-			direction = data.directionRight;
-		}
-		else
-		{
-			direction = data.directionLeft;
-		}
+		direction = CoreUtilities.ConvertFrom(lobDirection);
 
         // To handle cases when the motor is lobbed from an object in motion,
         // we add the given velocity to our force frames.

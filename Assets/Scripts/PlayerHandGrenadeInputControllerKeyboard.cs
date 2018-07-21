@@ -12,8 +12,8 @@ public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGren
 	public override void HandleUpdate(int currentFrame, float deltaTime) {
 		base.HandleUpdate(currentFrame, deltaTime);
 
-		input.direction |= Input.GetKey(KeyCode.RightArrow) ? Direction2D.RIGHT : 0;
-		input.direction |= Input.GetKey(KeyCode.LeftArrow) ? Direction2D.LEFT : 0;
+		input.direction |= Input.GetKey(KeyCode.RightArrow) ? Direction2D.RIGHT : Direction2D.NONE;
+		input.direction |= Input.GetKey(KeyCode.LeftArrow) ? Direction2D.LEFT : Direction2D.NONE;
 
 		input.launch = Input.GetKey(KeyCode.D);
         

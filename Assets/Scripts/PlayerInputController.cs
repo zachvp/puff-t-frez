@@ -54,6 +54,7 @@ public class PlayerInputController : InputController<PlayerInput>
 			FlagsHelper.Unset(ref input.direction, Direction2D.UP | Direction2D.DOWN);
 		}
 
+		// TODO: Refactor so pass (held: input, oldInput : oldInput, pressed: )
 		var snapshot = new InputSnapshot<PlayerInput>(oldInput, input);
         
 		player.ApplyPlayerInput(snapshot);

@@ -4,22 +4,25 @@
 public class InputSnapshot<T> where T : IFactoryInput<T>, new()
 {
     public T pressed;
+	public T held;
     public T released;
 
     public InputSnapshot()
 	{
         pressed = new T();
+		held = new T();
         released = new T();
     }
 
     public InputSnapshot(T oldInput, T newInput)
 	{
-		pressed = newInput;
+		held = newInput;
+		pressed = newInput.Pressed(oldInput);
 		released = newInput.Released(oldInput);
     }
 }
 
-public class PlayerInput : IFactoryInput<PlayerInput>
+public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 {
 	public Direction2D direction;
     public bool jump;
@@ -44,15 +47,26 @@ public class PlayerInput : IFactoryInput<PlayerInput>
 	{
 		var copy = Clone();
 
-		copy.jump = CoreUtilities.GetInputReleased(oldInput.jump, jump);
-		copy.crouch = CoreUtilities.GetInputReleased(oldInput.crouch, crouch);
-		copy.direction = CoreUtilities.GetInputReleased(oldInput.direction, direction);
+		copy.jump = GetInputReleased(oldInput.jump, jump);
+		copy.crouch = GetInputReleased(oldInput.crouch, crouch);
+		copy.direction = GetInputReleased(oldInput.direction, direction);
+
+		return copy;
+	}
+
+	public PlayerInput Pressed(PlayerInput oldInput)
+	{
+		var copy = Clone();
+
+		copy.jump = GetInputPressed(oldInput.jump, jump);
+		copy.crouch = GetInputPressed(oldInput.crouch, crouch);
+		copy.direction = GetInputPressed(oldInput.direction, direction);
 
 		return copy;
 	}
 }
 
-public class HandGrenadeInput : IFactoryInput<HandGrenadeInput>
+public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 {
 	public Direction2D direction;
 	public bool launch;
@@ -75,8 +89,18 @@ public class HandGrenadeInput : IFactoryInput<HandGrenadeInput>
 	{
 		var copy = Clone();
 
-		copy.direction = CoreUtilities.GetInputReleased(oldInput.direction, direction);
-		copy.launch = CoreUtilities.GetInputReleased(oldInput.launch, launch);
+		copy.direction = GetInputReleased(oldInput.direction, direction);
+		copy.launch = GetInputReleased(oldInput.launch, launch);
+
+		return copy;
+	}
+
+	public HandGrenadeInput Pressed(HandGrenadeInput oldInput)
+	{
+		var copy = Clone();
+
+		copy.direction = GetInputPressed(oldInput.direction, direction);
+		copy.launch = GetInputPressed(oldInput.launch, launch);
 
 		return copy;
 	}
