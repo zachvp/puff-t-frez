@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
+using System.IO.IsolatedStorage;
+using System;
 
 public static class CoreUtilities {
 	public static Vector3 NormalizePosition(Vector3 position) {
@@ -20,6 +23,24 @@ public static class CoreUtilities {
 
         return result * multiplier;
     }
+
+	public static Direction2D GetInputReleased(Direction2D oldInput, Direction2D newInput)
+	{
+		var result = Direction2D.NONE;
+		var check = 1;
+
+		for (var i = 0; i < 8; ++i)
+		{
+			var current = (Direction2D) (check << i);
+			if (FlagsHelper.IsSet(oldInput, current) &&
+			    !FlagsHelper.IsSet(newInput, current))
+			{
+				FlagsHelper.Set(ref result, current);
+			}
+		}
+
+		return result;
+	}
 
 	public static bool GetInputReleased(bool oldValue, bool newValue)
 	{

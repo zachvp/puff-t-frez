@@ -100,7 +100,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     }
 
     private void HandleGrounded() {
-        var movement = input.pressed.movement;
+        var movement = input.pressed.direction;
 
 		FlagsHelper.Unset(ref state, State.JUMP);
         
@@ -165,7 +165,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     }
 
     private void HandleNotGrounded() {
-        var movement = input.pressed.movement;
+        var movement = input.pressed.direction;
 
         // Motor is not grounded.
         // Air directional influence
@@ -175,7 +175,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         velocity.x = Mathf.Clamp(velocity.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
 
         // Check for wall collision in air, which should zero out x velocity.
-        if (Mathf.Abs(input.pressed.movement.x) < 1 &&
+        if (Mathf.Abs(input.pressed.direction.x) < 1 &&
            (engine.collision.right || engine.collision.left))
         {
             velocity.x = 0;

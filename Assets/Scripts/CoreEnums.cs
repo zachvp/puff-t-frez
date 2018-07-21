@@ -5,6 +5,7 @@ using System.Diagnostics;
 [Flags]
 public enum Direction2D
 {
+	NONE  = 0,
 	RIGHT = 1 << 0,
 	LEFT  = 1 << 1,
 	ABOVE = 1 << 2,
