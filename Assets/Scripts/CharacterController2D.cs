@@ -153,7 +153,6 @@ public class CharacterController2D
 		{
 			//transform.Translate( deltaMovement, Space.World );
 			var newPosition = entity.Position + deltaMovement;
-			newPosition = CoreUtilities.NormalizePosition(newPosition);
 
 			entity.SetPosition(newPosition);
 
@@ -297,30 +296,6 @@ public class CharacterController2D
 			}
 		}
 	}
-
-    // This is overkill for now. may need later.
-	//private void MoveHorizontalCast(ref Vector3 deltaMovement, CharacterCollisionState2D oldCollisionState)
-	//{
-	//	var isGoingRight = deltaMovement.x > 0;
-	//	var castDistance = Mathf.Abs(deltaMovement.x) + data.skinWidth;
-	//	var castDirection = isGoingRight ? Vector2.right : -Vector2.right;
-	//	var origin = new Vector3(collider.bounds.min.x, entity.position.y, 0); // TODO: Should use collider Y coordinate
-	//	RaycastHit2D hit;
-
-	//	if (isGoingRight)
-	//	{
-	//		origin.x = collider.bounds.max.x;
-	//	}
-
-	//	// TODO: Handle slope
-	//	hit = Physics2D.BoxCast(origin, collider.size, 0, castDirection, castDistance, data.platformMask);
-
-	//	if (hit)
-	//	{
-			
-	//	}
-	//}
-
 
 	/// <summary>
 	/// handles adjusting deltaMovement if we are going up a slope.

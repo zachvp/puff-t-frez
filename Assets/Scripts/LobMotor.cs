@@ -50,7 +50,6 @@ public class LobMotor : Motor, IInputLob
 			velocity.y -= data.gravity;
 
             var newPosition = entity.Position + deltaTime * velocity;
-            newPosition = CoreUtilities.NormalizePosition(newPosition);
 
             entity.SetPosition(newPosition);
 		}

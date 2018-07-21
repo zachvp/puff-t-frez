@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 
-// TODO: Should Vector2 just be used for this??
 [Flags]
 public enum Direction2D
 {

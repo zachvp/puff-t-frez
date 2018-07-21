@@ -45,11 +45,6 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 	// When update is called, all input has been processed.
 	public void HandleUpdate(int currentFrame, float deltaTime)
     {
-		if (engine.collision.HasCollision())
-		{
-			Debug.LogFormat("has collision");
-		}
-
         if (engine.isGrounded)
         {
             HandleGrounded();

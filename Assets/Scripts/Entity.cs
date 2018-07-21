@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 
-// TODO: In late update, round off positions and scales.
-
 // For any given GameObject in a scene, this handles position setting, collision
 // events, etc.
 public class Entity : MonoBehaviour, ITransform, IBehavior {
@@ -44,8 +42,15 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
 	protected Collider2D _collider;
 	protected StoreTransform _priorTransform;
 
+	// MonoBehaviour begin
+	public void LateUpdate()
+	{
+		SetPosition(CoreUtilities.NormalizePosition(Position));
+	}
+	// MonoBehaviour end
+
 	// ITransform begin
-    public void SetPosition(Vector3 position)
+	public void SetPosition(Vector3 position)
     {
 		_priorTransform.position = transform.position;
         transform.position = position;

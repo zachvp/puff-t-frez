@@ -29,7 +29,6 @@ public class IdleLimbMotor : Motor {
         var velocity = toTarget.normalized * speed;
 
 		newPos += velocity * deltaTime;
-		newPos = CoreUtilities.NormalizePosition(newPos);
 
 		entity.SetPosition(newPos);
 	}
