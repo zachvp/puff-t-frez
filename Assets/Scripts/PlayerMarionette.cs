@@ -60,14 +60,19 @@ public class PlayerMarionette : IPlayerMarionette
 		var addVelocity = bodyMotor.GetVelocity() * data.lobVelocityCoefficient;
 
         // TODO: Should be based on input direction not motor direction.
-        if (bodyMotor.GetDirection().x < 0)
-        {
-            handGrenadeInput.Lob(Direction2D.LEFT, addVelocity);
-        }
-        else
-        {
-            handGrenadeInput.Lob(Direction2D.RIGHT, addVelocity);
-        }
+		if (snapshot.pressed.launch) {
+			handGrenadeInput.Reset();
+			handBehavior.SetActive(false);
+
+			if (bodyMotor.GetDirection().x < 0)
+            {
+                handGrenadeInput.Lob(Direction2D.LEFT, addVelocity);
+            }
+            else
+            {
+                handGrenadeInput.Lob(Direction2D.RIGHT, addVelocity);
+            }
+		}
 	}
 
 	public void ApplyDeltaTime(float deltaTime)

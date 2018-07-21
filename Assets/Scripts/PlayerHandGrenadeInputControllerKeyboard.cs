@@ -1,21 +1,28 @@
 ﻿using UnityEngine;
 
 // TODO: This isn't tied into replay - need to buffer input at the marionette level i think
-public class PlayerHandGrenadeInputControllerKeyboard {
+public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGrenadeInput>
+{
 	private IPlayerMarionette marionette;
 
 	public PlayerHandGrenadeInputControllerKeyboard(IPlayerMarionette marionetteInstance) {
 		marionette = marionetteInstance;
-
-		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-	public void HandleUpdate(int currentFrame, float deltaTime) {
-		var input = new HandGrenadeInput();
+	public override void HandleUpdate(int currentFrame, float deltaTime) {
+		base.HandleUpdate(currentFrame, deltaTime);
 
-		if (Input.GetKeyDown(KeyCode.D)) {
-			// TODO: Fix
-			//marionette.ApplyGrenadeInput();
-		}
+		input.direction |= Input.GetKey(KeyCode.RightArrow) ? Direction2D.RIGHT : 0;
+		input.direction |= Input.GetKey(KeyCode.LeftArrow) ? Direction2D.LEFT : 0;
+
+		input.launch = Input.GetKey(KeyCode.D);
+
+		inputRelease.launch = CoreUtilities.GetInputReleased(lastInput.launch, input.launch);
+
+		var snapshot = new InputSnapshot<HandGrenadeInput>(input, inputRelease);
+
+		marionette.ApplyGrenadeInput(snapshot);
 	}
+
+
 }

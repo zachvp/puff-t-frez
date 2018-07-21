@@ -1,6 +1,6 @@
 ﻿using System;
 
-public class InputController<T> where T : IFactory<T>, new()
+public class InputController<T> where T : IFactoryInput<T>, new()
 {
 	protected T input;
 	protected T inputRelease;
@@ -20,7 +20,6 @@ public class InputController<T> where T : IFactory<T>, new()
 		// Get the data ready for the new frame
 		inputRelease = new T();
 		lastInput = input.Clone();
-
 		input = new T();
     }
 }

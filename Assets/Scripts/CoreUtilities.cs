@@ -20,4 +20,26 @@ public static class CoreUtilities {
 
         return result * multiplier;
     }
+
+	public static bool GetInputReleased(bool oldValue, bool newValue)
+	{
+		return oldValue && !newValue;
+	}
+
+	public static Vector2 GetInputReleased(Vector2 oldInput, Vector2 newInput)
+	{
+		var result = Vector2.zero;
+
+		if (Mathf.Abs(newInput.x) < 1 && Mathf.Abs(oldInput.x) > 0)
+		{
+			result.x = 1;
+		}
+		if (Mathf.Abs(newInput.y) < 1 && Mathf.Abs(oldInput.y) > 0)
+		{
+			result.y = 1;
+		}
+
+
+		return result;
+	}
 }

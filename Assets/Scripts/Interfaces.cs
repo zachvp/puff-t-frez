@@ -38,24 +38,12 @@ public interface IBehavior
 public interface IMotor
 {
     Vector3 GetVelocity();
+	// TODO: Should be Direction2D enum mask
     Vector3 GetDirection();
 }
 
-public interface IFactory<T>
+public interface IFactoryInput<T>
 {
 	T Clone();
-}
-
-// TODO: This should be in a different class
-public class CoreObject : System.Object
-{
-	public CoreObject()
-	{
-		
-	}
-
-	public CoreObject(CoreObject other)
-	{
-		Debug.Assert(false, "TODO: This method must be implemented");
-	}
+	T Released(T oldInput);
 }

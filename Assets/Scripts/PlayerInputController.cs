@@ -13,18 +13,6 @@ public class PlayerInputController : InputController<PlayerInput>
 		buffer = inputBuffer;
 	}
 
-	public override void HandleUpdate(int currentFrame, float deltaTime)
-	{
-		base.HandleUpdate(currentFrame, deltaTime);
-
-		HandleUpdate();
-	}
-
-	public virtual void HandleUpdate()
-	{
-		// Subclasses implement this
-	}
-
 	protected void HandleInputRight()
 	{
 		input.movement.x = 1;
@@ -69,23 +57,11 @@ public class PlayerInputController : InputController<PlayerInput>
             input.movement.y = 0;
 		}
 
-        // Check for releases.
-        if (Mathf.Abs(input.movement.x) < 1 && Mathf.Abs(lastInput.movement.x) > 0)
-		{
-            inputRelease.movement.x = 1;
-        }
-        if (Mathf.Abs(input.movement.y) < 1 && Mathf.Abs(lastInput.movement.y) > 0)
-		{
-            inputRelease.movement.y = 1;
-        }
-		if (lastInput.jump && !input.jump)
-		{
-            inputRelease.jump = true;
-        }
-		if (lastInput.crouch && !input.crouch)
-		{
-			inputRelease.crouch = true;
-		}
+		// Check for releases.
+		// TODO: Move this funcitonaliy to InputSnapshot class
+		inputRelease.movement = CoreUtilities.GetInputReleased(lastInput.movement, input.movement);
+		inputRelease.jump = CoreUtilities.GetInputReleased(lastInput.jump, input.jump);
+		inputRelease.crouch = CoreUtilities.GetInputReleased(lastInput.crouch, input.crouch);
 
 		var snapshot = new InputSnapshot<PlayerInput>(input, inputRelease);
 

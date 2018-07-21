@@ -19,7 +19,7 @@ public class InputSnapshot<T> where T : new()
     }
 }
 
-public class PlayerInput : IFactory<PlayerInput>
+public class PlayerInput : IFactoryInput<PlayerInput>
 {
     // Pressed states
     public Vector2 movement;
@@ -41,24 +41,47 @@ public class PlayerInput : IFactory<PlayerInput>
 	{
 		return new PlayerInput(this);
 	}
+
+	// TODO: Implement
+	public PlayerInput Released(PlayerInput oldInput)
+	{
+		var copy = Clone();
+
+		copy.jump = !jump;
+		copy.crouch = !crouch;
+		copy.movement = -movement;
+
+		return copy;
+	}
 }
 
-public class HandGrenadeInput : IFactory<HandGrenadeInput>
+public class HandGrenadeInput : IFactoryInput<HandGrenadeInput>
 {
-	public Vector2 direction;
-	public bool fired;
+	public Direction2D direction;
+	public bool launch;
 
 	public HandGrenadeInput() {}
 
 	public HandGrenadeInput(HandGrenadeInput input)
 	{
 		direction = input.direction;
-		fired = input.fired;
+		launch = input.launch;
 	}
 
     // IFactory
 	public HandGrenadeInput Clone()
 	{
 		return new HandGrenadeInput(this);
+	}
+
+	// TODO: Replace with released form given other input
+	public HandGrenadeInput Released(HandGrenadeInput oldInput)
+	{
+		var copy = Clone();
+
+		copy.direction = ~direction;
+		launch = !launch;
+
+		return copy;
 	}
 }
