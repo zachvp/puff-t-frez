@@ -16,10 +16,8 @@ public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGren
 		input.direction |= Input.GetKey(KeyCode.LeftArrow) ? Direction2D.LEFT : 0;
 
 		input.launch = Input.GetKey(KeyCode.D);
-
-		inputRelease.launch = CoreUtilities.GetInputReleased(lastInput.launch, input.launch);
-
-		var snapshot = new InputSnapshot<HandGrenadeInput>(input, inputRelease);
+        
+		var snapshot = new InputSnapshot<HandGrenadeInput>(input, oldInput);
 
 		marionette.ApplyGrenadeInput(snapshot);
 	}

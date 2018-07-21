@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 // Represents a snapshot of input in a single frame.
-public class InputSnapshot<T> where T : new()
+public class InputSnapshot<T> where T : IFactoryInput<T>, new()
 {
     public T pressed;
     public T released;
@@ -12,10 +12,10 @@ public class InputSnapshot<T> where T : new()
         released = new T();
     }
 
-    public InputSnapshot(T pressedInput, T releasedInput)
+    public InputSnapshot(T oldInput, T newInput)
 	{
-        pressed = pressedInput;
-        released = releasedInput;
+		pressed = newInput;
+		released = newInput.Released(oldInput);
     }
 }
 
@@ -34,20 +34,19 @@ public class PlayerInput : IFactoryInput<PlayerInput>
 		crouch = input.crouch;
     }
 
-    // IFactory
+    // IFactoryInput
 	public PlayerInput Clone()
 	{
 		return new PlayerInput(this);
 	}
 
-	// TODO: Implement
 	public PlayerInput Released(PlayerInput oldInput)
 	{
 		var copy = Clone();
 
-		copy.jump = !jump;
-		copy.crouch = !crouch;
-		copy.direction = ~direction;
+		copy.jump = CoreUtilities.GetInputReleased(oldInput.jump, jump);
+		copy.crouch = CoreUtilities.GetInputReleased(oldInput.crouch, crouch);
+		copy.direction = CoreUtilities.GetInputReleased(oldInput.direction, direction);
 
 		return copy;
 	}
@@ -72,13 +71,12 @@ public class HandGrenadeInput : IFactoryInput<HandGrenadeInput>
 		return new HandGrenadeInput(this);
 	}
 
-	// TODO: Replace with released form given other input
 	public HandGrenadeInput Released(HandGrenadeInput oldInput)
 	{
 		var copy = Clone();
 
-		copy.direction = ~direction;
-		launch = !launch;
+		copy.direction = CoreUtilities.GetInputReleased(oldInput.direction, direction);
+		copy.launch = CoreUtilities.GetInputReleased(oldInput.launch, launch);
 
 		return copy;
 	}

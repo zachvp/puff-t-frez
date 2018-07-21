@@ -54,14 +54,8 @@ public class PlayerInputController : InputController<PlayerInput>
 			FlagsHelper.Unset(ref input.direction, Direction2D.ABOVE | Direction2D.BELOW);
 		}
 
-		// Check for releases.
-		// TODO: Move this funcitonaliy to InputSnapshot class
-		inputRelease.direction = CoreUtilities.GetInputReleased(lastInput.direction, input.direction);
-		inputRelease.jump = CoreUtilities.GetInputReleased(lastInput.jump, input.jump);
-		inputRelease.crouch = CoreUtilities.GetInputReleased(lastInput.crouch, input.crouch);
-
-		var snapshot = new InputSnapshot<PlayerInput>(input, inputRelease);
-
+		var snapshot = new InputSnapshot<PlayerInput>(oldInput, input);
+        
 		player.ApplyPlayerInput(snapshot);
         buffer.AddInput(snapshot);
 	}
