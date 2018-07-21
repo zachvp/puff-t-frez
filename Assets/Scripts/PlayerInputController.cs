@@ -25,12 +25,12 @@ public class PlayerInputController : InputController<PlayerInput>
 
 	protected void HandleInputUp()
 	{
-		FlagsHelper.Set(ref input.direction, Direction2D.ABOVE);
+		FlagsHelper.Set(ref input.direction, Direction2D.UP);
 	}
 
 	protected void HandleInputDown()
 	{
-		FlagsHelper.Set(ref input.direction, Direction2D.BELOW);
+		FlagsHelper.Set(ref input.direction, Direction2D.DOWN);
 	}
 
 	protected void HandleInputJump()
@@ -51,7 +51,7 @@ public class PlayerInputController : InputController<PlayerInput>
 		}
         if (isConcurrentVerticalInput)
 		{
-			FlagsHelper.Unset(ref input.direction, Direction2D.ABOVE | Direction2D.BELOW);
+			FlagsHelper.Unset(ref input.direction, Direction2D.UP | Direction2D.DOWN);
 		}
 
 		var snapshot = new InputSnapshot<PlayerInput>(oldInput, input);

@@ -71,8 +71,8 @@ public static class CoreUtilities {
 		result.x += FlagsHelper.IsSet(direction, Direction2D.RIGHT) ? set : unset;
 		result.x += FlagsHelper.IsSet(direction, Direction2D.LEFT) ? -set : unset;
 
-		result.y += FlagsHelper.IsSet(direction, Direction2D.ABOVE) ? set : unset;
-		result.y += FlagsHelper.IsSet(direction, Direction2D.BELOW) ? -set : unset;
+		result.y += FlagsHelper.IsSet(direction, Direction2D.UP) ? set : unset;
+		result.y += FlagsHelper.IsSet(direction, Direction2D.DOWN) ? -set : unset;
 
 		return result;
 	}
@@ -85,7 +85,7 @@ public static class CoreUtilities {
 			vector.x > 0 ? Direction2D.RIGHT : Direction2D.NONE,
 			vector.x < 0 ? Direction2D.LEFT : Direction2D.NONE,
 			vector.y > 0 ? Direction2D.RIGHT : Direction2D.NONE,
-			vector.y < 0 ? Direction2D.BELOW : Direction2D.NONE
+			vector.y < 0 ? Direction2D.DOWN : Direction2D.NONE
 		};
                 
 		foreach (Direction2D direction in list)

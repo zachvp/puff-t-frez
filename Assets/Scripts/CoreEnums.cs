@@ -8,9 +8,9 @@ public enum Direction2D
 	NONE  = 0,
 	RIGHT = 1 << 0,
 	LEFT  = 1 << 1,
-	ABOVE = 1 << 2,
-	BELOW = 1 << 3,
-	ALL   = RIGHT | LEFT | ABOVE | BELOW
+	UP    = 1 << 2,
+	DOWN  = 1 << 3,
+	ALL   = RIGHT | LEFT | UP | DOWN
 }
 
 // The casts to object in the below code are an unfortunate necessity due to

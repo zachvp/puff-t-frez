@@ -45,6 +45,11 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 	// When update is called, all input has been processed.
 	public void HandleUpdate(int currentFrame, float deltaTime)
     {
+		if (engine.collision.HasCollision())
+		{
+			Debug.LogFormat("has collision");
+		}
+
         if (engine.isGrounded)
         {
             HandleGrounded();
@@ -147,9 +152,9 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 		{
 			if (!input.pressed.crouch)
 			{
-				var check = engine.CheckProximity(entity.LocalScale.y, Direction2D.ABOVE);
+				var check = engine.CheckProximity(entity.LocalScale.y, Direction2D.UP);
 
-                if (!check.above)
+                if (!check.Above)
                 {
 					var newBounds = entity.PriorTransform.localScale;
                     var crouchPosition = entity.Position;
@@ -176,14 +181,15 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 
 		// Check for wall collision in air, which should zero out x velocity.
 		var isNeutralInput = FlagsHelper.IsSet(input.pressed.direction, Direction2D.LEFT | Direction2D.RIGHT);
-        if (isNeutralInput && (engine.collision.right || engine.collision.left))
+        if (isNeutralInput && (engine.collision.Right || engine.collision.Left))
         {
             velocity.x = 0;
         }
 
-        // Check for wall jump.
+		// Check for wall jump.
         if (jumpCount > 0 && input.pressed.jump)
         {
+			Debug.Log("wall jump meets jump conditions");
             // Buffer collision state X frames
             // Check if .left is in buffer up to Y frames back
             if (engine.IsCollisionBuffered(Direction2D.LEFT))
@@ -199,7 +205,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         }
 
         // Cut short the jump if the motor bumped something above.
-        if (engine.collision.above)
+        if (engine.collision.Above)
         {
             additiveJumpFrameCount = data.frameLimitJumpAdditive;
             velocity.y = 0;

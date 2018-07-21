@@ -1,10 +1,29 @@
-﻿public class CharacterCollisionState2D
+﻿using UnityEngine;
+
+public class CharacterCollisionState2D
 {
-	// TODO: These direction bools can be condensed into flag
-    public bool right;
-    public bool left;
-    public bool above;
-    public bool below;
+	public Direction2D direction;
+	public bool Left
+	{
+		get { return FlagsHelper.IsSet(direction, Direction2D.LEFT); }
+		set { SetDirectionForBool(Direction2D.LEFT, value); }
+	}
+	public bool Right
+	{
+		get { return FlagsHelper.IsSet(direction, Direction2D.RIGHT); }
+		set { SetDirectionForBool(Direction2D.RIGHT, value); }
+	}
+	public bool Above
+	{
+		get { return FlagsHelper.IsSet(direction, Direction2D.UP); }
+		set { SetDirectionForBool(Direction2D.UP, value); }
+	}
+	public bool Below
+	{
+		get { return FlagsHelper.IsSet(direction, Direction2D.DOWN); }
+		set { SetDirectionForBool(Direction2D.DOWN, value); }
+	}
+
     public bool becameGroundedThisFrame;
     public bool movingDownSlope;
     public float slopeAngle;
@@ -13,51 +32,46 @@
 
     public CharacterCollisionState2D(CharacterCollisionState2D other)
     {
-        right = other.right;
-        left = other.left;
-        above = other.above;
-        below = other.below;
+		direction = other.direction;
         becameGroundedThisFrame = other.becameGroundedThisFrame;
         movingDownSlope = other.movingDownSlope;
         slopeAngle = other.slopeAngle;
     }
 
-    public bool hasCollision()
+	public bool HasCollision()
     {
-        return below || right || left || above;
+		return FlagsHelper.IsSet(direction, Direction2D.ALL);
     }
 
 
-    public void reset()
+    public void Reset()
     {
-        right = left = above = below = becameGroundedThisFrame = movingDownSlope = false;
+		direction = Direction2D.NONE;
+		becameGroundedThisFrame = movingDownSlope = false;
         slopeAngle = 0f;
     }
 
 
     public override string ToString()
     {
+		var rightStr = FlagsHelper.IsSet(direction, Direction2D.RIGHT);
+		var leftStr = FlagsHelper.IsSet(direction, Direction2D.LEFT);
+		var upStr = FlagsHelper.IsSet(direction, Direction2D.UP);
+		var downStr = FlagsHelper.IsSet(direction, Direction2D.DOWN);
+
         return string.Format("[CharacterCollisionState2D] r: {0}, l: {1}, a: {2}, b: {3}, movingDownSlope: {4}, angle: {5}, becameGroundedThisFrame: {6}",
-                             right, left, above, below, movingDownSlope, slopeAngle, becameGroundedThisFrame);
+		                     rightStr, leftStr, upStr, downStr, movingDownSlope, slopeAngle, becameGroundedThisFrame);
     }
 
-    public override bool Equals(object obj) {
-        var result = false;
-
-        if (obj is Direction2D) {
-            var cast = (Direction2D) obj;
-            result |= cast == Direction2D.RIGHT && this.right;
-            result |= cast == Direction2D.LEFT && this.left;
-            result |= cast == Direction2D.ABOVE && this.above;
-            result |= cast == Direction2D.BELOW && this.below;
-        } else {
-            result = base.Equals(obj);
-        }
-
-        return result;
-    }
-
-    public override int GetHashCode() {
-        return base.GetHashCode();
-    }
+	private void SetDirectionForBool(Direction2D flag, bool value)
+	{
+		if (value)
+		{
+			FlagsHelper.Set(ref direction, flag);
+		}
+		else
+		{
+			FlagsHelper.Unset(ref direction, flag);
+		}
+	}
 }

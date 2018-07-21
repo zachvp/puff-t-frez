@@ -14,7 +14,7 @@ public class CharacterController2D
 
 	public CharacterCollisionState2D collision = new CharacterCollisionState2D();
 	public Vector3 velocity;
-    public bool isGrounded { get { return collision.below; } }
+    public bool isGrounded { get { return collision.Below; } }
 
 	#endregion
 
@@ -106,11 +106,7 @@ public class CharacterController2D
 
         foreach (CharacterCollisionState2D collisionState in collisionBuffer)
         {
-			if (collisionState.Equals(direction))
-            {
-                result = true;
-                break;
-            }
+			result |= FlagsHelper.IsSet(collisionState.direction, direction);
         }
 
         return result;
@@ -127,7 +123,7 @@ public class CharacterController2D
         var oldCollisionState = new CharacterCollisionState2D(collision);
 
 		// clear our state
-		collision.reset();
+		collision.Reset();
 		_raycastHitsThisFrame.Clear();
 		_isGoingUpSlope = false;
 
@@ -136,7 +132,7 @@ public class CharacterController2D
 
 		// first, we check for a slope below us before moving
 		// only check slopes if we are going down and grounded
-        if( deltaMovement.y < 0 && oldCollisionState.below)
+        if( deltaMovement.y < 0 && oldCollisionState.Below)
 			handleVerticalSlope( ref deltaMovement );
 
 		// now we check movement in the horizontal dir
@@ -179,7 +175,7 @@ public class CharacterController2D
 		}
 
 		// set our becameGrounded state based on the previous and current collision state
-        if( !oldCollisionState.below && collision.below )
+        if( !oldCollisionState.Below && collision.Below )
 			collision.becameGroundedThisFrame = true;
 
 		// if we are going up a slope we artificially set a y velocity so we need to zero it out here
@@ -266,7 +262,7 @@ public class CharacterController2D
 
 			// if we are grounded we will include oneWayPlatforms only on the first ray (the bottom one). this will allow us to
 			// walk up sloped oneWayPlatforms
-            if( i == 0 && oldCollisionState.below) {
+            if( i == 0 && oldCollisionState.Below) {
 				_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, data.platformMask );
 			} else {
 				_raycastHit = Physics2D.Raycast( ray, rayDirection, rayDistance, data.platformMask & ~data.oneWayPlatformMask);
@@ -289,12 +285,12 @@ public class CharacterController2D
 				if( isGoingRight )
 				{
 					deltaMovement.x -= data.skinWidth;
-					collision.right = true;
+					collision.Right = true;
 				}
 				else
 				{
 					deltaMovement.x += data.skinWidth;
-					collision.left = true;
+					collision.Left = true;
 				}
 
 				_raycastHitsThisFrame.Add( _raycastHit );
@@ -356,7 +352,7 @@ public class CharacterController2D
 				deltaMovement.y = Mathf.Abs( Mathf.Tan( angle * Mathf.Deg2Rad ) * deltaMovement.x );
 				_isGoingUpSlope = true;
 
-				collision.below = true;
+				collision.Below = true;
 			}
 		}
 		else // too steep. get out of here
@@ -379,7 +375,7 @@ public class CharacterController2D
 
 		// if we are moving up, we should ignore the layers in oneWayPlatformMask
 		var mask = data.platformMask;
-        if( isGoingUp && !oldCollisionState.below)
+        if( isGoingUp && !oldCollisionState.Below)
 			mask &= ~data.oneWayPlatformMask;
 
 		for( var i = 0; i < data.totalVerticalRays; i++ )
@@ -399,12 +395,12 @@ public class CharacterController2D
 				if( isGoingUp )
 				{
 					deltaMovement.y -= data.skinWidth;
-					collision.above = true;
+					collision.Above = true;
 				}
 				else
 				{
 					deltaMovement.y += data.skinWidth;
-					collision.below = true;
+					collision.Below = true;
 				}
 
 				_raycastHitsThisFrame.Add( _raycastHit );
@@ -463,27 +459,27 @@ public class CharacterController2D
 		var proximityCollision = new CharacterCollisionState2D();
 
 		// Check below
-		if (FlagsHelper.IsSet(mask, Direction2D.BELOW))
+		if (FlagsHelper.IsSet(mask, Direction2D.DOWN))
 		{
-			proximityCollision.below = CheckBelow(distance, data.skinWidth);
+			proximityCollision.Below = CheckBelow(distance, data.skinWidth);
 		}
 
         // Check above
-		if (FlagsHelper.IsSet(mask, Direction2D.ABOVE))
+		if (FlagsHelper.IsSet(mask, Direction2D.UP))
 		{
-			proximityCollision.above = CheckAbove(distance, data.skinWidth);
+			proximityCollision.Above = CheckAbove(distance, data.skinWidth);
 		}        
 
         // Check right.
 		if (FlagsHelper.IsSet(mask, Direction2D.RIGHT))
 		{
-			proximityCollision.right = CheckRight(distance, data.skinWidth);
+			proximityCollision.Right = CheckRight(distance, data.skinWidth);
 		}
 
         // Check left
 		if (FlagsHelper.IsSet(mask, Direction2D.LEFT))
 		{
-			proximityCollision.left = CheckLeft(distance, data.skinWidth);
+			proximityCollision.Left = CheckLeft(distance, data.skinWidth);
 		}
 
 		return proximityCollision;
