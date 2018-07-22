@@ -1,15 +1,18 @@
 ﻿using System;
 
-public class InputController<T> where T : IFactoryInput<T>, new()
+public class InputController<T, U> where T : IFactoryInput<T>, new() where U : class
 {
+	
 	protected T oldInput;
 	protected T input;
+	protected U responder;
 
 	protected InputBuffer<InputSnapshot<T>> buffer;
 
-	public InputController()
+	public InputController(U r)
 	{
 		input = new T();
+		responder = r;
 
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}

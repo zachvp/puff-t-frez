@@ -21,25 +21,14 @@ public class PlayerGrenadeMotor : LobMotor
 		if (IsGrenadeInputAvailable() && input.pressed.launch)
         {
 			var addVelocity = input.held.data.velocity * data.lobVelocityCoefficient;
-			var flagDirection = input.held.data.direction;
+			var flagDirection = input.held.direction;
             
-            // Fall back to base input direction
-			// TODO: Clean up these checks
-			if (!FlagsHelper.IsSet(flagDirection, Direction2D.LEFT) &&
-			    !FlagsHelper.IsSet(flagDirection, Direction2D.RIGHT))
+            // Fall back to base input direction if there's no input direction.
+			if (flagDirection == Direction2D.NONE)
 			{
+				Debug.LogFormat("override flag direction");
 				flagDirection = input.held.data.direction;
 			}
-			if (FlagsHelper.IsSet(flagDirection, Direction2D.LEFT) &&
-                FlagsHelper.IsSet(flagDirection, Direction2D.RIGHT))
-            {
-				Debug.AssertFormat(!(FlagsHelper.IsSet(flagDirection, Direction2D.LEFT) &&
-                     FlagsHelper.IsSet(flagDirection, Direction2D.RIGHT)),
-                   "Invalid direction given: {0}", flagDirection);
-
-				flagDirection = input.held.data.direction;
-            }
-
 
 			Lob(flagDirection, addVelocity);
         }

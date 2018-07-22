@@ -2,14 +2,11 @@
 using InControl;
 using UnityEngine;
 
-public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeInput>
+public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeInput, IPlayerMarionette>
 {
-	private IPlayerMarionette marionette;
-
 	public PlayerGrenadeInputControllerGamepad(IPlayerMarionette m)
-	{
-		marionette = m;
-	}
+		: base(m)
+	{ }
 
 	public override void HandleUpdate(long currentFrame, float deltaTime)
 	{
@@ -19,13 +16,14 @@ public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeIn
 		{
 			var device = InputManager.Devices[0];
 
+            // TODO Centralize this check
 			if (device.LeftStick.X > Constants.Input.DEAD_ZONE)
 			{
 				FlagsHelper.Set(ref input.direction, Direction2D.RIGHT);
 			}
 			if (device.LeftStick.X < -Constants.Input.DEAD_ZONE)
 			{
-				FlagsHelper.Set(ref input.direction, Direction2D.RIGHT);
+				FlagsHelper.Set(ref input.direction, Direction2D.LEFT);
 			}
 
 			input.launch = device.RightBumper.IsPressed;
@@ -36,7 +34,7 @@ public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeIn
 
 			var snapshot = new InputSnapshot<HandGrenadeInput>(oldInput, input);
 
-            marionette.ApplyGrenadeInput(snapshot);
+			responder.ApplyGrenadeInput(snapshot);
 		}
 	}
 }

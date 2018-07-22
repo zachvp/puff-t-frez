@@ -1,14 +1,12 @@
 ﻿using UnityEngine;
 
 // TODO: This isn't tied into replay - need to buffer input at the marionette level i think
-public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGrenadeInput>
+public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGrenadeInput, IPlayerMarionette>
 {
-	private IPlayerMarionette marionette;
 
 	public PlayerHandGrenadeInputControllerKeyboard(IPlayerMarionette m)
-	{
-		marionette = m;
-	}
+		: base(m)
+	{ }
 
 	public override void HandleUpdate(long currentFrame, float deltaTime)
 	{
@@ -38,7 +36,7 @@ public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGren
 
 		var snapshot = new InputSnapshot<HandGrenadeInput>(oldInput, input);
 
-		marionette.ApplyGrenadeInput(snapshot);
+		responder.ApplyGrenadeInput(snapshot);
 	}
 
 

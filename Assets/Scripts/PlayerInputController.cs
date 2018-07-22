@@ -1,15 +1,11 @@
 ﻿using UnityEngine;
 
-public class PlayerInputController : InputController<PlayerInput>
-{
-	protected IPlayerMarionette player;
-    
-	public PlayerInputController() { }
-
-	public PlayerInputController(IPlayerMarionette inPlayer, 
+public class PlayerInputController : InputController<PlayerInput, IPlayerMarionette>
+{    
+	public PlayerInputController(IPlayerMarionette m, 
 	                             InputBuffer<InputSnapshot<PlayerInput>> inputBuffer)
+		: base(m)
 	{
-		player = inPlayer;
 		buffer = inputBuffer;
 	}
 
@@ -57,7 +53,7 @@ public class PlayerInputController : InputController<PlayerInput>
 		// TODO: Refactor so pass (held: input, oldInput : oldInput, pressed: )
 		var snapshot = new InputSnapshot<PlayerInput>(oldInput, input);
         
-		player.ApplyPlayerInput(snapshot);
+		responder.ApplyPlayerInput(snapshot);
         buffer.AddInput(snapshot);
 	}
 }
