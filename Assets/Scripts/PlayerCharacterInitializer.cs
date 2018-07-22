@@ -44,7 +44,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
         // Attach the limb input
 		// TODO: Passing multiple of same object is smellyyy...Fix soon ya goon.
 		marionette.AttachBody(bodyMotor);
-		marionette.AttachHand(handEntity, handEntity);
-		marionette.AttachHandGrenade(grenadeMotor);
+		marionette.AttachHand(handMotor);
+		marionette.AttachGrenade(grenadeMotor);
 	}
 }

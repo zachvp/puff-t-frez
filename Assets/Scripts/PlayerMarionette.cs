@@ -4,15 +4,11 @@ using UnityEngine;
 // Responsible for
 //    Passing input to limbs
 //    Enabling/disabling limbs
-using System.Diagnostics;
 public class PlayerMarionette : IPlayerMarionette
 {
-	PlayerMotor bodyMotor;
-        
-	private IBehavior handBehavior;
-	private Entity handEntity; 
-    
-	PlayerHandGrenadeMotor handGrenadeMotor;
+	private PlayerMotor body;
+	private IdleLimbMotor hand;
+	private PlayerHandGrenadeMotor grenade;
     
 	[Flags]
     public enum Skeleton
@@ -28,53 +24,30 @@ public class PlayerMarionette : IPlayerMarionette
     
 	public void AttachBody(PlayerMotor motor)
 	{
-		bodyMotor = motor;
+		body = motor;
 
 		FlagsHelper.Set(ref skeleton, Skeleton.BODY);
 		Activate(Skeleton.BODY, true);
 		CheckReset();
 	}
 
-	public void AttachHand(IBehavior behavior, Entity entity)
+	public void AttachHand(IdleLimbMotor motor)
 	{
-		handBehavior = behavior;
-		handEntity = entity;
+		hand = motor;
 
-		handEntity.OnActivationChange += HandleHandActivationChange;
+		hand.entity.OnActivationChange += HandleHandActivationChange;
 
 		FlagsHelper.Set(ref skeleton, Skeleton.HAND);
 		Activate(Skeleton.HAND, true);
 		CheckReset();
 	}
 
-    public void HandleHandActivationChange(bool isActive)
+	public void AttachGrenade(PlayerHandGrenadeMotor motor)
 	{
-		HandleLimbActivationChange(isActive, Skeleton.HAND);
-	}
+		grenade = motor;
+		grenade.OnPickup += HandleGrenadePickup;
 
-	public void HandleGrenadeActivationChange(bool isActive)
-	{
-		HandleLimbActivationChange(isActive, Skeleton.GRENADE);
-	}
-
-	private void HandleLimbActivationChange(bool isActive, Skeleton limb)
-	{
-		if (isActive)
-        {
-			FlagsHelper.Set(ref active, limb);
-        }
-        else
-        {
-			FlagsHelper.Unset(ref active, limb);
-        }
-	}
-
-	public void AttachHandGrenade(PlayerHandGrenadeMotor motor)
-	{
-		handGrenadeMotor = motor;
-		handGrenadeMotor.OnPickup += HandleGrenadePickup;
-
-		handGrenadeMotor.entity.OnActivationChange += HandleGrenadeActivationChange;
+		grenade.entity.OnActivationChange += HandleGrenadeActivationChange;
 
 		FlagsHelper.Set(ref skeleton, Skeleton.GRENADE);
 		Activate(Skeleton.GRENADE, false);
@@ -83,46 +56,68 @@ public class PlayerMarionette : IPlayerMarionette
 	// IPlayerMarionette begin
 	public void ApplyPlayerInput(InputSnapshot<PlayerInput> input)
 	{
-		bodyMotor.ApplyInput(input);
+		body.ApplyInput(input);
 	}
 
 	public void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> input)
 	{        
 		if (input.pressed.launch && !IsActive(Skeleton.GRENADE))
 		{
-			var bodyDirection = CoreUtilities.Convert(bodyMotor.GetDirection());
-            var bodyData = new MotorData(bodyDirection, bodyMotor.GetVelocity());
+			var bodyDirection = CoreUtilities.Convert(body.GetDirection());
+            var bodyData = new MotorData(bodyDirection, body.GetVelocity());
 
-			handGrenadeMotor.SetBodyData(bodyData);
-            handGrenadeMotor.ApplyInput(input);
+			grenade.SetBodyData(bodyData);
+            grenade.ApplyInput(input);
 
 			Activate(Skeleton.GRENADE, true);
 			Activate(Skeleton.HAND, false);
-            handGrenadeMotor.entity.SetPosition(handEntity.Position);
+			grenade.entity.SetPosition(hand.entity.Position);
 		}
 	}
 
 	public void ApplyDeltaTime(float deltaTime)
 	{
-		bodyMotor.ApplyDeltaTime(deltaTime);
-		handGrenadeMotor.ApplyDeltaTime(deltaTime);
+		body.ApplyDeltaTime(deltaTime);
+		grenade.ApplyDeltaTime(deltaTime);
 	}
 	// IPlayerMarionette end
 
     // Handlers
+	public void HandleHandActivationChange(bool isActive)
+    {
+        HandleLimbActivationChange(isActive, Skeleton.HAND);
+    }
+
+    public void HandleGrenadeActivationChange(bool isActive)
+    {
+        HandleLimbActivationChange(isActive, Skeleton.GRENADE);
+    }
+
     public void HandleGrenadePickup()
 	{
-		handEntity.SetPosition(handGrenadeMotor.entity.Position);
-		handGrenadeMotor.Reset();
+		hand.entity.SetPosition(grenade.entity.Position);
+		grenade.Reset();
 
 		Activate(Skeleton.HAND, true);
         Activate(Skeleton.GRENADE, false);
 	}
 
     // Private
+	private void HandleLimbActivationChange(bool isActive, Skeleton limb)
+    {
+        if (isActive)
+        {
+            FlagsHelper.Set(ref active, limb);
+        }
+        else
+        {
+            FlagsHelper.Unset(ref active, limb);
+        }
+    }
+
 	private void Reset()
     {
-        handEntity.SetPosition(bodyMotor.entity.Position);
+		hand.entity.SetPosition(body.entity.Position);
         Activate(Skeleton.HAND, true);
     }
 
@@ -130,7 +125,7 @@ public class PlayerMarionette : IPlayerMarionette
 	{
 		if (FlagsHelper.IsSet(limbs, Skeleton.BODY))
 		{
-			bodyMotor.entity.SetActive(isActive);
+			body.entity.SetActive(isActive);
 		}
 		if (FlagsHelper.IsSet(limbs, Skeleton.FOOT))
 		{
@@ -139,11 +134,11 @@ public class PlayerMarionette : IPlayerMarionette
 		}
 		if (FlagsHelper.IsSet(limbs, Skeleton.HAND))
 		{
-			handEntity.SetActive(isActive);
+			hand.entity.SetActive(isActive);
 		}
 		if (FlagsHelper.IsSet(limbs, Skeleton.GRENADE))
 		{
-			handGrenadeMotor.entity.SetActive(isActive);
+			grenade.entity.SetActive(isActive);
 		}
 	}
 
