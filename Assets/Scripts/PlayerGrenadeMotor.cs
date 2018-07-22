@@ -6,7 +6,6 @@ public class PlayerGrenadeMotor : LobMotor, IInputPlayerHandGrenade
 	public EventHandler OnGrab;
 
 	private CallbackManager manager;
-	private int inputCount;// TODO: Remove
 	private PlayerGrenadeMotorData data;
 	private MotorData baseData;
 
@@ -31,8 +30,6 @@ public class PlayerGrenadeMotor : LobMotor, IInputPlayerHandGrenade
 
 			if (input.pressed.launch)
             {
-				Debug.LogFormat("grenade input fired");
-
                 if (FlagsHelper.IsSet(input.pressed.direction, Direction2D.RIGHT))
                 {
 					FlagsHelper.Set(ref flagDirection, Direction2D.RIGHT);
@@ -54,7 +51,6 @@ public class PlayerGrenadeMotor : LobMotor, IInputPlayerHandGrenade
 				}
 
 				Lob(flagDirection, addVelocity);
-                inputCount++;
             }
         }
 	}
@@ -71,7 +67,7 @@ public class PlayerGrenadeMotor : LobMotor, IInputPlayerHandGrenade
 
 		if (state == State.FREEZE && context.IsColliding(Affinity.PLAYER))
         {
-            Grab();
+			Grab();
         }
 	}
 
@@ -82,16 +78,12 @@ public class PlayerGrenadeMotor : LobMotor, IInputPlayerHandGrenade
 
 	public override void Reset()
     {
-		Debug.LogFormat("resetting");
-		base.Reset();
-		
-        inputCount = 0;
+		base.Reset();		
     }
 
     // Private
 	private bool IsGrenadeInputAvailable()
     {
-		return inputCount < data.inputCountLob &&
-               state == State.NONE;
+		return  state == State.NONE;
     }
 }
