@@ -94,11 +94,13 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     }
 
     // IMotor functions
+	// TODO: Make this a public Property like Position, etc in Motor super class
     public Vector3 GetVelocity()
 	{
         return velocity;
     }
 
+	// TODO: Make this a public Property like Position, etc in Motor super class
     public Vector3 GetDirection()
 	{
         return motorDirection;
@@ -119,10 +121,9 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
             jumpCount = 0;
         }
 
-		// TODO: This outer check can probly be removed
 		if (!FlagsHelper.IsSet(state, State.CROUCH))
         {
-			if (input.pressed.crouch)
+			if (input.held.crouch)
 			{
 				var newBounds = entity.LocalScale;
                 var crouchPosition = entity.Position;
@@ -258,11 +259,13 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         }
         
 		Debug.AssertFormat((int) Mathf.Abs(motorDirection.x) == 1 ||
-		                   (int) Mathf.Abs(motorDirection.x) == 0,
+		                   (int) Mathf.Abs(motorDirection.x) == -1,
 		                   "Motor X direction should always have a magnitude of one.");
         Debug.AssertFormat((int) Mathf.Abs(motorDirection.y) == 1 ||
-		                   (int) Mathf.Abs(motorDirection.y) == 0,
+		                   (int) Mathf.Abs(motorDirection.y) == -1,
 		                   "Motor Y direction should always have a magnitude of one.");
+
+		Debug.LogFormat("motor dir : {0}", motorDirection);
     }
 
 	[Flags]

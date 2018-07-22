@@ -21,13 +21,15 @@ public class PlayerMarionette : IPlayerMarionette
 	}
 
 	public void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> input)
-	{        
+	{
 		if (input.pressed.launch && !skeleton.IsActive(Limb.GRENADE))
 		{
 			var bodyDirection = CoreUtilities.Convert(skeleton.body.GetDirection());
-			var bodyData = new MotorData(bodyDirection, skeleton.body.GetVelocity());
+            var bodyData = new MotorData(bodyDirection, skeleton.body.GetVelocity());
 
-			skeleton.grenade.SetBodyData(bodyData);
+			UnityEngine.Debug.LogFormat("lob direction: {0}\tconverted:{1}", skeleton.body.GetDirection(), bodyDirection);
+
+            skeleton.grenade.SetBodyData(bodyData);
 			skeleton.grenade.ApplyInput(input);
 
 			skeleton.Activate(Limb.GRENADE, true);

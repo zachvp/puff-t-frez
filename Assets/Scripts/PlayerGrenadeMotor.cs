@@ -23,35 +23,30 @@ public class PlayerGrenadeMotor : LobMotor, IInputPlayerHandGrenade
     
 	public void ApplyInput(InputSnapshot<HandGrenadeInput> input)
 	{
-		if (IsGrenadeInputAvailable())
+		if (IsGrenadeInputAvailable() && input.pressed.launch)
         {
 			var addVelocity = baseData.velocity * data.lobVelocityCoefficient;
-			var flagDirection = Direction2D.NONE;
-
-			if (input.pressed.launch)
+			var flagDirection = input.held.direction;
+            
+            // Fall back to base input direction
+			// TODO: Clean up these checks
+			if (!FlagsHelper.IsSet(flagDirection, Direction2D.LEFT) &&
+			    !FlagsHelper.IsSet(flagDirection, Direction2D.RIGHT))
+			{
+				flagDirection = baseData.direction;
+			}
+			if (FlagsHelper.IsSet(flagDirection, Direction2D.LEFT) &&
+                FlagsHelper.IsSet(flagDirection, Direction2D.RIGHT))
             {
-                if (FlagsHelper.IsSet(input.pressed.direction, Direction2D.RIGHT))
-                {
-					FlagsHelper.Set(ref flagDirection, Direction2D.RIGHT);
-					FlagsHelper.Unset(ref flagDirection, Direction2D.LEFT);
-                }
-				if (FlagsHelper.IsSet(input.pressed.direction, Direction2D.LEFT))
-				{
-					FlagsHelper.Set(ref flagDirection, Direction2D.LEFT);
-					FlagsHelper.Unset(ref flagDirection, Direction2D.RIGHT);
-				}
-                
-                // Fall back to base input direction
-				if (!FlagsHelper.IsSet(flagDirection, Direction2D.LEFT) &&
-				    !FlagsHelper.IsSet(flagDirection, Direction2D.RIGHT))
-				{
-					flagDirection = baseData.direction;
-					FlagsHelper.Unset(ref flagDirection, Direction2D.UP);
-					FlagsHelper.Unset(ref flagDirection, Direction2D.DOWN);
-				}
+				Debug.AssertFormat(!(FlagsHelper.IsSet(flagDirection, Direction2D.LEFT) &&
+                     FlagsHelper.IsSet(flagDirection, Direction2D.RIGHT)),
+                   "Invalid direction given: {0}", flagDirection);
 
-				Lob(flagDirection, addVelocity);
+				Debug.LogFormat("both right and left set - fixing to be : {0}", baseData.direction);
+                flagDirection = baseData.direction;
             }
+            
+			Lob(flagDirection, addVelocity);
         }
 	}
     

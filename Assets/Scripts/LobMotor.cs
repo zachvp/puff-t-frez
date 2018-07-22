@@ -9,7 +9,6 @@ public class LobMotor : Motor, IInputLob
 	private int additiveSpeed; 
 
 	private LobMotorData data;
-    private LobMotorData backupData;
     
 	protected enum State { NONE, LAUNCHED, FREEZE }
 	protected State state;
@@ -17,7 +16,6 @@ public class LobMotor : Motor, IInputLob
 	public LobMotor(Entity entityInstance, Transform rootInstance)
 	{
 		data = ScriptableObject.CreateInstance<LobMotorData>();
-		backupData = ScriptableObject.CreateInstance<LobMotorData>();
 		additiveSpeed = 1;
 
 		entity = entityInstance;
@@ -44,13 +42,11 @@ public class LobMotor : Motor, IInputLob
 				var speed = data.speed + additiveSpeed;
 
 				velocity = speed * data.multiplier * multiplier;
-
+                
                 // Set the velocity direction based on the input direction.
 				velocity.x *= direction.x;
                 
                 --forceFrameCount;
-			} else {
-				additiveSpeed = 1;
 			}
 
             // Apply gravity
@@ -91,7 +87,7 @@ public class LobMotor : Motor, IInputLob
 
 		Debug.AssertFormat(FlagsHelper.IsSet(lobDirection, Direction2D.LEFT) ||
 		                   FlagsHelper.IsSet(lobDirection, Direction2D.RIGHT),
-		                   "Invalid direction given: {0}", direction);
+		                   "Invalid direction given: {0}", lobDirection);
 
 		direction = CoreUtilities.Convert(lobDirection);
 
@@ -115,7 +111,7 @@ public class LobMotor : Motor, IInputLob
 
 	public virtual void Reset()
 	{
-		data.speed = backupData.speed;
+		forceFrameCount = data.forceFrameLength;
 
 		state = State.NONE;
 		ClearFrameUpdate(HandleUpdate);

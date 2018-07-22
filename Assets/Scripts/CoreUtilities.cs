@@ -43,11 +43,33 @@ public static class CoreUtilities
 		var set = 1;
 		var unset = 0;
 
-		result.x += FlagsHelper.IsSet(direction, Direction2D.RIGHT) ? set : unset;
-		result.x += FlagsHelper.IsSet(direction, Direction2D.LEFT) ? -set : unset;
+		if (FlagsHelper.IsSet(direction, Direction2D.RIGHT))
+		{
+			result.x = set;
+		}
+		if (FlagsHelper.IsSet(direction, Direction2D.LEFT))
+		{
+			result.x = -set;
+		}
+		if (FlagsHelper.IsSet(direction, Direction2D.UP))
+		{
+			result.y = set;
+		}
+		if (FlagsHelper.IsSet(direction, Direction2D.DOWN))
+        {
+			result.y = -set;
+        }
 
-		result.y += FlagsHelper.IsSet(direction, Direction2D.UP) ? set : unset;
-		result.y += FlagsHelper.IsSet(direction, Direction2D.DOWN) ? -set : unset;
+		if (FlagsHelper.IsSet(direction, Direction2D.RIGHT) &&
+		    FlagsHelper.IsSet(direction, Direction2D.LEFT))
+		{
+			result.x = unset;
+		}
+		if (FlagsHelper.IsSet(direction, Direction2D.UP) &&
+		    FlagsHelper.IsSet(direction, Direction2D.DOWN))
+        {
+            result.y = unset;
+        }
 
 		return result;
 	}
@@ -59,7 +81,7 @@ public static class CoreUtilities
 		{
 			vector.x > 0 ? Direction2D.RIGHT : Direction2D.NONE,
 			vector.x < 0 ? Direction2D.LEFT : Direction2D.NONE,
-			vector.y > 0 ? Direction2D.RIGHT : Direction2D.NONE,
+			vector.y > 0 ? Direction2D.UP : Direction2D.NONE,
 			vector.y < 0 ? Direction2D.DOWN : Direction2D.NONE
 		};
                 

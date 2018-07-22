@@ -12,11 +12,28 @@ public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGren
 	public override void HandleUpdate(long currentFrame, float deltaTime) {
 		base.HandleUpdate(currentFrame, deltaTime);
 
-		input.direction |= Input.GetKey(KeyCode.RightArrow) ? Direction2D.RIGHT : Direction2D.NONE;
-		input.direction |= Input.GetKey(KeyCode.LeftArrow) ? Direction2D.LEFT : Direction2D.NONE;
+		if (Input.GetKey(KeyCode.RightArrow))
+		{
+			FlagsHelper.Set(ref input.direction, Direction2D.RIGHT);
+		}
+		if (Input.GetKey(KeyCode.LeftArrow))
+		{
+			FlagsHelper.Set(ref input.direction, Direction2D.LEFT);
+		}
 
 		input.launch = Input.GetKey(KeyCode.D);
         
+		if (FlagsHelper.IsSet(input.direction, Direction2D.RIGHT) &&
+		    FlagsHelper.IsSet(input.direction, Direction2D.LEFT))
+		{
+			FlagsHelper.Unset(ref input.direction, Direction2D.RIGHT);
+			FlagsHelper.Unset(ref input.direction, Direction2D.LEFT);
+		}
+
+		Debug.AssertFormat(!(FlagsHelper.IsSet(input.direction, Direction2D.LEFT) &&
+		                     FlagsHelper.IsSet(input.direction, Direction2D.RIGHT)),
+		                   "Invalid direction given: {0}", input.direction);
+
 		var snapshot = new InputSnapshot<HandGrenadeInput>(input, oldInput);
 
 		marionette.ApplyGrenadeInput(snapshot);
