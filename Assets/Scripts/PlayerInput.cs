@@ -83,6 +83,7 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 {
 	public Direction2D direction;
 	public bool launch;
+	public MotorData data;
 
 	public HandGrenadeInput() {}
 

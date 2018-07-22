@@ -27,9 +27,11 @@ public class PlayerMarionette : IPlayerMarionette
 			var bodyDirection = CoreUtilities.Convert(skeleton.body.GetDirection());
             var bodyData = new MotorData(bodyDirection, skeleton.body.GetVelocity());
 
+			input.held.data = bodyData;
+
 			UnityEngine.Debug.LogFormat("lob direction: {0}\tconverted:{1}", skeleton.body.GetDirection(), bodyDirection);
 
-            skeleton.grenade.SetBodyData(bodyData);
+            //skeleton.grenade.SetBodyData(bodyData);
 			skeleton.grenade.ApplyInput(input);
 
 			skeleton.Activate(Limb.GRENADE, true);

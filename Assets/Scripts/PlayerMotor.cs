@@ -54,6 +54,11 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
             HandleNotGrounded();
         }
 
+		if (FlagsHelper.IsSet(state, State.CROUCH))
+        {
+			HandleCrouch();
+        }
+
 		// Check all frames since jump was initiated for a release of the jump button.
         if (input.released.jump && jumpCount < data.jumpCountMax)
         {
@@ -151,28 +156,10 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 				FlagsHelper.Set(ref state, State.CROUCH);
 			}
         }
-		else if (FlagsHelper.IsSet(state, State.CROUCH))
-		{
-			if (!input.held.crouch)
-			{
-				var check = engine.CheckProximity(entity.LocalScale.y, Direction2D.UP);
-
-                if (!check.Above)
-                {
-					var newBounds = entity.PriorTransform.localScale;
-                    var crouchPosition = entity.Position;
-
-                    crouchPosition.y += newBounds.y;
-
-					entity.SetLocalScale(newBounds);
-                    entity.SetPosition(crouchPosition);
-					FlagsHelper.Unset(ref state, State.CROUCH);
-                }
-			}
-		}
     }
 
-    private void HandleNotGrounded() {
+    private void HandleNotGrounded()
+	{
 		var movement = CoreUtilities.Convert(input.held.direction);
 
         // Motor is not grounded.
@@ -221,6 +208,26 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
             velocity.y -= data.gravity;
         }
     }
+
+    private void HandleCrouch()
+	{
+		if (!input.held.crouch)
+        {
+            var check = engine.CheckProximity(entity.LocalScale.y, Direction2D.UP);
+
+            if (!check.Above)
+            {
+                var newBounds = entity.PriorTransform.localScale;
+                var crouchPosition = entity.Position;
+
+                crouchPosition.y += newBounds.y;
+
+                entity.SetLocalScale(newBounds);
+                entity.SetPosition(crouchPosition);
+                FlagsHelper.Unset(ref state, State.CROUCH);
+            }
+        }
+	}
 
     // Additive jump. The longer the jump input, the higher the jump, for a
     // certain amount of frames.

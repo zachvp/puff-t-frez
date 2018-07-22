@@ -5,11 +5,13 @@ public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGren
 {
 	private IPlayerMarionette marionette;
 
-	public PlayerHandGrenadeInputControllerKeyboard(IPlayerMarionette marionetteInstance) {
-		marionette = marionetteInstance;
+	public PlayerHandGrenadeInputControllerKeyboard(IPlayerMarionette m)
+	{
+		marionette = m;
 	}
 
-	public override void HandleUpdate(long currentFrame, float deltaTime) {
+	public override void HandleUpdate(long currentFrame, float deltaTime)
+	{
 		base.HandleUpdate(currentFrame, deltaTime);
 
 		if (Input.GetKey(KeyCode.RightArrow))

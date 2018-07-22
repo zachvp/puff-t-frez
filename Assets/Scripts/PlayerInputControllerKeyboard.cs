@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
-public class PlayerInputControllerKeyboard : PlayerInputController {
+public class PlayerInputControllerKeyboard : PlayerInputController
+{
 	public PlayerInputControllerKeyboard(IPlayerMarionette playerInput, InputBuffer<InputSnapshot<PlayerInput>> inputBuffer)
 		: base(playerInput, inputBuffer)
 	{ }

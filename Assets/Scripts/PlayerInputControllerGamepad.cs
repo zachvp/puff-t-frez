@@ -2,6 +2,11 @@
 
 public class PlayerInputControllerGamepad : PlayerInputController
 {
+	public PlayerInputControllerGamepad(IPlayerMarionette inPlayer,
+                             InputBuffer<InputSnapshot<PlayerInput>> inputBuffer)
+		: base(inPlayer, inputBuffer)
+	{ }
+
 	public override void HandleUpdate(long currentFrame, float deltaTime)
     {
 		base.HandleUpdate(currentFrame, deltaTime);
@@ -9,6 +14,7 @@ public class PlayerInputControllerGamepad : PlayerInputController
         if (InputManager.Devices.Count > 0)
 		{
             var device = InputManager.Devices[0];
+			var crouchThreshold = 0.7f;
 
 			if (device.LeftStick.Value.x > Constants.Input.DEAD_ZONE)
 			{
@@ -26,6 +32,10 @@ public class PlayerInputControllerGamepad : PlayerInputController
 			{
                 HandleInputDown();
             }
+			if (device.LeftStick.Value.y < -crouchThreshold)
+			{
+				HandleInputCrouch();
+			}
 
             if (device.Action1.IsPressed)
 			{
