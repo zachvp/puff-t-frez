@@ -31,6 +31,7 @@ public class LobMotor : Motor, IInputLob
 		if (state == State.FOLLOW)
 		{
 			entity.SetPosition(root.position);
+			Debug.LogFormat("FOLLOW");
 		}
 		else
 		{

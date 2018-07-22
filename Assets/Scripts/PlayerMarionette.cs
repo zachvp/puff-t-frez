@@ -1,8 +1,10 @@
 ﻿using System;
+using UnityEngine;
 
 // Responsible for
 //    Passing input to limbs
 //    Enabling/disabling limbs
+using System.Diagnostics;
 public class PlayerMarionette : IPlayerMarionette
 {
 	PlayerMotor bodyMotor;
@@ -38,20 +40,44 @@ public class PlayerMarionette : IPlayerMarionette
 		handBehavior = behavior;
 		handEntity = entity;
 
+		handEntity.OnActivationChange += HandleHandActivationChange;
+
 		FlagsHelper.Set(ref skeleton, Skeleton.HAND);
 		Activate(Skeleton.HAND, true);
 		CheckReset();
 	}
 
+    public void HandleHandActivationChange(bool isActive)
+	{
+		HandleLimbActivationChange(isActive, Skeleton.HAND);
+	}
+
+	public void HandleGrenadeActivationChange(bool isActive)
+	{
+		HandleLimbActivationChange(isActive, Skeleton.GRENADE);
+	}
+
+	private void HandleLimbActivationChange(bool isActive, Skeleton limb)
+	{
+		if (isActive)
+        {
+			FlagsHelper.Set(ref active, limb);
+        }
+        else
+        {
+			FlagsHelper.Unset(ref active, limb);
+        }
+	}
+
 	public void AttachHandGrenade(PlayerHandGrenadeMotor motor)
 	{
-		// TODO: Possibly set hand modifications mask?
 		handGrenadeMotor = motor;
 		handGrenadeMotor.OnPickup += HandleGrenadePickup;
 
+		handGrenadeMotor.entity.OnActivationChange += HandleGrenadeActivationChange;
+
 		FlagsHelper.Set(ref skeleton, Skeleton.GRENADE);
 		Activate(Skeleton.GRENADE, false);
-		//handGrenadeMotor.OnReset += Reset;
 	}
 
 	// IPlayerMarionette begin
@@ -61,15 +87,16 @@ public class PlayerMarionette : IPlayerMarionette
 	}
 
 	public void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> input)
-	{
-		var bodyDirection = CoreUtilities.Convert(bodyMotor.GetDirection());
-		var bodyData = new MotorData(bodyDirection, bodyMotor.GetVelocity());
-
-		handGrenadeMotor.SetBodyData(bodyData);
-		handGrenadeMotor.ApplyInput(input);
-
-		if (input.pressed.launch && IsActive(Skeleton.HAND))
+	{        
+		if (input.pressed.launch && !IsActive(Skeleton.GRENADE))
 		{
+			var bodyDirection = CoreUtilities.Convert(bodyMotor.GetDirection());
+            var bodyData = new MotorData(bodyDirection, bodyMotor.GetVelocity());
+
+			handGrenadeMotor.SetBodyData(bodyData);
+            handGrenadeMotor.ApplyInput(input);
+
+			Activate(Skeleton.GRENADE, true);
 			Activate(Skeleton.HAND, false);
             handGrenadeMotor.entity.SetPosition(handEntity.Position);
 		}
@@ -103,22 +130,19 @@ public class PlayerMarionette : IPlayerMarionette
 	{
 		if (FlagsHelper.IsSet(limbs, Skeleton.BODY))
 		{
-			FlagsHelper.Set(ref active, Skeleton.BODY);
 			bodyMotor.entity.SetActive(isActive);
 		}
 		if (FlagsHelper.IsSet(limbs, Skeleton.FOOT))
 		{
-			FlagsHelper.Set(ref active, Skeleton.FOOT);
+			UnityEngine.Debug.LogWarning("Unimplemented functionality");
 			// TODO: imp
 		}
 		if (FlagsHelper.IsSet(limbs, Skeleton.HAND))
 		{
-			FlagsHelper.Set(ref active, Skeleton.HAND);
 			handEntity.SetActive(isActive);
 		}
 		if (FlagsHelper.IsSet(limbs, Skeleton.GRENADE))
 		{
-			FlagsHelper.Set(ref active, Skeleton.GRENADE);
 			handGrenadeMotor.entity.SetActive(isActive);
 		}
 	}
@@ -127,10 +151,22 @@ public class PlayerMarionette : IPlayerMarionette
 	{
 		var result = false;
 
-		result |= FlagsHelper.IsSet(limbs, Skeleton.BODY);
-		result |= FlagsHelper.IsSet(limbs, Skeleton.FOOT);
-		result |= FlagsHelper.IsSet(limbs, Skeleton.HAND);
-		result |= FlagsHelper.IsSet(limbs, Skeleton.GRENADE);
+		if (FlagsHelper.IsSet(limbs, Skeleton.BODY))
+        {
+			result |= FlagsHelper.IsSet(active, Skeleton.BODY);
+        }
+        if (FlagsHelper.IsSet(limbs, Skeleton.FOOT))
+        {
+			result |= FlagsHelper.IsSet(active, Skeleton.FOOT);
+        }
+        if (FlagsHelper.IsSet(limbs, Skeleton.HAND))
+        {
+			result |= FlagsHelper.IsSet(active, Skeleton.HAND);
+        }
+        if (FlagsHelper.IsSet(limbs, Skeleton.GRENADE))
+        {
+            result |= FlagsHelper.IsSet(active, Skeleton.GRENADE);
+        }
 
 		return result;
 	}

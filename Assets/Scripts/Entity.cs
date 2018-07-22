@@ -74,6 +74,11 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
     // ITransform end
 
     // IBehavior begin
+    public bool IsActive()
+	{
+		return isActiveAndEnabled;
+	}
+
 	public void SetActive(bool isActive)
 	{
 		if (gameObject.activeInHierarchy != isActive)

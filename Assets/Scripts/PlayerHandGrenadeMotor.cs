@@ -29,30 +29,34 @@ public class PlayerHandGrenadeMotor : LobMotor, IInputPlayerHandGrenade
 	{
 		if (IsGrenadeInputAvailable())
         {
-			var addVelocity = baseData.velocity * data.lobVelocityCoefficient;
-			var resultDirection = Direction2D.NONE;
+			//var addVelocity = baseData.velocity * data.lobVelocityCoefficient;
+			var addVelocity = Vector3.zero;
+			var flagDirection = Direction2D.NONE;
 
-            // TODO: Should be based on input direction not motor direction.
 			if (input.pressed.launch)
             {
                 Debug.LogFormat("launching!");
                 if (FlagsHelper.IsSet(input.pressed.direction, Direction2D.RIGHT))
                 {
-					FlagsHelper.Set(ref resultDirection, Direction2D.RIGHT);
-					FlagsHelper.Unset(ref resultDirection, Direction2D.LEFT);
+					FlagsHelper.Set(ref flagDirection, Direction2D.RIGHT);
+					FlagsHelper.Unset(ref flagDirection, Direction2D.LEFT);
                 }
 				if (FlagsHelper.IsSet(input.pressed.direction, Direction2D.LEFT))
 				{
-					FlagsHelper.Set(ref resultDirection, Direction2D.LEFT);
-					FlagsHelper.Unset(ref resultDirection, Direction2D.RIGHT);
+					FlagsHelper.Set(ref flagDirection, Direction2D.LEFT);
+					FlagsHelper.Unset(ref flagDirection, Direction2D.RIGHT);
 				}
+                
                 // Fall back to base input direction
-				if (!FlagsHelper.IsSet(resultDirection, Direction2D.LEFT | Direction2D.RIGHT))
+				if (!FlagsHelper.IsSet(flagDirection, Direction2D.LEFT) &&
+				    !FlagsHelper.IsSet(flagDirection, Direction2D.RIGHT))
 				{
-					resultDirection = baseData.direction;
+					flagDirection = baseData.direction;
+					FlagsHelper.Unset(ref flagDirection, Direction2D.UP);
+					FlagsHelper.Unset(ref flagDirection, Direction2D.DOWN);
 				}
 
-				Lob(resultDirection, addVelocity);
+				Lob(flagDirection, addVelocity);
                 inputCount++;
             }
         }

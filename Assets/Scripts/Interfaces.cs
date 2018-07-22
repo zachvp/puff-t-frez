@@ -39,9 +39,11 @@ public interface ITransform
 	void SetRotation(Quaternion rotation);
 }
 
+// TODO: Consider getting rid of this
 public interface IBehavior
 {
 	void SetActive(bool isActive);
+	bool IsActive();
 }
 
 public interface IMotor
