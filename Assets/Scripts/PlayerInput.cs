@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 
 // Represents a snapshot of input in a single frame.
-public class InputSnapshot<T> where T : IFactoryInput<T>, new()
+public class InputSnapshot<T> where T : CoreInput, IFactoryInput<T>, new()
 {
     public T pressed;
 	public T held;
     public T released;
-
+    
     public InputSnapshot()
 	{
         pressed = new T();
@@ -17,7 +17,7 @@ public class InputSnapshot<T> where T : IFactoryInput<T>, new()
     public InputSnapshot(T oldInput, T newInput)
 	{
 		held = newInput;
-		pressed = newInput.Pressed(oldInput);
+		pressed  = newInput.Pressed(oldInput);
 		released = newInput.Released(oldInput);
     }
 }
@@ -25,14 +25,14 @@ public class InputSnapshot<T> where T : IFactoryInput<T>, new()
 public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 {
 	public Direction2D direction;
+	
     public bool jump;
 	public bool crouch;
+    
+	public PlayerInput() { }
 
-    public PlayerInput() {}
-
-    public PlayerInput(PlayerInput input)
+	public PlayerInput(PlayerInput input)
 	{
-        direction = input.direction;
         jump = input.jump;
 		crouch = input.crouch;
     }
@@ -47,9 +47,9 @@ public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 	{
 		var copy = Clone();
 
+		copy.direction = GetInputReleased(oldInput.direction, direction);
 		copy.jump = GetInputReleased(oldInput.jump, jump);
 		copy.crouch = GetInputReleased(oldInput.crouch, crouch);
-		copy.direction = GetInputReleased(oldInput.direction, direction);
 
 		return copy;
 	}
@@ -58,9 +58,9 @@ public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 	{
 		var copy = Clone();
 
+		copy.direction = GetInputPressed(oldInput.direction, direction);
 		copy.jump = GetInputPressed(oldInput.jump, jump);
 		copy.crouch = GetInputPressed(oldInput.crouch, crouch);
-		copy.direction = GetInputPressed(oldInput.direction, direction);
 
 		return copy;
 	}

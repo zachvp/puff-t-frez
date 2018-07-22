@@ -8,7 +8,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 	public Entity handTemplate;
     public Entity footTemplate;
 	public Entity handGrenadeTemplate;
-    
+
     public void Awake()
 	{
 		// TODO: This should be a marionette input snapshot buffer
@@ -43,7 +43,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 
 		var keyboardGrenade = new PlayerHandGrenadeInputControllerKeyboard(marionette);
 		var keyboardController = new PlayerInputControllerKeyboard(marionette, buffer);
-		//var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette);
-		//var gamepadPlayer = new PlayerInputControllerGamepad(marionette, buffer);
+		var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette);
+		var gamepadPlayer = new PlayerInputControllerGamepad(marionette, buffer);
 	}
 }

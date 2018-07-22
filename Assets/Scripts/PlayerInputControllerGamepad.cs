@@ -18,16 +18,8 @@ public class PlayerInputControllerGamepad : PlayerInputController
 			var leftStick = device.LeftStick.Value;
 
 			input.direction = CoreUtilities.Convert(leftStick);
-
-			if (leftStick.y < -crouchThreshold)
-			{
-				HandleInputCrouch();
-			}
-
-            if (device.Action1.IsPressed)
-			{
-                HandleInputJump();
-            }
+			input.crouch = leftStick.y < -crouchThreshold;
+			input.jump = device.Action1.IsPressed;
         }
     }
 }
