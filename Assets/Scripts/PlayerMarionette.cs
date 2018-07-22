@@ -1,127 +1,146 @@
-﻿using UnityEngine;
+﻿using System;
 
 // Responsible for
 //    Passing input to limbs
 //    Enabling/disabling limbs
-using UnityEngine.UI;
 public class PlayerMarionette : IPlayerMarionette
 {
-	private IInputPlayerBody bodyInput;
-	private IMotor bodyMotor;
-	private Entity bodyEntity;
+	PlayerMotor bodyMotor;
         
 	private IBehavior handBehavior;
 	private Entity handEntity; 
-
-	private IInputLob handGrenadeInput;
-	private Entity handGrenadeEntity;
-	private bool isHandCollided;
-
-	private CallbackManager manager;
-	private int inputCount; // TODO: Should this be handled in hand grenade controller?
-	private PlayerMarionetteData data;
-        
-	public PlayerMarionette()
+    
+	PlayerHandGrenadeMotor handGrenadeMotor;
+    
+	[Flags]
+    public enum Skeleton
 	{
-		manager = new CallbackManager();
-		data = ScriptableObject.CreateInstance<PlayerMarionetteData>();
+		NONE    = 0,
+		BODY    = 1 << 0,
+        HAND    = 1 << 1,
+        FOOT    = 1 << 2,
+        GRENADE = 1 << 3
 	}
-
-	public void AttachBody(IInputPlayerBody body, IMotor motor, Entity entity)
+	private Skeleton skeleton;
+	private Skeleton active;
+    
+	public void AttachBody(PlayerMotor motor)
 	{
-		bodyInput = body;
 		bodyMotor = motor;
-		bodyEntity = entity;
+
+		FlagsHelper.Set(ref skeleton, Skeleton.BODY);
+		Activate(Skeleton.BODY, true);
+		CheckReset();
 	}
 
 	public void AttachHand(IBehavior behavior, Entity entity)
 	{
 		handBehavior = behavior;
 		handEntity = entity;
+
+		FlagsHelper.Set(ref skeleton, Skeleton.HAND);
+		Activate(Skeleton.HAND, true);
+		CheckReset();
 	}
 
-	public void AttachHandGrenade(IInputLob lobInput, Entity entity)
+	public void AttachHandGrenade(PlayerHandGrenadeMotor motor)
 	{
-		handGrenadeInput = lobInput;
-		handGrenadeEntity = entity;
-		handGrenadeInput.Reset();
+		// TODO: Possibly set hand modifications mask?
+		handGrenadeMotor = motor;
+		handGrenadeMotor.OnPickup += HandleGrenadePickup;
 
-		handGrenadeEntity.OnTriggerEnter += HandleTriggerEnterHandGrenade;
+		FlagsHelper.Set(ref skeleton, Skeleton.GRENADE);
+		Activate(Skeleton.GRENADE, false);
+		//handGrenadeMotor.OnReset += Reset;
 	}
 
 	// IPlayerMarionette begin
 	public void ApplyPlayerInput(InputSnapshot<PlayerInput> input)
 	{
-		bodyInput.ApplyInput(input);
+		bodyMotor.ApplyInput(input);
 	}
 
 	public void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> input)
 	{
-        if (IsGrenadeInputAvailable())
+		var bodyDirection = CoreUtilities.Convert(bodyMotor.GetDirection());
+		var bodyData = new MotorData(bodyDirection, bodyMotor.GetVelocity());
+
+		handGrenadeMotor.SetBodyData(bodyData);
+		handGrenadeMotor.ApplyInput(input);
+
+		if (input.pressed.launch && IsActive(Skeleton.HAND))
 		{
-			var addVelocity = bodyMotor.GetVelocity() * data.lobVelocityCoefficient;
-
-            // TODO: Should be based on input direction not motor direction.
-			if (input.released.launch)
-            {
-				Debug.LogFormat("launching!");
-                var bodyDirection = CoreUtilities.Convert(bodyMotor.GetDirection());
-                var direction = bodyDirection;
-
-                if (FlagsHelper.IsSet(input.pressed.direction, Direction2D.RIGHT))
-                {
-                    FlagsHelper.Set(ref direction, Direction2D.RIGHT);
-                }
-
-				if (inputCount == 0)
-				{
-					isHandCollided = false;
-					handGrenadeInput.Reset();
-                    handBehavior.SetActive(false);
-				}
-
-                handGrenadeInput.Lob(direction, addVelocity);
-				inputCount++;
-            }
+			Activate(Skeleton.HAND, false);
+            handGrenadeMotor.entity.SetPosition(handEntity.Position);
 		}
 	}
 
 	public void ApplyDeltaTime(float deltaTime)
 	{
-		bodyInput.ApplyDeltaTime(deltaTime);
+		bodyMotor.ApplyDeltaTime(deltaTime);
+		handGrenadeMotor.ApplyDeltaTime(deltaTime);
 	}
 	// IPlayerMarionette end
-    
-    // Handlers begin
-    public void HandleResetPosition()
-    {
-		inputCount = 0;
-		isHandCollided = false;
-		handEntity.SetPosition(handGrenadeEntity.Position);
-		handBehavior.SetActive(true);
-		handGrenadeInput.Reset();
-    }
 
-	public void HandleTriggerEnterHandGrenade(Collider2D collider)
-    {
-        var layer = collider.gameObject.layer;
-
-		if (layer == Constants.Layers.OBSTACLE)
-        {
-			isHandCollided = true;
-			handGrenadeInput.Freeze();
-        }
-		else if (layer == Constants.Layers.ENTITY && isHandCollided)
-		{
-			HandleResetPosition();
-		}
-    }
-	// Handlers end
-
-	// Private begin
-	private bool IsGrenadeInputAvailable()
+    // Handlers
+    public void HandleGrenadePickup()
 	{
-		return inputCount < data.inputCountLob && !isHandCollided;
+		handEntity.SetPosition(handGrenadeMotor.entity.Position);
+		handGrenadeMotor.Reset();
+
+		Activate(Skeleton.HAND, true);
+        Activate(Skeleton.GRENADE, false);
 	}
-    // Private end
+
+    // Private
+	private void Reset()
+    {
+        handEntity.SetPosition(bodyMotor.entity.Position);
+        Activate(Skeleton.HAND, true);
+    }
+
+	private void Activate(Skeleton limbs, bool isActive)
+	{
+		if (FlagsHelper.IsSet(limbs, Skeleton.BODY))
+		{
+			FlagsHelper.Set(ref active, Skeleton.BODY);
+			bodyMotor.entity.SetActive(isActive);
+		}
+		if (FlagsHelper.IsSet(limbs, Skeleton.FOOT))
+		{
+			FlagsHelper.Set(ref active, Skeleton.FOOT);
+			// TODO: imp
+		}
+		if (FlagsHelper.IsSet(limbs, Skeleton.HAND))
+		{
+			FlagsHelper.Set(ref active, Skeleton.HAND);
+			handEntity.SetActive(isActive);
+		}
+		if (FlagsHelper.IsSet(limbs, Skeleton.GRENADE))
+		{
+			FlagsHelper.Set(ref active, Skeleton.GRENADE);
+			handGrenadeMotor.entity.SetActive(isActive);
+		}
+	}
+
+	private bool IsActive(Skeleton limbs)
+	{
+		var result = false;
+
+		result |= FlagsHelper.IsSet(limbs, Skeleton.BODY);
+		result |= FlagsHelper.IsSet(limbs, Skeleton.FOOT);
+		result |= FlagsHelper.IsSet(limbs, Skeleton.HAND);
+		result |= FlagsHelper.IsSet(limbs, Skeleton.GRENADE);
+
+		return result;
+	}
+
+    private void CheckReset()
+	{
+		if (FlagsHelper.IsSet(skeleton, Skeleton.HAND) &&
+		    FlagsHelper.IsSet(skeleton, Skeleton.BODY))
+		{
+			Reset();
+		}
+	}
 }

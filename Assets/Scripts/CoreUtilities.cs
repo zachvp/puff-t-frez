@@ -70,4 +70,6 @@ public static class CoreUtilities
 
 		return result;
 	}
+
+	// TODO: Bool to mask function - returns mask / negated value
 }

@@ -3,13 +3,10 @@ using System;
 
 public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 {
-	private PlayerCharacterEntity entity;
+	new public PlayerCharacterEntity entity { get; protected set; }
 
     // Reference to the character controller engine.
     private CharacterController2D engine;
-
-    // The motor velocity.
-    private Vector2 velocity;
 
     // The direction of input.
 	private InputSnapshot<PlayerInput> input;
@@ -77,7 +74,8 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         // Update the controller with the computed velocity.
         engine.Move(deltaTime * velocity);
 
-		if (Mathf.Abs(engine.velocity.y) < data.velocityThresholdMin) {
+		if (Mathf.Abs(engine.velocity.y) < data.velocityThresholdMin)
+		{
             // Kind of a hack. The normally computed velocity is unreliable.
             // The only other case velocity is used is in handling slopes.
             velocity.y = 0;
@@ -85,24 +83,29 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
     }
 
     // IPlayerInput functions
-	public void ApplyInput(InputSnapshot<PlayerInput> inputSnapshot) {
+	public void ApplyInput(InputSnapshot<PlayerInput> inputSnapshot)
+	{
         input = inputSnapshot;
     }
 
-    public void ApplyDeltaTime(float time) {
+    public void ApplyDeltaTime(float time)
+	{
         deltaTime = time;
     }
 
     // IMotor functions
-    public Vector3 GetVelocity() {
+    public Vector3 GetVelocity()
+	{
         return velocity;
     }
 
-    public Vector3 GetDirection() {
+    public Vector3 GetDirection()
+	{
         return motorDirection;
     }
 
-    private void HandleGrounded() {
+    private void HandleGrounded()
+	{
 		var movement = CoreUtilities.Convert(input.held.direction);
 
 		FlagsHelper.Unset(ref state, State.JUMP);
@@ -255,7 +258,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         }
         
 		Debug.AssertFormat((int) Mathf.Abs(motorDirection.x) == 1 ||
-		                   (int )Mathf.Abs(motorDirection.x) == 0,
+		                   (int) Mathf.Abs(motorDirection.x) == 0,
 		                   "Motor X direction should always have a magnitude of one.");
         Debug.AssertFormat((int) Mathf.Abs(motorDirection.y) == 1 ||
 		                   (int) Mathf.Abs(motorDirection.y) == 0,

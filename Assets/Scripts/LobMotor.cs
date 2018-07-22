@@ -2,12 +2,12 @@
 
 public class LobMotor : Motor, IInputLob
 {
-	private Entity entity;
-	private Transform root;
+	protected Transform root;
+	protected Vector3 direction;
+
 	private int forceFrameCount;
-    private Vector3 velocity;
-	private Vector3 direction;
 	private int additiveSpeed; 
+
 	private LobMotorData data;
     private LobMotorData backupData;
     
@@ -79,6 +79,13 @@ public class LobMotor : Motor, IInputLob
         // we add the given velocity to our force frames.
 		additiveSpeed = Mathf.RoundToInt(Mathf.Abs(baseVelocity.x));
     }
+
+	public void Lob(Vector3 direction, Vector3 baseVelocity)
+	{
+		var converted = CoreUtilities.Convert(direction);
+
+		Lob(converted, baseVelocity);
+	}
         
     public void Freeze()
 	{
@@ -86,7 +93,7 @@ public class LobMotor : Motor, IInputLob
 		ClearFrameUpdate(HandleUpdate);
     }
 
-	public void Reset()
+	public virtual void Reset()
 	{
 		data.speed = backupData.speed;
 

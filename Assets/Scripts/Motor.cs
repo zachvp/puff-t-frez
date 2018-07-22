@@ -1,5 +1,10 @@
-﻿public class Motor
+﻿using UnityEngine;
+
+public class Motor
 {
+	public Entity entity { get; protected set; }
+	protected Vector3 velocity;
+
 	private bool isSubscribedToUpdate;
 
 	protected void HandleFrameUpdate(EventHandler<int, float> handler)

@@ -39,6 +39,8 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
     // Collision events
 	public EventHandler<Collision2D> OnCollisionEnter;
 
+	public EventHandler<bool> OnActivationChange;
+
 	protected Collider2D _collider;
 	protected StoreTransform _priorTransform;
 
@@ -74,6 +76,11 @@ public class Entity : MonoBehaviour, ITransform, IBehavior {
     // IBehavior begin
 	public void SetActive(bool isActive)
 	{
+		if (gameObject.activeInHierarchy != isActive)
+		{
+			Events.Raise(OnActivationChange, isActive);
+		}
+
 		gameObject.SetActive(isActive);
 	}
 	// IBehavior end

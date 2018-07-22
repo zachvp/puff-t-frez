@@ -32,7 +32,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var handMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchor);
 
 		var grenadeEntity = Instantiate(handGrenadeTemplate, handEntity.Position, handEntity.Rotation);
-		var grenadeMotor = new LobMotor(grenadeEntity, handEntity.transform);
+		var grenadeMotor = new PlayerHandGrenadeMotor(grenadeEntity, handEntity.transform);
 		var grenadeInput = new PlayerHandGrenadeInputControllerKeyboard(marionette);
 
 		var footEntity = Instantiate(footTemplate, bodyEntity.footAnchor.position, Quaternion.identity);
@@ -43,8 +43,8 @@ public class PlayerCharacterInitializer : MonoBehaviour
 
         // Attach the limb input
 		// TODO: Passing multiple of same object is smellyyy...Fix soon ya goon.
-		marionette.AttachBody(bodyMotor, bodyMotor, bodyEntity);
+		marionette.AttachBody(bodyMotor);
 		marionette.AttachHand(handEntity, handEntity);
-		marionette.AttachHandGrenade(grenadeMotor, grenadeEntity);
+		marionette.AttachHandGrenade(grenadeMotor);
 	}
 }

@@ -66,6 +66,19 @@ public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 	}
 }
 
+// TODO: Move this class to a different file
+public class MotorData
+{
+	public Direction2D direction;
+	public Vector3 velocity;
+
+	public MotorData(Direction2D motorDirection, Vector3 motorVelocity)
+	{
+		direction = motorDirection;
+		velocity = motorVelocity;
+	}
+}
+
 public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 {
 	public Direction2D direction;
@@ -79,7 +92,7 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 		launch = input.launch;
 	}
 
-    // IFactory
+	// IFactoryInput
 	public HandGrenadeInput Clone()
 	{
 		return new HandGrenadeInput(this);

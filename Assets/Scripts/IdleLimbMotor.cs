@@ -3,10 +3,10 @@
 // TODO: Tie into replay system
 public class IdleLimbMotor : Motor {
     private Transform root;
-	private Entity entity;
 	private IdleLimbMotorData data;
     
-	public IdleLimbMotor(Entity entityInstance, Transform rootTransform) {
+	public IdleLimbMotor(Entity entityInstance, Transform rootTransform)
+	{
 		data = ScriptableObject.CreateInstance<IdleLimbMotorData>();
 
 		root = rootTransform;
@@ -17,7 +17,8 @@ public class IdleLimbMotor : Motor {
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-	public void HandleUpdate(int currentFrame, float deltaTime) {
+	public void HandleUpdate(int currentFrame, float deltaTime)
+	{
 		var toTarget = root.position - entity.Position;
         var sqrDistance = toTarget.sqrMagnitude;
 		var newPos = entity.Position;
@@ -26,8 +27,8 @@ public class IdleLimbMotor : Motor {
         // increase as the distance increases. We then fudge that with a
         // user-defined param.
         var speed = data.snappiness * toTarget.magnitude;
-        var velocity = toTarget.normalized * speed;
-
+        
+		velocity = toTarget.normalized * speed;
 		newPos += velocity * deltaTime;
 
 		entity.SetPosition(newPos);

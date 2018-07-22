@@ -3,15 +3,23 @@ using InControl;
 
 public interface IInputPlayerBody
 {
-    // Input functions
 	void ApplyInput(InputSnapshot<PlayerInput> input);
     void ApplyDeltaTime(float deltaTime);
+}
+
+// TOOD: Use generic definition
+public interface IInputPlayerHandGrenade
+{
+	void SetBodyData(MotorData motorData);
+	void ApplyInput(InputSnapshot<HandGrenadeInput> input);
+	void ApplyDeltaTime(float deltaTime);
 }
 
 public interface IPlayerMarionette
 {
 	void ApplyPlayerInput(InputSnapshot<PlayerInput> snapshot);
 	void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> snapshot);
+	void AttachBody(PlayerMotor motor);
 
     void ApplyDeltaTime(float deltaTime);
 }
@@ -19,6 +27,7 @@ public interface IPlayerMarionette
 public interface IInputLob
 {
     void Lob(Direction2D direction, Vector3 baseVelocity);
+	void Lob(Vector3 direction, Vector3 baseVelocity);
     void Freeze();
     void Reset();
 }
