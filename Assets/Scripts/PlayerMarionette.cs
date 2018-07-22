@@ -8,7 +8,8 @@ public class PlayerMarionette : IPlayerMarionette
 {
 	private PlayerMotor body;
 	private IdleLimbMotor hand;
-	private PlayerHandGrenadeMotor grenade;
+	private IdleLimbMotor foot;
+	private PlayerGrenadeMotor grenade;
     
 	[Flags]
     public enum Skeleton
@@ -26,6 +27,8 @@ public class PlayerMarionette : IPlayerMarionette
 	{
 		body = motor;
 
+		motor.entity.OnActivationChange += HandleBodyActivationChange;
+
 		FlagsHelper.Set(ref skeleton, Skeleton.BODY);
 		Activate(Skeleton.BODY, true);
 		CheckReset();
@@ -42,15 +45,25 @@ public class PlayerMarionette : IPlayerMarionette
 		CheckReset();
 	}
 
-	public void AttachGrenade(PlayerHandGrenadeMotor motor)
+	public void AttachGrenade(PlayerGrenadeMotor motor)
 	{
 		grenade = motor;
-		grenade.OnPickup += HandleGrenadePickup;
 
+		grenade.OnPickup += HandleGrenadePickup;
 		grenade.entity.OnActivationChange += HandleGrenadeActivationChange;
 
 		FlagsHelper.Set(ref skeleton, Skeleton.GRENADE);
 		Activate(Skeleton.GRENADE, false);
+	}
+
+	public void AttachFoot(IdleLimbMotor motor)
+	{
+		foot = motor;
+
+		foot.entity.OnActivationChange += HandleFootActivationChange;
+
+		FlagsHelper.Set(ref skeleton, Skeleton.FOOT);
+		Activate(Skeleton.FOOT, true);
 	}
 
 	// IPlayerMarionette begin
@@ -83,6 +96,11 @@ public class PlayerMarionette : IPlayerMarionette
 	// IPlayerMarionette end
 
     // Handlers
+	public void HandleBodyActivationChange(bool isActive)
+	{
+		HandleLimbActivationChange(isActive, Skeleton.BODY);
+	}
+
 	public void HandleHandActivationChange(bool isActive)
     {
         HandleLimbActivationChange(isActive, Skeleton.HAND);
@@ -91,6 +109,11 @@ public class PlayerMarionette : IPlayerMarionette
     public void HandleGrenadeActivationChange(bool isActive)
     {
         HandleLimbActivationChange(isActive, Skeleton.GRENADE);
+    }
+
+	public void HandleFootActivationChange(bool isActive)
+    {
+		HandleLimbActivationChange(isActive, Skeleton.FOOT);
     }
 
     public void HandleGrenadePickup()

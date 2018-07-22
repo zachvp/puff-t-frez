@@ -1,21 +1,21 @@
 ﻿using UnityEngine;
 
-public class PlayerHandGrenadeMotor : LobMotor, IInputPlayerHandGrenade
+public class PlayerGrenadeMotor : LobMotor, IInputPlayerHandGrenade
 {
 	public EventHandler OnPickup;
 
 	private CallbackManager manager;
-    private int inputCount; // TODO: Should this be handled in hand grenade controller?
-	private PlayerHandGrenadeMotorData data;
+    private int inputCount;
+	private PlayerGrenadeMotorData data;
 	private MotorData baseData;
 
     private bool isHandCollided;
 
-	public PlayerHandGrenadeMotor(Entity entityInstance, Transform rootInstance)
+	public PlayerGrenadeMotor(Entity entityInstance, Transform rootInstance)
 		: base(entityInstance, rootInstance)
 	{
 		manager = new CallbackManager();
-		data = ScriptableObject.CreateInstance<PlayerHandGrenadeMotorData>();
+		data = ScriptableObject.CreateInstance<PlayerGrenadeMotorData>();
 
 		entity.OnTriggerEnter += HandleTriggerEnterHandGrenade;
 	}
@@ -29,13 +29,11 @@ public class PlayerHandGrenadeMotor : LobMotor, IInputPlayerHandGrenade
 	{
 		if (IsGrenadeInputAvailable())
         {
-			//var addVelocity = baseData.velocity * data.lobVelocityCoefficient;
-			var addVelocity = Vector3.zero;
+			var addVelocity = baseData.velocity * data.lobVelocityCoefficient;
 			var flagDirection = Direction2D.NONE;
 
 			if (input.pressed.launch)
             {
-                Debug.LogFormat("launching!");
                 if (FlagsHelper.IsSet(input.pressed.direction, Direction2D.RIGHT))
                 {
 					FlagsHelper.Set(ref flagDirection, Direction2D.RIGHT);

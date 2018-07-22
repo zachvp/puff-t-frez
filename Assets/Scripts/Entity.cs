@@ -2,7 +2,8 @@
 
 // For any given GameObject in a scene, this handles position setting, collision
 // events, etc.
-public class Entity : MonoBehaviour, ITransform, IBehavior {
+public class Entity : MonoBehaviour, ITransform, IBehavior
+{
 	public Vector3 Position
 	{
     	get { return transform.position; }
