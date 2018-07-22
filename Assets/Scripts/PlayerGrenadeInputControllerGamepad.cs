@@ -34,7 +34,7 @@ public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeIn
                      FlagsHelper.IsSet(input.direction, Direction2D.RIGHT)),
                    "Invalid direction given: {0}", input.direction);
 
-			var snapshot = new InputSnapshot<HandGrenadeInput>(input, oldInput);
+			var snapshot = new InputSnapshot<HandGrenadeInput>(oldInput, input);
 
             marionette.ApplyGrenadeInput(snapshot);
 		}
