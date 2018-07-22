@@ -13,8 +13,6 @@ public class PlayerCharacterInitializer : MonoBehaviour
 	{
 		// TODO: This should be a marionette input snapshot buffer
 		var buffer = new InputBuffer<InputSnapshot<PlayerInput>>();
-
-		var marionette = new PlayerMarionette();
         
 		var bodyEntity = Instantiate(bodyTemplate, transform.position, Quaternion.identity);
 		var bodyCollider = bodyEntity.GetComponent<BoxCollider2D>();
@@ -25,7 +23,6 @@ public class PlayerCharacterInitializer : MonoBehaviour
 
 		// TODO: This should look up an available input controller from the
 		// connection manager/registry (yet to be created).
-		var inputController = new PlayerInputControllerKeyboard(marionette, buffer);
 
 		// Spawn the limbs
 		var handEntity = Instantiate(handTemplate, bodyEntity.handAnchor.position, Quaternion.identity);
@@ -33,7 +30,6 @@ public class PlayerCharacterInitializer : MonoBehaviour
 
 		var grenadeEntity = Instantiate(handGrenadeTemplate, handEntity.Position, handEntity.Rotation);
 		var grenadeMotor = new PlayerGrenadeMotor(grenadeEntity, handEntity.transform);
-		var grenadeInput = new PlayerHandGrenadeInputControllerKeyboard(marionette);
 
 		var footEntity = Instantiate(footTemplate, bodyEntity.footAnchor.position, Quaternion.identity);
 		var footMotor = new IdleLimbMotor(footEntity, bodyEntity.footAnchor);
@@ -41,10 +37,11 @@ public class PlayerCharacterInitializer : MonoBehaviour
         // Playback
 		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);
 
-        // Attach the limb input
-		// TODO: Passing multiple of same object is smellyyy...Fix soon ya goon.
-		marionette.AttachBody(bodyMotor);
-		marionette.AttachHand(handMotor);
-		marionette.AttachGrenade(grenadeMotor);
+        // Create the skeleton
+		var skeleton = new PlayerSkeleton(bodyMotor, handMotor, footMotor, grenadeMotor);
+		var marionette = new PlayerMarionette(skeleton);
+
+		var grenadeInput = new PlayerHandGrenadeInputControllerKeyboard(marionette);
+		var inputController = new PlayerInputControllerKeyboard(marionette, buffer);
 	}
 }

@@ -6,195 +6,70 @@ using UnityEngine;
 //    Enabling/disabling limbs
 public class PlayerMarionette : IPlayerMarionette
 {
-	private PlayerMotor body;
-	private IdleLimbMotor hand;
-	private IdleLimbMotor foot;
-	private PlayerGrenadeMotor grenade;
-    
-	[Flags]
-    public enum Skeleton
+	private PlayerSkeleton skeleton;
+        
+	public PlayerMarionette(PlayerSkeleton playerSkeleton)
 	{
-		NONE    = 0,
-		BODY    = 1 << 0,
-        HAND    = 1 << 1,
-        FOOT    = 1 << 2,
-        GRENADE = 1 << 3
-	}
-	private Skeleton skeleton;
-	private Skeleton active;
-    
-	public void AttachBody(PlayerMotor motor)
-	{
-		body = motor;
+		skeleton = playerSkeleton;
+		skeleton.OnLimbAttached += HandleLimbAttached;
 
-		motor.entity.OnActivationChange += HandleBodyActivationChange;
-
-		FlagsHelper.Set(ref skeleton, Skeleton.BODY);
-		Activate(Skeleton.BODY, true);
-		CheckReset();
-	}
-
-	public void AttachHand(IdleLimbMotor motor)
-	{
-		hand = motor;
-
-		hand.entity.OnActivationChange += HandleHandActivationChange;
-
-		FlagsHelper.Set(ref skeleton, Skeleton.HAND);
-		Activate(Skeleton.HAND, true);
-		CheckReset();
-	}
-
-	public void AttachGrenade(PlayerGrenadeMotor motor)
-	{
-		grenade = motor;
-
-		grenade.OnPickup += HandleGrenadePickup;
-		grenade.entity.OnActivationChange += HandleGrenadeActivationChange;
-
-		FlagsHelper.Set(ref skeleton, Skeleton.GRENADE);
-		Activate(Skeleton.GRENADE, false);
-	}
-
-	public void AttachFoot(IdleLimbMotor motor)
-	{
-		foot = motor;
-
-		foot.entity.OnActivationChange += HandleFootActivationChange;
-
-		FlagsHelper.Set(ref skeleton, Skeleton.FOOT);
-		Activate(Skeleton.FOOT, true);
+		// TODO:
+		skeleton.grenade.OnPickup += HandleGrenadePickup;
+		skeleton.Activate(Limb.GRENADE, false);
 	}
 
 	// IPlayerMarionette begin
 	public void ApplyPlayerInput(InputSnapshot<PlayerInput> input)
 	{
-		body.ApplyInput(input);
+		skeleton.body.ApplyInput(input);
 	}
 
 	public void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> input)
 	{        
-		if (input.pressed.launch && !IsActive(Skeleton.GRENADE))
+		if (input.pressed.launch && !skeleton.IsActive(Limb.GRENADE))
 		{
-			var bodyDirection = CoreUtilities.Convert(body.GetDirection());
-            var bodyData = new MotorData(bodyDirection, body.GetVelocity());
+			var bodyDirection = CoreUtilities.Convert(skeleton.body.GetDirection());
+			var bodyData = new MotorData(bodyDirection, skeleton.body.GetVelocity());
 
-			grenade.SetBodyData(bodyData);
-            grenade.ApplyInput(input);
+			skeleton.grenade.SetBodyData(bodyData);
+			skeleton.grenade.ApplyInput(input);
 
-			Activate(Skeleton.GRENADE, true);
-			Activate(Skeleton.HAND, false);
-			grenade.entity.SetPosition(hand.entity.Position);
+			skeleton.Activate(Limb.GRENADE, true);
+			skeleton.Activate(Limb.HAND, false);
+			skeleton.grenade.entity.SetPosition(skeleton.hand.entity.Position);
 		}
 	}
 
 	public void ApplyDeltaTime(float deltaTime)
 	{
-		body.ApplyDeltaTime(deltaTime);
-		grenade.ApplyDeltaTime(deltaTime);
+		skeleton.body.ApplyDeltaTime(deltaTime);
+		skeleton.grenade.ApplyDeltaTime(deltaTime);
 	}
 	// IPlayerMarionette end
 
-    // Handlers
-	public void HandleBodyActivationChange(bool isActive)
-	{
-		HandleLimbActivationChange(isActive, Skeleton.BODY);
-	}
-
-	public void HandleHandActivationChange(bool isActive)
-    {
-        HandleLimbActivationChange(isActive, Skeleton.HAND);
-    }
-
-    public void HandleGrenadeActivationChange(bool isActive)
-    {
-        HandleLimbActivationChange(isActive, Skeleton.GRENADE);
-    }
-
-	public void HandleFootActivationChange(bool isActive)
-    {
-		HandleLimbActivationChange(isActive, Skeleton.FOOT);
-    }
-
     public void HandleGrenadePickup()
 	{
-		hand.entity.SetPosition(grenade.entity.Position);
-		grenade.Reset();
+		skeleton.hand.entity.SetPosition(skeleton.grenade.entity.Position);
+		skeleton.grenade.Reset();
 
-		Activate(Skeleton.HAND, true);
-        Activate(Skeleton.GRENADE, false);
+		skeleton.Activate(Limb.HAND, true);
+		skeleton.Activate(Limb.GRENADE, false);
 	}
+
+    // Handlers
+	public void HandleLimbAttached(Limb skeleton, Limb attachedLimb)
+    {
+		if (FlagsHelper.IsSet(skeleton, Limb.HAND) &&
+		    FlagsHelper.IsSet(skeleton, Limb.BODY))
+        {
+            Reset();
+        }
+    }
 
     // Private
-	private void HandleLimbActivationChange(bool isActive, Skeleton limb)
-    {
-        if (isActive)
-        {
-            FlagsHelper.Set(ref active, limb);
-        }
-        else
-        {
-            FlagsHelper.Unset(ref active, limb);
-        }
-    }
-
 	private void Reset()
     {
-		hand.entity.SetPosition(body.entity.Position);
-        Activate(Skeleton.HAND, true);
+		skeleton.hand.entity.SetPosition(skeleton.body.entity.Position);
+		skeleton.Activate(Limb.HAND, true);
     }
-
-	private void Activate(Skeleton limbs, bool isActive)
-	{
-		if (FlagsHelper.IsSet(limbs, Skeleton.BODY))
-		{
-			body.entity.SetActive(isActive);
-		}
-		if (FlagsHelper.IsSet(limbs, Skeleton.FOOT))
-		{
-			UnityEngine.Debug.LogWarning("Unimplemented functionality");
-			// TODO: imp
-		}
-		if (FlagsHelper.IsSet(limbs, Skeleton.HAND))
-		{
-			hand.entity.SetActive(isActive);
-		}
-		if (FlagsHelper.IsSet(limbs, Skeleton.GRENADE))
-		{
-			grenade.entity.SetActive(isActive);
-		}
-	}
-
-	private bool IsActive(Skeleton limbs)
-	{
-		var result = false;
-
-		if (FlagsHelper.IsSet(limbs, Skeleton.BODY))
-        {
-			result |= FlagsHelper.IsSet(active, Skeleton.BODY);
-        }
-        if (FlagsHelper.IsSet(limbs, Skeleton.FOOT))
-        {
-			result |= FlagsHelper.IsSet(active, Skeleton.FOOT);
-        }
-        if (FlagsHelper.IsSet(limbs, Skeleton.HAND))
-        {
-			result |= FlagsHelper.IsSet(active, Skeleton.HAND);
-        }
-        if (FlagsHelper.IsSet(limbs, Skeleton.GRENADE))
-        {
-            result |= FlagsHelper.IsSet(active, Skeleton.GRENADE);
-        }
-
-		return result;
-	}
-
-    private void CheckReset()
-	{
-		if (FlagsHelper.IsSet(skeleton, Skeleton.HAND) &&
-		    FlagsHelper.IsSet(skeleton, Skeleton.BODY))
-		{
-			Reset();
-		}
-	}
 }

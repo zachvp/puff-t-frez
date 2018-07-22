@@ -19,8 +19,6 @@ public interface IPlayerMarionette
 {
 	void ApplyPlayerInput(InputSnapshot<PlayerInput> snapshot);
 	void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> snapshot);
-	void AttachBody(PlayerMotor motor);
-
     void ApplyDeltaTime(float deltaTime);
 }
 
