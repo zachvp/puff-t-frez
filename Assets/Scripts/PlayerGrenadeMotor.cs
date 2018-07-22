@@ -7,6 +7,7 @@ public class PlayerGrenadeMotor : LobMotor
 
 	private CallbackManager manager;
 	private PlayerGrenadeMotorData data;
+	private int playerHitCount;
 
 	public PlayerGrenadeMotor(Entity entityInstance, Transform rootInstance)
 		: base(entityInstance, rootInstance)
@@ -27,7 +28,6 @@ public class PlayerGrenadeMotor : LobMotor
 			if (!FlagsHelper.IsSet(flagDirection, Direction2D.LEFT) &&
 			    !FlagsHelper.IsSet(flagDirection, Direction2D.RIGHT))
 			{
-				Debug.LogFormat("neither right nor left set - fixing to be : {0}", input.held.direction);
 				flagDirection = input.held.data.direction;
 			}
 			if (FlagsHelper.IsSet(flagDirection, Direction2D.LEFT) &&
@@ -37,12 +37,10 @@ public class PlayerGrenadeMotor : LobMotor
                      FlagsHelper.IsSet(flagDirection, Direction2D.RIGHT)),
                    "Invalid direction given: {0}", flagDirection);
 
-				Debug.LogFormat("both right and left set - fixing to be : {0}", input.held.direction);
 				flagDirection = input.held.data.direction;
             }
 
 
-			Debug.LogFormat("flagDir: {0}", flagDirection);
 			Lob(flagDirection, addVelocity);
         }
 	}
@@ -53,18 +51,37 @@ public class PlayerGrenadeMotor : LobMotor
 	}
 
     // Handlers
+	public override void HandleTriggerEnter(CollisionContext context)
+	{
+		base.HandleTriggerEnter(context);
+
+		if (context.IsColliding(Affinity.PLAYER))
+        {
+			playerHitCount++;
+
+			if (playerHitCount > 1)
+			{
+				manager.PostIdempotentCallback(2, new Callback(Grab));
+			}
+        }
+	}
+
 	public override void HandleTriggerStay(CollisionContext context)
 	{
 		base.HandleTriggerStay(context);
 
-		if (state == State.FREEZE && context.IsColliding(Affinity.PLAYER))
+		if (context.IsColliding(Affinity.PLAYER))
         {
-			Grab();
+            if (state == State.FREEZE)
+            {
+                manager.PostIdempotentCallback(2, new Callback(Grab));
+            }
         }
 	}
 
 	public void Grab()
 	{
+		playerHitCount = 0;
 		Events.Raise(OnGrab);
 	}
 

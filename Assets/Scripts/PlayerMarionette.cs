@@ -29,8 +29,6 @@ public class PlayerMarionette : IPlayerMarionette
 
 			input.held.data = bodyData;
 
-			UnityEngine.Debug.LogFormat("lob direction: {0}\tconverted:{1}", skeleton.body.GetDirection(), bodyDirection);
-
             //skeleton.grenade.SetBodyData(bodyData);
 			skeleton.grenade.ApplyInput(input);
 

@@ -271,8 +271,6 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
         Debug.AssertFormat((int) Mathf.Abs(motorDirection.y) == 1 ||
 		                   (int) Mathf.Abs(motorDirection.y) == -1,
 		                   "Motor Y direction should always have a magnitude of one.");
-
-		Debug.LogFormat("motor dir : {0}", motorDirection);
     }
 
 	[Flags]

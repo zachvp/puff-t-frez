@@ -29,7 +29,6 @@ public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeIn
 			}
 
 			input.launch = device.RightBumper.IsPressed;
-			Debug.LogFormat("launch held? : {0}", input.launch);
 
 			Debug.AssertFormat(!(FlagsHelper.IsSet(input.direction, Direction2D.LEFT) &&
                      FlagsHelper.IsSet(input.direction, Direction2D.RIGHT)),
