@@ -7,7 +7,6 @@ public interface IInputPlayerBody
     void ApplyDeltaTime(float deltaTime);
 }
 
-// TOOD: Use generic definition
 public interface IInputPlayerHandGrenade
 {
 	void SetBodyData(MotorData motorData);
@@ -46,8 +45,8 @@ public interface IBehavior
 
 public interface IMotor
 {
+	// TODO: Can maybe get rid of these had have them as Motor read only properties.
     Vector3 GetVelocity();
-	// TODO: Should be Direction2D enum mask
     Vector3 GetDirection();
 }
 

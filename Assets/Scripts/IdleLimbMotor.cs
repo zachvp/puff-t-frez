@@ -1,17 +1,11 @@
 ﻿using UnityEngine;
 
 // TODO: Tie into replay system
-public class IdleLimbMotor : Motor {
-    private Transform root;
-	private IdleLimbMotorData data;
-    
-	public IdleLimbMotor(Entity entityInstance, Transform rootTransform)
+public class IdleLimbMotor : Motor<IdleLimbMotorData, Entity>
+{    
+	public IdleLimbMotor(Entity e, Transform t)
+		: base(e, t)
 	{
-		data = ScriptableObject.CreateInstance<IdleLimbMotorData>();
-
-		root = rootTransform;
-		entity = entityInstance;
-
 		entity.SetPosition(root.position);
 
 		FrameCounter.Instance.OnUpdate += HandleUpdate;

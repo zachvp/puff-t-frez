@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerGrenadeMotorData : ScriptableObject
+public class PlayerGrenadeMotorData : LobMotorData
 {
 	public int frameDelayReset = 64;
 	public int inputCountLob = 4;

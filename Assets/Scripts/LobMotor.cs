@@ -1,26 +1,20 @@
 ﻿using UnityEngine;
 
-public class LobMotor : Motor, IInputLob
+public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
 {
-	protected Transform root;
 	protected Vector3 direction;
 
 	private int forceFrameCount;
 	private int additiveSpeed; 
 
-	private LobMotorData data;
-    
 	protected enum State { NONE, LAUNCHED, FREEZE }
 	protected State state;
     
-	public LobMotor(Entity entityInstance, Transform rootInstance)
+	public LobMotor(Entity e, Transform t)
+		: base(e, t)
 	{
-		data = ScriptableObject.CreateInstance<LobMotorData>();
 		additiveSpeed = 1;
-
-		entity = entityInstance;
-		root = rootInstance;
-
+        
 		entity.OnTriggerEnter += HandleTriggerEnter;
 		entity.OnTriggerStay += HandleTriggerStay;
 	}
@@ -31,7 +25,6 @@ public class LobMotor : Motor, IInputLob
 		if (state == State.NONE)
 		{
 			entity.SetPosition(root.position);
-			Debug.LogFormat("FOLLOW");
 		}
 		else if (state == State.LAUNCHED)
 		{

@@ -1,19 +1,17 @@
 ﻿using UnityEngine;
 using System;
 
-public class PlayerGrenadeMotor : LobMotor
+public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 {
 	public EventHandler OnGrab;
 
 	private CallbackManager manager;
-	private PlayerGrenadeMotorData data;
 	private int playerHitCount;
 
 	public PlayerGrenadeMotor(Entity entityInstance, Transform rootInstance)
 		: base(entityInstance, rootInstance)
 	{
 		manager = new CallbackManager();
-		data = ScriptableObject.CreateInstance<PlayerGrenadeMotorData>();
 	}
     
 	public void ApplyInput(InputSnapshot<HandGrenadeInput> input)
@@ -26,7 +24,6 @@ public class PlayerGrenadeMotor : LobMotor
             // Fall back to base input direction if there's no input direction.
 			if (flagDirection == Direction2D.NONE)
 			{
-				Debug.LogFormat("override flag direction");
 				flagDirection = input.held.data.direction;
 			}
 

@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 using System;
 
-public class PlayerMotor : Motor, IInputPlayerBody, IMotor
+public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInputPlayerBody, IMotor
 {
-	new public PlayerCharacterEntity entity { get; protected set; }
-
     // Reference to the character controller engine.
     private CharacterController2D engine;
 
@@ -13,9 +11,6 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 
     // The direction the motor is facing.
     private Vector2 motorDirection;
-
-    // The configuration data driving movement and physics.
-	private PlayerMotorData data;
 
     // The amount of frames the motor has been jumping.
     private int additiveJumpFrameCount;
@@ -28,12 +23,14 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 
 	private State state;
         
-	public PlayerMotor(PlayerCharacterEntity playerEntity, CharacterController2D playerEngine)
+	public PlayerMotor(PlayerCharacterEntity pc,
+	                   CharacterController2D e,
+	                   Transform t)
+		: base(pc, t)
 	{
 		input = new InputSnapshot<PlayerInput>();
 
-		entity = playerEntity;
-		engine = playerEngine;
+		engine = e;
 		data = ScriptableObject.CreateInstance<PlayerMotorData>();
 
 		// TOOD: Move magic to data class

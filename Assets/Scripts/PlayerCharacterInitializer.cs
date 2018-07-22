@@ -19,7 +19,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var bodyRigidBody = bodyEntity.GetComponent<Rigidbody2D>();
 
 		var bodyEngine = new CharacterController2D(bodyEntity, bodyCollider, bodyRigidBody);
-		var bodyMotor = new PlayerMotor(bodyEntity, bodyEngine);
+		var bodyMotor = new PlayerMotor(bodyEntity, bodyEngine, transform);
 
 		// TODO: This should look up an available input controller from the
 		// connection manager/registry (yet to be created).
