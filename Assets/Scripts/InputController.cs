@@ -1,6 +1,6 @@
-﻿using System;
-
-public class InputController<T, U> where T : IFactoryInput<T>, new() where U : class
+﻿public class InputController<T, U>
+	where T : CoreInput, IFactoryInput<T>, new()
+	where U : class
 {
 	
 	protected T oldInput;
@@ -15,6 +15,7 @@ public class InputController<T, U> where T : IFactoryInput<T>, new() where U : c
 		responder = r;
 
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
+		FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
 	}
 
 	public virtual void HandleUpdate(long currentFrame, float deltaTime)
@@ -23,4 +24,9 @@ public class InputController<T, U> where T : IFactoryInput<T>, new() where U : c
 		oldInput = input.Clone();
 		input = new T();
     }
+
+	public virtual void HandleLateUpdate()
+	{
+		
+	}
 }

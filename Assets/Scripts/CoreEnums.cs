@@ -1,15 +1,18 @@
 ﻿using System;
 using UnityEngine;
+using System.Runtime.InteropServices;
 
 [Flags]
 public enum Direction2D
 {
-	NONE  = 0,
-	RIGHT = 1 << 0,
-	LEFT  = 1 << 1,
-	UP    = 1 << 2,
-	DOWN  = 1 << 3,
-	ALL   = RIGHT | LEFT | UP | DOWN
+	NONE       = 0,
+	RIGHT      = 1 << 0,
+	LEFT       = 1 << 1,
+	UP         = 1 << 2,
+	DOWN       = 1 << 3,
+	HORIZONTAL = RIGHT | LEFT,
+	VERTICAL   = UP | DOWN,
+	ALL        = RIGHT | LEFT | UP | DOWN
 }
 
 // The casts to object in the below code are an unfortunate necessity due to
@@ -27,46 +30,57 @@ public static class FlagsHelper
         return (flagsValue & flagValue) != 0;
     }
 
+	public static bool IsSet<T>(T mask, T flagMask, bool shouldMatchAll) where T : struct
+	{
+		var shift = 1;
+		var matches = 0;
+		var flags = 0;
+
+		for (var i = 0; i < 8 * sizeof(int); ++i)
+		{
+			var check = (T)(object) (shift << i);
+
+			if (IsSet(flagMask, check))
+			{
+				// The flagmask has this bit set
+				flags++;
+
+				if (IsSet(mask, check))
+				{
+					// There was a flag match for the input mask
+					matches++;
+				}
+			}
+		}
+
+		return shouldMatchAll ? matches == flags : matches > 0;
+	}
+
 	public static void Set<T>(ref T mask, T flag) where T : struct
     {
-        var flagsValue = (int)(object) mask;
+		var maskValue = (int)(object) mask;
         int flagValue = (int)(object) flag;
 
-        mask = (T)(object) (flagsValue | flagValue);
+        mask = (T)(object) (maskValue | flagValue);
     }
+
+	public static void Set<T> (ref T mask, T flag, bool isSet) where T : struct
+	{
+		if (isSet)
+		{
+			Set(ref mask, flag);
+		}
+		else
+		{
+			Unset(ref mask, flag);
+		}
+	}
 
 	public static void Unset<T>(ref T mask, T flag) where T : struct
     {
-        var flagsValue = (int)(object) mask;
+		var maskValue = (int)(object) mask;
         var flagValue = (int)(object) flag;
 
-        mask = (T)(object) (flagsValue & (~flagValue));
+        mask = (T)(object) (maskValue & (~flagValue));
     }
-
-	//public static T GetOverride<T>(T oldMask, T overrideMask) where T : struct
-	//{
-	//	byte[] oldBytes = BitConverter.GetBytes((int)(object) oldMask);
-	//	byte[] overrideBytes = BitConverter.GetBytes((int)(object) overrideMask);
-	//	int length = oldBytes.Length; // both lengths are the same since types are the same
- //       int bitPos = 0;
-	//	T result = (T) (object) 0;
-
-	//	while (bitPos < 8 * length)
- //       {
- //           int byteIndex = bitPos / 8;
- //           int offset = bitPos % 8;
-	//		bool isOldSet = (oldBytes[byteIndex] & (1 << offset)) != 0;
-	//		bool isOverrideSet = (overrideBytes[byteIndex] & (1 << offset)) != 0;
-
-	//		if (isOverrideSet)
-	//		{
-	//		}
-
- //           // isSet = [True] if the bit at bitPos is set, false otherwise
-
- //           bitPos++;
- //       }
-
-	//	return result;
-	//}
 }

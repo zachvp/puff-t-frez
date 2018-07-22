@@ -15,23 +15,11 @@ public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeIn
 		if (InputManager.Devices.Count > 0)
 		{
 			var device = InputManager.Devices[0];
+			var leftStick = device.LeftStick.Value;
 
-            // TODO Centralize this check
-			if (device.LeftStick.X > Constants.Input.DEAD_ZONE)
-			{
-				FlagsHelper.Set(ref input.direction, Direction2D.RIGHT);
-			}
-			if (device.LeftStick.X < -Constants.Input.DEAD_ZONE)
-			{
-				FlagsHelper.Set(ref input.direction, Direction2D.LEFT);
-			}
-
+			input.direction = CoreUtilities.Convert(leftStick);
 			input.launch = device.RightBumper.IsPressed;
-
-			Debug.AssertFormat(!(FlagsHelper.IsSet(input.direction, Direction2D.LEFT) &&
-                     FlagsHelper.IsSet(input.direction, Direction2D.RIGHT)),
-                   "Invalid direction given: {0}", input.direction);
-
+            
 			var snapshot = new InputSnapshot<HandGrenadeInput>(oldInput, input);
 
 			responder.ApplyGrenadeInput(snapshot);

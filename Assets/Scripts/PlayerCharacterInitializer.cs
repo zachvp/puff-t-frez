@@ -41,9 +41,9 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var skeleton = new PlayerSkeleton(bodyMotor, handMotor, footMotor, grenadeMotor);
 		var marionette = new PlayerMarionette(skeleton);
 
-		//var keyboardGrenade = new PlayerHandGrenadeInputControllerKeyboard(marionette);
-		//var keyboardController = new PlayerInputControllerKeyboard(marionette, buffer);
-		var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette);
-		var gamepadPlayer = new PlayerInputControllerGamepad(marionette, buffer);
+		var keyboardGrenade = new PlayerHandGrenadeInputControllerKeyboard(marionette);
+		var keyboardController = new PlayerInputControllerKeyboard(marionette, buffer);
+		//var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette);
+		//var gamepadPlayer = new PlayerInputControllerGamepad(marionette, buffer);
 	}
 }

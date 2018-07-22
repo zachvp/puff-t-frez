@@ -50,7 +50,7 @@ public interface IMotor
     Vector3 GetDirection();
 }
 
-public interface IFactoryInput<T>
+public interface IFactoryInput<T> where T : CoreInput
 {
 	T Clone();
 	T Released(T oldInput);

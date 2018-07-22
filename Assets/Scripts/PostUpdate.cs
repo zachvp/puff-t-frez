@@ -1,4 +1,5 @@
-﻿public class EarlyUpdate : MonoSingleton<EarlyUpdate> {
+﻿public class PostUpdate : MonoSingleton<PostUpdate>
+{
     public EventHandler OnUpdate;
 
 	public void Update() {

@@ -9,6 +9,20 @@ public class PlayerInputController : InputController<PlayerInput, IPlayerMarione
 		buffer = inputBuffer;
 	}
 
+	public override void HandleLateUpdate()
+	{
+		base.HandleLateUpdate();
+
+		// Check if input directions should be neutralized;
+		CoreUtilities.ClearConcurrent(ref input.direction,
+                                      Direction2D.HORIZONTAL | Direction2D.VERTICAL);
+
+        var snapshot = new InputSnapshot<PlayerInput>(oldInput, input);
+
+        responder.ApplyPlayerInput(snapshot);
+        buffer.AddInput(snapshot);
+	}
+
 	protected void HandleInputRight()
 	{
 		FlagsHelper.Set(ref input.direction, Direction2D.RIGHT);
@@ -37,23 +51,5 @@ public class PlayerInputController : InputController<PlayerInput, IPlayerMarione
     protected void HandleInputCrouch()
 	{
 		input.crouch = true;
-	}
-
-	protected void HandleInputChecksFinished(bool isConcurrentHorizontalInput, bool isConcurrentVerticalInput)
-	{
-		if (isConcurrentHorizontalInput)
-		{
-			FlagsHelper.Unset(ref input.direction, Direction2D.RIGHT | Direction2D.LEFT);
-		}
-        if (isConcurrentVerticalInput)
-		{
-			FlagsHelper.Unset(ref input.direction, Direction2D.UP | Direction2D.DOWN);
-		}
-
-		// TODO: Refactor so pass (held: input, oldInput : oldInput, pressed: )
-		var snapshot = new InputSnapshot<PlayerInput>(oldInput, input);
-        
-		responder.ApplyPlayerInput(snapshot);
-        buffer.AddInput(snapshot);
 	}
 }

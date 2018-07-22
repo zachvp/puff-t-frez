@@ -10,33 +10,21 @@ public class PlayerInputControllerKeyboard : PlayerInputController
 	{
 		base.HandleUpdate(currentFrame, deltaTime);
 
-        // Horizontal control
-		if (Input.GetKey (KeyCode.RightArrow))
-		{
-            HandleInputRight();
-		}
+		// Horizontal control
+		FlagsHelper.Set(ref input.direction,
+		                Direction2D.RIGHT,
+		                Input.GetKey(KeyCode.RightArrow));
+		FlagsHelper.Set(ref input.direction,
+						Direction2D.LEFT,
+		                Input.GetKey(KeyCode.LeftArrow));
+		FlagsHelper.Set(ref input.direction,
+						Direction2D.UP,
+						Input.GetKey(KeyCode.UpArrow));
+		FlagsHelper.Set(ref input.direction,
+						Direction2D.DOWN,
+						Input.GetKey(KeyCode.DownArrow));
 
-		if (Input.GetKey (KeyCode.LeftArrow))
-		{
-            HandleInputLeft();
-		}
-
-		// Vertical control, jump, crouch
-		if (Input.GetKey (KeyCode.UpArrow))
-		{
-            HandleInputUp();
-            HandleInputJump();
-		}
-		if (Input.GetKey (KeyCode.DownArrow))
-		{
-            HandleInputDown();
-			HandleInputCrouch();
-		}
-
-		// Check if the input direction should be neutralized
-		var isConcurrentHorizontalInput = Input.GetKey (KeyCode.RightArrow) && Input.GetKey (KeyCode.LeftArrow);
-        var isConcurrentVerticalInput = Input.GetKey(KeyCode.UpArrow) && Input.GetKey(KeyCode.DownArrow);
-
-        HandleInputChecksFinished(isConcurrentHorizontalInput, isConcurrentVerticalInput);
+		input.jump = Input.GetKey(KeyCode.UpArrow);
+		input.crouch = Input.GetKey(KeyCode.DownArrow);
 	}
 }
