@@ -14,7 +14,7 @@ public class InputController<T> where T : IFactoryInput<T>, new()
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-	public virtual void HandleUpdate(int currentFrame, float deltaTime)
+	public virtual void HandleUpdate(long currentFrame, float deltaTime)
     {
 		// Get the data ready for the new frame
 		oldInput = input.Clone();

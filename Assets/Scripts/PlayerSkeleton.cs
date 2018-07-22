@@ -3,11 +3,13 @@ using UnityEngine;
 
 public class PlayerSkeleton
 {
+	// Param 0: Full skeleton
+	// Param 1: Newly attached limb
 	public EventHandler<Limb, Limb> OnLimbAttached;
 
-	public IdleLimbMotor hand;
-	public IdleLimbMotor foot;
-	public PlayerGrenadeMotor grenade;
+	public IdleLimbMotor hand { get; private set; }
+	public IdleLimbMotor foot { get; private set; }
+	public PlayerGrenadeMotor grenade { get; private set; }
 
 	public PlayerMotor body;
 
@@ -31,7 +33,7 @@ public class PlayerSkeleton
 		body = motor;
 		body.entity.OnActivationChange += HandleBodyActivationChange;
 
-		AttachLimb(Limb.BODY);
+		AttachLimb(Limb.BODY, body.entity);
 
 		return this;
 	}
@@ -41,7 +43,7 @@ public class PlayerSkeleton
 		hand = motor;
         hand.entity.OnActivationChange += HandleHandActivationChange;
 
-		AttachLimb(Limb.HAND);
+		AttachLimb(Limb.HAND, hand.entity);
 
 		return this;
 	}
@@ -51,7 +53,7 @@ public class PlayerSkeleton
         foot = motor;
         foot.entity.OnActivationChange += HandleFootActivationChange;
 
-		AttachLimb(Limb.FOOT);
+		AttachLimb(Limb.FOOT, foot.entity);
 
         return this;
     }
@@ -61,7 +63,7 @@ public class PlayerSkeleton
         grenade = motor;
         grenade.entity.OnActivationChange += HandleGrenadeActivationChange;
 
-        AttachLimb(Limb.GRENADE);
+		AttachLimb(Limb.GRENADE, grenade.entity);
 
         return this;
     }
@@ -88,10 +90,11 @@ public class PlayerSkeleton
     }
 
     // Private
-	private PlayerSkeleton AttachLimb(Limb limb)
+	private PlayerSkeleton AttachLimb(Limb limb, Entity entity)
 	{
 		FlagsHelper.Set(ref existing, limb);
 		Activate(limb, true);
+		entity.SetAffinity(Affinity.PLAYER);
 		Events.Raise(OnLimbAttached, existing, limb);
 
 		return this;

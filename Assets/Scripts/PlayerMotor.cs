@@ -43,7 +43,7 @@ public class PlayerMotor : Motor, IInputPlayerBody, IMotor
 	}
 
 	// When update is called, all input has been processed.
-	public void HandleUpdate(int currentFrame, float deltaTime)
+	public void HandleUpdate(long currentFrame, float deltaTime)
     {
         if (engine.isGrounded)
         {

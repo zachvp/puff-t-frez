@@ -1,7 +1,4 @@
-﻿using System;
-using UnityEngine;
-
-// Responsible for
+﻿// Responsible for
 //    Passing input to limbs
 //    Enabling/disabling limbs
 public class PlayerMarionette : IPlayerMarionette
@@ -13,8 +10,7 @@ public class PlayerMarionette : IPlayerMarionette
 		skeleton = playerSkeleton;
 		skeleton.OnLimbAttached += HandleLimbAttached;
 
-		// TODO:
-		skeleton.grenade.OnPickup += HandleGrenadePickup;
+		skeleton.grenade.OnGrab += HandleGrenadePickup;
 		skeleton.Activate(Limb.GRENADE, false);
 	}
 

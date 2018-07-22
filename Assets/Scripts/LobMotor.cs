@@ -11,8 +11,8 @@ public class LobMotor : Motor, IInputLob
 	private LobMotorData data;
     private LobMotorData backupData;
     
-	private enum State { FOLLOW, LOB }
-	private State state;
+	protected enum State { NONE, LAUNCHED, FREEZE }
+	protected State state;
     
 	public LobMotor(Entity entityInstance, Transform rootInstance)
 	{
@@ -20,20 +20,22 @@ public class LobMotor : Motor, IInputLob
 		backupData = ScriptableObject.CreateInstance<LobMotorData>();
 		additiveSpeed = 1;
 
-		state = State.FOLLOW;
 		entity = entityInstance;
 		root = rootInstance;
+
+		entity.OnTriggerEnter += HandleTriggerEnter;
+		entity.OnTriggerStay += HandleTriggerStay;
 	}
 
     // Handlers begin
-    public void HandleUpdate(int currentFrame, float deltaTime)
+	public virtual void HandleUpdate(long currentFrame, float deltaTime)
 	{
-		if (state == State.FOLLOW)
+		if (state == State.NONE)
 		{
 			entity.SetPosition(root.position);
 			Debug.LogFormat("FOLLOW");
 		}
-		else
+		else if (state == State.LAUNCHED)
 		{
 			// Determine if force should be applied 
             if (forceFrameCount > 0)
@@ -59,13 +61,30 @@ public class LobMotor : Motor, IInputLob
             entity.SetPosition(newPosition);
 		}
     }
+
+	public virtual void HandleTriggerEnter(CollisionContext context)
+    {
+		if (context.IsColliding(Constants.Layers.OBSTACLE))
+        {
+            if (state != State.FREEZE)
+            {
+                Freeze();
+            }
+        }
+    }
+
+	public virtual void HandleTriggerStay(CollisionContext context)
+	{
+		
+	}
+    
     // Handlers end
 
     // ILobmotor begin
 	public void Lob(Direction2D lobDirection, Vector3 baseVelocity)
 	{
 		forceFrameCount = data.forceFrameLength;
-        state = State.LOB;
+		state = State.LAUNCHED;
 
 		entity.SetActive(true);
 		HandleFrameUpdate(HandleUpdate);
@@ -88,17 +107,17 @@ public class LobMotor : Motor, IInputLob
 		Lob(converted, baseVelocity);
 	}
         
-    public void Freeze()
+	public virtual void Freeze()
 	{
 		velocity = Vector3.zero;
-		ClearFrameUpdate(HandleUpdate);
+		state = State.FREEZE;
     }
 
 	public virtual void Reset()
 	{
 		data.speed = backupData.speed;
 
-		state = State.FOLLOW;
+		state = State.NONE;
 		ClearFrameUpdate(HandleUpdate);
 		entity.SetActive(false);
 		entity.SetPosition(root.position);

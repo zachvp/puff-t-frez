@@ -1,23 +1,20 @@
 ﻿using UnityEngine;
+using System;
 
 public class PlayerGrenadeMotor : LobMotor, IInputPlayerHandGrenade
 {
-	public EventHandler OnPickup;
+	public EventHandler OnGrab;
 
 	private CallbackManager manager;
-    private int inputCount;
+	private int inputCount;// TODO: Remove
 	private PlayerGrenadeMotorData data;
 	private MotorData baseData;
-
-    private bool isHandCollided;
 
 	public PlayerGrenadeMotor(Entity entityInstance, Transform rootInstance)
 		: base(entityInstance, rootInstance)
 	{
 		manager = new CallbackManager();
 		data = ScriptableObject.CreateInstance<PlayerGrenadeMotorData>();
-
-		entity.OnTriggerEnter += HandleTriggerEnterHandGrenade;
 	}
 
 	public void SetBodyData(MotorData motorData)
@@ -34,6 +31,8 @@ public class PlayerGrenadeMotor : LobMotor, IInputPlayerHandGrenade
 
 			if (input.pressed.launch)
             {
+				Debug.LogFormat("grenade input fired");
+
                 if (FlagsHelper.IsSet(input.pressed.direction, Direction2D.RIGHT))
                 {
 					FlagsHelper.Set(ref flagDirection, Direction2D.RIGHT);
@@ -66,32 +65,33 @@ public class PlayerGrenadeMotor : LobMotor, IInputPlayerHandGrenade
 	}
 
     // Handlers
-	public void HandleTriggerEnterHandGrenade(Collider2D collider)
-    {
-        var layer = collider.gameObject.layer;
+	public override void HandleTriggerStay(CollisionContext context)
+	{
+		base.HandleTriggerStay(context);
 
-        if (layer == Constants.Layers.OBSTACLE)
+		if (state == State.FREEZE && context.IsColliding(Affinity.PLAYER))
         {
-            isHandCollided = true;
-            Freeze();
+            Grab();
         }
-        else if (layer == Constants.Layers.ENTITY && isHandCollided)
-        {
-			Events.Raise(OnPickup);
-        }
-    }
+	}
+
+	public void Grab()
+	{
+		Events.Raise(OnGrab);
+	}
 
 	public override void Reset()
     {
+		Debug.LogFormat("resetting");
 		base.Reset();
 		
         inputCount = 0;
-        isHandCollided = false;
     }
 
     // Private
 	private bool IsGrenadeInputAvailable()
     {
-        return inputCount < data.inputCountLob && !isHandCollided;
+		return inputCount < data.inputCountLob &&
+               state == State.NONE;
     }
 }

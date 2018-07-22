@@ -7,6 +7,6 @@ public class PlayerCharacterEntity : Entity {
 
 	new public BoxCollider2D Collider
     {
-		get { return (BoxCollider2D) _collider; }
+		get { return (BoxCollider2D) collider; }
     }
 }

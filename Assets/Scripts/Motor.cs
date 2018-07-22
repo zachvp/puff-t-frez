@@ -7,7 +7,7 @@ public class Motor
 
 	private bool isSubscribedToUpdate;
 
-	protected void HandleFrameUpdate(EventHandler<int, float> handler)
+	protected void HandleFrameUpdate(EventHandler<long, float> handler)
 	{
 		if (!isSubscribedToUpdate)
         {
@@ -16,7 +16,7 @@ public class Motor
         }
 	}
 
-	protected void ClearFrameUpdate(EventHandler<int, float> handler)
+	protected void ClearFrameUpdate(EventHandler<long, float> handler)
 	{
 		if (isSubscribedToUpdate)
         {

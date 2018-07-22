@@ -9,7 +9,7 @@ public class CallbackManager {
         FrameCounter.Instance.OnUpdate += HandleOnUpdate;
     }
 
-    public void HandleOnUpdate(int currentFrame, float deltaTime) {
+	public void HandleOnUpdate(long currentFrame, float deltaTime) {
         // Iterate over the posted callbacks and see what needs to be fired.
         foreach (var entry in postedCallbacks) {
             var callbackQueue = entry.Value;

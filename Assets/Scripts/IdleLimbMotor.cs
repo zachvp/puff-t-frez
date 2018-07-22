@@ -17,7 +17,7 @@ public class IdleLimbMotor : Motor {
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-	public void HandleUpdate(int currentFrame, float deltaTime)
+	public void HandleUpdate(long currentFrame, float deltaTime)
 	{
 		var toTarget = root.position - entity.Position;
         var sqrDistance = toTarget.sqrMagnitude;

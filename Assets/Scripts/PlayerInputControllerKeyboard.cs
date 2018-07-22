@@ -5,7 +5,7 @@ public class PlayerInputControllerKeyboard : PlayerInputController {
 		: base(playerInput, inputBuffer)
 	{ }
 
-	public override void HandleUpdate(int currentFrame, float deltaTime)
+	public override void HandleUpdate(long currentFrame, float deltaTime)
 	{
 		base.HandleUpdate(currentFrame, deltaTime);
 

@@ -9,7 +9,7 @@ public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGren
 		marionette = marionetteInstance;
 	}
 
-	public override void HandleUpdate(int currentFrame, float deltaTime) {
+	public override void HandleUpdate(long currentFrame, float deltaTime) {
 		base.HandleUpdate(currentFrame, deltaTime);
 
 		input.direction |= Input.GetKey(KeyCode.RightArrow) ? Direction2D.RIGHT : Direction2D.NONE;
