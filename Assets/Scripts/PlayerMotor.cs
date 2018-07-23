@@ -105,7 +105,6 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 	// TODO: Make this a public Property like Position, etc in Motor super class
 	public CoreDirection GetDirection()
 	{
-		Debug.LogFormat("motor direction: {0}", motorDirection);
         return motorDirection;
     }
 

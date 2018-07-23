@@ -32,7 +32,6 @@ public class PlayerMarionette :
 
 			input.held.data = bodyData;
 
-			UnityEngine.Debug.LogFormat("marionette input dir: {0}", input.held.direction);
 			skeleton.grenade.ApplyInput(input);
 
 			skeleton.Activate(Limb.GRENADE, true);
@@ -60,7 +59,7 @@ public class PlayerMarionette :
     // Handlers
 	public void HandleLimbAttached(Limb skeleton, Limb attachedLimb)
     {
-		if (FlagsHelper.IsSet(skeleton, Limb.HAND | Limb.BODY, LogicMode.AND))
+		if (FlagsHelper.IsSet(skeleton, Limb.HAND | Limb.BODY, Logical.AND))
 		{
 			Reset();
 		}

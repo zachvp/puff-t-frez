@@ -16,7 +16,7 @@ public class InputSnapshot<T> where T : CoreInput, IFactoryInput<T>, new()
 
     public InputSnapshot(T oldInput, T newInput)
 	{
-		held = newInput;
+		held = newInput.Clone();
 		pressed  = newInput.Pressed(oldInput);
 		released = newInput.Released(oldInput);
     }

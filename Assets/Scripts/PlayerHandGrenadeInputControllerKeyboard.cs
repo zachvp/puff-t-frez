@@ -10,7 +10,6 @@ public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGren
 
 	public override void HandleUpdate(long currentFrame, float deltaTime)
 	{
-
 		base.HandleUpdate(currentFrame, deltaTime);
 
 		input.direction.Update(Direction2D.RIGHT, Input.GetKey(KeyCode.RightArrow));
@@ -19,10 +18,5 @@ public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGren
 		Debug.LogFormat("input controller update: {0}", input.direction);
 
 		input.launch = Input.GetKey(KeyCode.D);
-	}
-
-	public override void HandleLateUpdate()
-	{
-		base.HandleLateUpdate();
 	}
 }

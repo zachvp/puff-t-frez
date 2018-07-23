@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public enum LogicMode
+public enum Logical
 {
 	NONE = 0,
     OR   = 1,
@@ -37,10 +37,10 @@ public static class FlagsHelper
         return (flagsValue & flagValue) != 0;
     }
 
-	public static bool IsSet<T>(T mask, T flagMask, LogicMode mode) where T : struct
+	public static bool IsSet<T>(T mask, T flagMask, Logical mode) where T : struct
 	{
-		Debug.AssertFormat(mode == LogicMode.AND ||
-		                   mode == LogicMode.OR,
+		Debug.AssertFormat(mode == Logical.AND ||
+		                   mode == Logical.OR,
 		                   "invalid mode provided");
 
 		var shift = 1;
@@ -67,10 +67,10 @@ public static class FlagsHelper
 
 		switch(mode)
 		{
-			case LogicMode.AND:
+			case Logical.AND:
 				result = matches == flags;
 				break;
-			case LogicMode.OR:
+			case Logical.OR:
 				result = matches > 0;
 				break;
 		}
