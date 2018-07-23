@@ -52,7 +52,6 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 			if (playerHitCount > 1)
 			{
 				Grab();
-				//manager.PostIdempotentCallback(2, new Callback(Grab));
 			}
         }
 	}

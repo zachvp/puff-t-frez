@@ -247,9 +247,7 @@ public class CoreInput
     {
 		if (FlagsHelper.IsSet(direction.flags, Direction2D.HORIZONTAL, Logical.AND))
         {
-			Debug.LogFormat("clear concurrent before: {0}", direction.flags);
 			direction.Update(Direction2D.HORIZONTAL, false);
-			Debug.LogFormat("clear concurrent after: {0}", direction.flags);
         }
 		if (FlagsHelper.IsSet(direction.flags, Direction2D.VERTICAL, Logical.AND))
         {

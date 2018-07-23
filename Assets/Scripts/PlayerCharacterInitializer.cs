@@ -2,6 +2,7 @@
 
 // TODO: Motor data scriptable object should be public serialized members too.
 //       Can then pass data to motor classes.
+using InControl;
 public class PlayerCharacterInitializer : MonoBehaviour
 {
 	public PlayerCharacterEntity bodyTemplate;
@@ -42,9 +43,16 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var skeleton = new PlayerSkeleton(bodyMotor, handMotor, footMotor, grenadeMotor);
 		var marionette = new PlayerMarionette(skeleton);
 
-		//var keyboardGrenade = new PlayerHandGrenadeInputControllerKeyboard(marionette, grenadeBuffer);
-		//var keyboardController = new PlayerInputControllerKeyboard(marionette, buffer);
-		var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette, grenadeBuffer);
-		var gamepadPlayer = new PlayerInputControllerGamepad(marionette, buffer);
+		// TODO: this is a convenience hack for now
+		if (InputManager.Devices.Count > 0)
+		{
+			var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette, grenadeBuffer);
+            var gamepadPlayer = new PlayerInputControllerGamepad(marionette, buffer);
+		}
+		else
+		{
+			var keyboardGrenade = new PlayerHandGrenadeInputControllerKeyboard(marionette, grenadeBuffer);
+            var keyboardController = new PlayerInputControllerKeyboard(marionette, buffer);
+		}
 	}
 }

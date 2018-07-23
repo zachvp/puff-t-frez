@@ -76,7 +76,7 @@ public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
 
 		entity.SetActive(true);
 		direction.Update(lobDirection);
-		HandleFrameUpdate(HandleUpdate);
+		SetFrameUpdate(HandleUpdate);
         
         // To handle cases when the motor is lobbed from an object in motion,
         // we add the given velocity to our force frames.
@@ -94,7 +94,7 @@ public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
 		forceFrameCount = data.forceFrameLength;
 
 		state = State.NONE;
-		ClearFrameUpdate(HandleUpdate);
+		UnsetFrameUpdate(HandleUpdate);
 		entity.SetActive(false);
 		entity.SetPosition(root.position);
 	}

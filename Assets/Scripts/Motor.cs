@@ -24,7 +24,7 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
         Debug.Assert(t != null, "root is null");
 	}
 
-	protected void HandleFrameUpdate(EventHandler<long, float> handler)
+	protected void SetFrameUpdate(EventHandler<long, float> handler)
 	{
 		if (!isSubscribedToUpdate)
         {
@@ -33,7 +33,7 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
         }
 	}
 
-	protected void ClearFrameUpdate(EventHandler<long, float> handler)
+	protected void UnsetFrameUpdate(EventHandler<long, float> handler)
 	{
 		if (isSubscribedToUpdate)
         {
