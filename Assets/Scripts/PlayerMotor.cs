@@ -10,7 +10,7 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 	private InputSnapshot<PlayerInput> input;
 
     // The direction the motor is facing.
-    private Vector2 motorDirection;
+	private CoreDirection motorDirection;
 
     // The amount of frames the motor has been jumping.
     private int additiveJumpFrameCount;
@@ -34,7 +34,7 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 		data = ScriptableObject.CreateInstance<PlayerMotorData>();
 
 		// TOOD: Move magic to data class
-		motorDirection = new Vector2(1, -1);
+		motorDirection = new CoreDirection(new Vector2(1, -1));
 
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
@@ -103,14 +103,14 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
     }
 
 	// TODO: Make this a public Property like Position, etc in Motor super class
-    public Vector3 GetDirection()
+	public CoreDirection GetDirection()
 	{
         return motorDirection;
     }
 
     private void HandleGrounded()
 	{
-		var movement = CoreUtilities.Convert(input.held.direction);
+		var movement = input.held.direction.vector;
 
 		FlagsHelper.Unset(ref state, State.JUMP);
         
@@ -157,7 +157,7 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 
     private void HandleNotGrounded()
 	{
-		var movement = CoreUtilities.Convert(input.held.direction);
+		var movement = input.held.direction.vector;
 
         // Motor is not grounded.
         // Air directional influence
@@ -167,7 +167,7 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
         velocity.x = Mathf.Clamp(velocity.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
 
 		// Check for wall collision in air, which should zero out x velocity.
-		var isNeutralInput = !FlagsHelper.IsSet(input.held.direction, Direction2D.LEFT | Direction2D.RIGHT);
+		var isNeutralInput = !FlagsHelper.IsSet(input.held.direction.flags, Direction2D.LEFT | Direction2D.RIGHT);
         if (isNeutralInput && (engine.collision.Right || engine.collision.Left))
         {
             velocity.x = 0;
@@ -249,24 +249,28 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 
     private void ComputeMotorDirection()
     {
+		var result = Vector2.zero;
+
         // Set the motor direction based on the velocty.
         // Motor direction should be 1 for positive velocity and -1 for
         // negative velocity.
         // Check for nonzero velocity
         if (Mathf.Abs(velocity.x) > 1)
         {
-            motorDirection.x = velocity.x > 0 ? 1 : -1;
+			result.x = velocity.x > 0 ? 1 : -1;
         }
         if (Mathf.Abs(velocity.y) > 1)
         {
-            motorDirection.y = velocity.y > 0 ? 1 : -1;
+			result.y = velocity.y > 0 ? 1 : -1;
         }
         
-		Debug.AssertFormat((int) Mathf.Abs(motorDirection.x) == 1 ||
-		                   (int) Mathf.Abs(motorDirection.x) == -1,
+		motorDirection.Update(result);
+
+		Debug.AssertFormat((int) Mathf.Abs(result.x) == 1 ||
+		                   (int) Mathf.Abs(result.x) == 0,
 		                   "Motor X direction should always have a magnitude of one.");
-        Debug.AssertFormat((int) Mathf.Abs(motorDirection.y) == 1 ||
-		                   (int) Mathf.Abs(motorDirection.y) == -1,
+		Debug.AssertFormat((int) Mathf.Abs(result.y) == 1 ||
+		                   (int) Mathf.Abs(result.y) == 0,
 		                   "Motor Y direction should always have a magnitude of one.");
     }
 

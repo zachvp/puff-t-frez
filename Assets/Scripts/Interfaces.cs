@@ -21,7 +21,6 @@ public interface IInputPlayerBody
 
 public interface IInputPlayerHandGrenade
 {
-	void SetBodyData(MotorData motorData);
 	void ApplyInput(InputSnapshot<HandGrenadeInput> input);
 	void ApplyDeltaTime(float deltaTime);
 }
@@ -35,8 +34,7 @@ public interface IPlayerMarionette
 
 public interface IInputLob
 {
-    void Lob(Direction2D direction, Vector3 baseVelocity);
-	void Lob(Vector3 direction, Vector3 baseVelocity);
+	void Lob(CoreDirection direction, Vector3 baseVelocity);
     void Freeze();
     void Reset();
 }
@@ -59,5 +57,5 @@ public interface IMotor
 {
 	// TODO: Can maybe get rid of these had have them as Motor read only properties.
     Vector3 GetVelocity();
-    Vector3 GetDirection();
+	CoreDirection GetDirection();
 }

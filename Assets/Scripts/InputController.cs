@@ -1,4 +1,5 @@
-﻿public class InputController<T, U>
+﻿using UnityEngine;
+public class InputController<T, U>
 	where T : CoreInput, IFactoryInput<T>, new()
 	where U : ICoreInput<T>, new()
 {
@@ -33,5 +34,15 @@
         snapshot = new InputSnapshot<T>(oldInput, input);
         buffer.AddInput(snapshot);
 		responder.ApplyInput(snapshot);
+	}
+
+	public Vector2 RemoveDeadZone(Vector2 v)
+	{
+		var r = Vector2.zero;
+
+		r.x = Mathf.Abs(v.x) > 0.1f ? v.x : r.x;
+		r.y = Mathf.Abs(v.y) > 0.1f ? v.y : r.y;
+
+		return r;
 	}
 }

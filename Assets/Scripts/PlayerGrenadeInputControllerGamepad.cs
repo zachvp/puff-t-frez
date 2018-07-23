@@ -1,6 +1,4 @@
-﻿using System;
-using InControl;
-using UnityEngine;
+﻿using InControl;
 
 public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeInput, PlayerMarionette>
 {
@@ -15,9 +13,9 @@ public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeIn
 		if (InputManager.Devices.Count > 0)
 		{
 			var device = InputManager.Devices[0];
-			var leftStick = device.LeftStick.Value;
 
-			input.direction = CoreUtilities.Convert(leftStick);
+			input.direction = new CoreDirection(device.LeftStick.Value);
+			UnityEngine.Debug.LogFormat("controller dir flags: {0}", input.direction.flags);
 			input.launch = device.RightBumper.IsPressed;
 		}
 	}

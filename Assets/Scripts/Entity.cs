@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 // For any given GameObject in a scene, this handles position setting, collision
 // events, etc.
-using System.Collections.Generic;
-using System.Linq;
 public class Entity : MonoBehaviour, ITransform, IBehavior
 {
 	public static long idCount;

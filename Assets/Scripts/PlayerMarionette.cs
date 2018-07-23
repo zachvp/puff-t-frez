@@ -27,11 +27,12 @@ public class PlayerMarionette :
 	{
 		if (input.pressed.launch && !skeleton.IsActive(Limb.GRENADE))
 		{
-			var bodyDirection = CoreUtilities.Convert(skeleton.body.GetDirection());
-            var bodyData = new MotorData(bodyDirection, skeleton.body.GetVelocity());
+			var bodyData = new MotorData(skeleton.body.GetDirection(),
+			                             skeleton.body.GetVelocity());
 
 			input.held.data = bodyData;
 
+			UnityEngine.Debug.LogFormat("Input dir flags: {0}", input.held.direction.flags);
 			skeleton.grenade.ApplyInput(input);
 
 			skeleton.Activate(Limb.GRENADE, true);

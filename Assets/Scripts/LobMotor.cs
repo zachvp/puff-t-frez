@@ -2,7 +2,7 @@
 
 public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
 {
-	protected Vector3 direction;
+	protected CoreDirection direction;
 
 	private int forceFrameCount;
 	private int additiveSpeed; 
@@ -37,7 +37,7 @@ public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
 				velocity = speed * data.multiplier * multiplier;
                 
                 // Set the velocity direction based on the input direction.
-				velocity.x *= direction.x;
+				velocity.x *= direction.vector.x;
                 
                 --forceFrameCount;
 			}
@@ -70,7 +70,7 @@ public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
     // Handlers end
 
     // ILobmotor begin
-	public void Lob(Direction2D lobDirection, Vector3 baseVelocity)
+	public void Lob(CoreDirection lobDirection, Vector3 baseVelocity)
 	{
 		forceFrameCount = data.forceFrameLength;
 		state = State.LAUNCHED;
@@ -78,23 +78,17 @@ public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
 		entity.SetActive(true);
 		HandleFrameUpdate(HandleUpdate);
 
-		Debug.AssertFormat(FlagsHelper.IsSet(lobDirection, Direction2D.LEFT) ||
-		                   FlagsHelper.IsSet(lobDirection, Direction2D.RIGHT),
-		                   "Invalid direction given: {0}", lobDirection);
+		Debug.AssertFormat(FlagsHelper.IsSet(lobDirection.flags,
+		                                     Direction2D.HORIZONTAL,
+		                                     LogicMode.OR),
+		                   "Invalid direction given: {0}", lobDirection.flags);
 
-		direction = CoreUtilities.Convert(lobDirection);
+		direction = lobDirection;
 
         // To handle cases when the motor is lobbed from an object in motion,
         // we add the given velocity to our force frames.
 		additiveSpeed = Mathf.RoundToInt(Mathf.Abs(baseVelocity.x));
     }
-
-	public void Lob(Vector3 direction, Vector3 baseVelocity)
-	{
-		var converted = CoreUtilities.Convert(direction);
-
-		Lob(converted, baseVelocity);
-	}
         
 	public virtual void Freeze()
 	{
