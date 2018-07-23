@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public struct CoreDirection
+public class CoreDirection
 {
     public Direction2D flags
     {
@@ -10,24 +10,25 @@ public struct CoreDirection
     }
     public Vector2 vector { get; private set; }
 
+    // Field to back the public property since we can't pass properties
+    // by reference.
     private Direction2D varFlags;
+
+	public CoreDirection() { }
 
     public CoreDirection(CoreDirection d)
     {
-        varFlags = d.varFlags;
-        vector = Convert(d.varFlags);
+		Update(d);
     }
 
     public CoreDirection(Vector2 v)
     {
-        vector = v;
-        varFlags = Convert(v);
+		Update(v);
     }
 
     public CoreDirection(Direction2D f)
     {
-        varFlags = f;
-        vector = Convert(f);
+		Update(f);
     }
 
     public void Update(CoreDirection d)
@@ -78,7 +79,7 @@ public struct CoreDirection
         return r;
     }
 
-    private static Vector2 Convert(Direction2D f)
+    private Vector2 Convert(Direction2D f)
     {
         var result = Vector2.zero;
         var set = 1;
@@ -115,7 +116,7 @@ public struct CoreDirection
         return result;
     }
 
-    private static Direction2D Convert(Vector2 v)
+    private Direction2D Convert(Vector2 v)
     {
         var result = Direction2D.NONE;
 		var fallback = Direction2D.NONE;
