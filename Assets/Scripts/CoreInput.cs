@@ -96,11 +96,11 @@ public class CoreInput
 
 	public void ClearConcurrent()
     {
-		if (FlagsHelper.IsSet(direction, Direction2D.HORIZONTAL, true))
+		if (FlagsHelper.IsSet(direction, Direction2D.HORIZONTAL, LogicMode.AND))
         {
 			FlagsHelper.Unset(ref direction, Direction2D.HORIZONTAL);
         }
-		if (FlagsHelper.IsSet(direction, Direction2D.VERTICAL, true))
+		if (FlagsHelper.IsSet(direction, Direction2D.VERTICAL, LogicMode.AND))
         {
 			FlagsHelper.Unset(ref direction, Direction2D.VERTICAL);
         }

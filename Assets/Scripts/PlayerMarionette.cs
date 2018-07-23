@@ -32,7 +32,6 @@ public class PlayerMarionette :
 
 			input.held.data = bodyData;
 
-            //skeleton.grenade.SetBodyData(bodyData);
 			skeleton.grenade.ApplyInput(input);
 
 			skeleton.Activate(Limb.GRENADE, true);
@@ -60,11 +59,10 @@ public class PlayerMarionette :
     // Handlers
 	public void HandleLimbAttached(Limb skeleton, Limb attachedLimb)
     {
-		if (FlagsHelper.IsSet(skeleton, Limb.HAND) &&
-		    FlagsHelper.IsSet(skeleton, Limb.BODY))
-        {
-            Reset();
-        }
+		if (FlagsHelper.IsSet(skeleton, Limb.HAND | Limb.BODY, LogicMode.AND))
+		{
+			Reset();
+		}
     }
 
     // Private

@@ -1,6 +1,13 @@
 ﻿using System;
 using UnityEngine;
-using System.Runtime.InteropServices;
+
+public enum LogicMode
+{
+	NONE = 0,
+    OR   = 1,
+    AND  = 2,
+    XOR  = 3
+}
 
 [Flags]
 public enum Direction2D
@@ -30,11 +37,16 @@ public static class FlagsHelper
         return (flagsValue & flagValue) != 0;
     }
 
-	public static bool IsSet<T>(T mask, T flagMask, bool shouldMatchAll) where T : struct
+	public static bool IsSet<T>(T mask, T flagMask, LogicMode mode) where T : struct
 	{
+		Debug.AssertFormat(mode == LogicMode.AND ||
+		                   mode == LogicMode.OR,
+		                   "invalid mode provided");
+
 		var shift = 1;
 		var matches = 0;
 		var flags = 0;
+		var result = false;
 
 		for (var i = 0; i < 8 * sizeof(int); ++i)
 		{
@@ -53,7 +65,17 @@ public static class FlagsHelper
 			}
 		}
 
-		return shouldMatchAll ? matches == flags : matches > 0;
+		switch(mode)
+		{
+			case LogicMode.AND:
+				result = matches == flags;
+				break;
+			case LogicMode.OR:
+				result = matches > 0;
+				break;
+		}
+
+		return result;
 	}
 
 	public static void Set<T>(ref T mask, T flag) where T : struct
