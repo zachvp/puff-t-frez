@@ -19,14 +19,22 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 		if (IsGrenadeInputAvailable() && input.pressed.launch)
         {
 			var addVelocity = input.held.data.velocity * data.lobVelocityCoefficient;
-            
+
             // Fall back to base input direction if there's no input direction.
 			if (input.held.direction.flags == Direction2D.NONE)
 			{
-				Debug.Log("overriding input direction");
+				Debug.LogFormat("overriding input direction with data: {0}", input.held.data.direction.flags);
 				input.held.direction.Update(input.held.data.direction);
 			}
-            
+
+			Debug.AssertFormat(FlagsHelper.IsSet(input.held.direction.flags,
+                                     Direction2D.HORIZONTAL,
+                                     LogicMode.OR),
+			                   "Invalid direction given: {0}", input.held.direction.flags);
+
+			Debug.LogFormat("grenade motor held dir: {0}", input.held.direction.flags);
+
+
 			Lob(input.held.direction, addVelocity);
         }
 	}

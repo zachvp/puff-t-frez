@@ -44,7 +44,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 
 		var keyboardGrenade = new PlayerHandGrenadeInputControllerKeyboard(marionette, grenadeBuffer);
 		var keyboardController = new PlayerInputControllerKeyboard(marionette, buffer);
-		var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette, grenadeBuffer);
-		var gamepadPlayer = new PlayerInputControllerGamepad(marionette, buffer);
+		//var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette, grenadeBuffer);
+		//var gamepadPlayer = new PlayerInputControllerGamepad(marionette, buffer);
 	}
 }

@@ -2,8 +2,6 @@
 
 public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
 {
-	protected CoreDirection direction;
-
 	private int forceFrameCount;
 	private int additiveSpeed; 
 
@@ -38,6 +36,7 @@ public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
                 
                 // Set the velocity direction based on the input direction.
 				velocity.x *= direction.vector.x;
+				Debug.LogFormat("direction.vector: {0}", direction.vector);
                 
                 --forceFrameCount;
 			}
@@ -72,19 +71,15 @@ public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
     // ILobmotor begin
 	public void Lob(CoreDirection lobDirection, Vector3 baseVelocity)
 	{
+		Debug.AssertFormat(lobDirection.flags != Direction2D.NONE, "illegal direction passed");
+
 		forceFrameCount = data.forceFrameLength;
 		state = State.LAUNCHED;
 
 		entity.SetActive(true);
+		direction.Update(lobDirection);
 		HandleFrameUpdate(HandleUpdate);
-
-		Debug.AssertFormat(FlagsHelper.IsSet(lobDirection.flags,
-		                                     Direction2D.HORIZONTAL,
-		                                     LogicMode.OR),
-		                   "Invalid direction given: {0}", lobDirection.flags);
-
-		direction = lobDirection;
-
+        
         // To handle cases when the motor is lobbed from an object in motion,
         // we add the given velocity to our force frames.
 		additiveSpeed = Mathf.RoundToInt(Mathf.Abs(baseVelocity.x));

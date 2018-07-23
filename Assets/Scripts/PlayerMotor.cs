@@ -69,10 +69,6 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
             ApplyJump();
         }
         
-        // At this point, all the motor's velocity computations are complete,
-        // so we can determine the motor's direction.
-        ComputeMotorDirection();
-
         // Update the controller with the computed velocity.
         engine.Move(deltaTime * velocity);
 
@@ -82,6 +78,10 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
             // The only other case velocity is used is in handling slopes.
             velocity.y = 0;
         }
+
+		// At this point, all the motor's velocity computations are complete,
+        // so we can determine the motor's direction.
+        ComputeMotorDirection();
     }
 
     // IPlayerInput functions
@@ -105,6 +105,7 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 	// TODO: Make this a public Property like Position, etc in Motor super class
 	public CoreDirection GetDirection()
 	{
+		Debug.LogFormat("motor direction: {0}", motorDirection);
         return motorDirection;
     }
 
@@ -249,7 +250,7 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 
     private void ComputeMotorDirection()
     {
-		var result = Vector2.zero;
+		var result = motorDirection.vector;
 
         // Set the motor direction based on the velocty.
         // Motor direction should be 1 for positive velocity and -1 for

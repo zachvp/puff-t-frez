@@ -31,6 +31,7 @@ public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 
 	public PlayerInput(PlayerInput input)
 	{
+		Construct(input);
         jump = input.jump;
 		crouch = input.crouch;
     }
@@ -67,13 +68,24 @@ public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 // TODO: Move this class to a different file
 public class MotorData
 {
-	public Direction2D direction;
+	public CoreDirection direction;
 	public Vector3 velocity;
 
-	public MotorData(Direction2D motorDirection, Vector3 motorVelocity)
+	public MotorData()
 	{
-		direction = motorDirection;
-		velocity = motorVelocity;
+		direction = new CoreDirection();
+	}
+
+	public MotorData(CoreDirection d, Vector3 v)
+	{
+		direction = new CoreDirection(d);
+		velocity = v;
+	}
+
+	public MotorData(MotorData other)
+	{
+		direction = new CoreDirection(other.direction);
+		velocity = other.velocity;
 	}
 }
 
@@ -82,12 +94,22 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 	public bool launch;
 	public MotorData data;
 
-	public HandGrenadeInput() {}
+	public HandGrenadeInput()
+	{
+		data = new MotorData();
+		Construct(this);
+	}
 
 	public HandGrenadeInput(HandGrenadeInput input)
 	{
-		direction = input.direction;
+		if (input.launch)
+		{
+			var t = 0;
+		}
+
+		Construct(input);
 		launch = input.launch;
+		data = new MotorData(input.data);
 	}
 
 	// IFactoryInput
@@ -100,6 +122,7 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 	{
 		var copy = Clone();
 
+		Release(oldInput);
 		copy.direction = GetInputReleased(oldInput.direction, direction);
 		copy.launch = GetInputReleased(oldInput.launch, launch);
 
@@ -110,6 +133,7 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 	{
 		var copy = Clone();
 
+		Press(oldInput);
 		copy.direction = GetInputPressed(oldInput.direction, direction);
 		copy.launch = GetInputPressed(oldInput.launch, launch);
 

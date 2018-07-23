@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+
 public class InputController<T, U>
 	where T : CoreInput, IFactoryInput<T>, new()
 	where U : ICoreInput<T>, new()
@@ -17,7 +18,7 @@ public class InputController<T, U>
 		buffer = b;
 
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
-		FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
+    	FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
 	}
 
 	public virtual void HandleUpdate(long currentFrame, float deltaTime)

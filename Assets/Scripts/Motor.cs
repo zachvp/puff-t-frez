@@ -5,6 +5,7 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
 	public readonly U entity;
 
 	protected readonly Transform root;
+	protected CoreDirection direction;
 
 	protected Vector3 velocity;
 	protected T data;
@@ -13,11 +14,14 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
 
 	public Motor(U e, Transform t)
 	{
-		Debug.Assert(e != null, "entity is null");
-		Debug.Assert(t != null, "root is null");
+		direction = new CoreDirection();
+        data = ScriptableObject.CreateInstance<T>();
+
 		entity = e;
 		root = t;
-		data = ScriptableObject.CreateInstance<T>();
+
+		Debug.Assert(e != null, "entity is null");
+        Debug.Assert(t != null, "root is null");
 	}
 
 	protected void HandleFrameUpdate(EventHandler<long, float> handler)

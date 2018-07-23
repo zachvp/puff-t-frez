@@ -32,7 +32,7 @@ public class PlayerMarionette :
 
 			input.held.data = bodyData;
 
-			UnityEngine.Debug.LogFormat("Input dir flags: {0}", input.held.direction.flags);
+			UnityEngine.Debug.LogFormat("marionette input dir: {0}", input.held.direction);
 			skeleton.grenade.ApplyInput(input);
 
 			skeleton.Activate(Limb.GRENADE, true);
