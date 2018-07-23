@@ -21,7 +21,7 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 			var addVelocity = input.held.data.velocity * data.lobVelocityCoefficient;
 
             // Fall back to base input direction if there's no input direction.
-			if (input.held.direction.flags == Direction2D.NONE)
+			if (input.held.direction.IsEmpty())
 			{
 				input.held.direction.Update(input.held.data.direction);
 			}

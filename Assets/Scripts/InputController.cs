@@ -31,7 +31,7 @@ public class InputController<T, U>
 	public virtual void HandleLateUpdate()
 	{
 		// Check if input directions should be neutralized;
-        input.ClearConcurrent();
+		input.direction.ClearConcurrent();
         snapshot = new InputSnapshot<T>(oldInput, input);
         buffer.AddInput(snapshot);
 		responder.ApplyInput(snapshot);

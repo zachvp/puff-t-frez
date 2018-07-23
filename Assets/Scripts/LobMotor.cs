@@ -69,7 +69,7 @@ public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
     // ILobmotor begin
 	public void Lob(CoreDirection lobDirection, Vector3 baseVelocity)
 	{
-		Debug.AssertFormat(lobDirection.flags != Direction2D.NONE, "illegal direction passed");
+		Debug.AssertFormat(!lobDirection.IsEmpty(), "illegal direction passed");
 
 		forceFrameCount = data.forceFrameLength;
 		state = State.LAUNCHED;
