@@ -1,10 +1,14 @@
 ﻿// Responsible for
 //    Passing input to limbs
 //    Enabling/disabling limbs
-public class PlayerMarionette : IPlayerMarionette
+public class PlayerMarionette :
+      ICoreInput<HandGrenadeInput>,
+      ICoreInput<PlayerInput>
 {
 	private PlayerSkeleton skeleton;
-        
+    
+	public PlayerMarionette() { }
+
 	public PlayerMarionette(PlayerSkeleton playerSkeleton)
 	{
 		skeleton = playerSkeleton;
@@ -14,13 +18,12 @@ public class PlayerMarionette : IPlayerMarionette
 		skeleton.Activate(Limb.GRENADE, false);
 	}
 
-	// IPlayerMarionette begin
-	public void ApplyPlayerInput(InputSnapshot<PlayerInput> input)
+	public void ApplyInput(InputSnapshot<PlayerInput> input)
 	{
 		skeleton.body.ApplyInput(input);
 	}
 
-	public void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> input)
+	public void ApplyInput(InputSnapshot<HandGrenadeInput> input)
 	{
 		if (input.pressed.launch && !skeleton.IsActive(Limb.GRENADE))
 		{

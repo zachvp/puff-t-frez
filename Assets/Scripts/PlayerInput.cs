@@ -24,8 +24,6 @@ public class InputSnapshot<T> where T : CoreInput, IFactoryInput<T>, new()
 
 public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 {
-	public Direction2D direction;
-	
     public bool jump;
 	public bool crouch;
     
@@ -47,7 +45,7 @@ public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 	{
 		var copy = Clone();
 
-		copy.direction = GetInputReleased(oldInput.direction, direction);
+		copy.Release(oldInput);
 		copy.jump = GetInputReleased(oldInput.jump, jump);
 		copy.crouch = GetInputReleased(oldInput.crouch, crouch);
 
@@ -58,7 +56,7 @@ public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 	{
 		var copy = Clone();
 
-		copy.direction = GetInputPressed(oldInput.direction, direction);
+		copy.Press(oldInput);
 		copy.jump = GetInputPressed(oldInput.jump, jump);
 		copy.crouch = GetInputPressed(oldInput.crouch, crouch);
 

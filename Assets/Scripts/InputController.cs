@@ -1,18 +1,19 @@
 ﻿public class InputController<T, U>
 	where T : CoreInput, IFactoryInput<T>, new()
-	where U : class
+	where U : ICoreInput<T>, new()
 {
-	
 	protected T oldInput;
 	protected T input;
 	protected U responder;
 
+	protected InputSnapshot<T> snapshot;
 	protected InputBuffer<InputSnapshot<T>> buffer;
 
-	public InputController(U r)
+	public InputController(ICoreInput<T> r, InputBuffer<InputSnapshot<T>> b)
 	{
 		input = new T();
-		responder = r;
+		responder = (U) r;
+		buffer = b;
 
 		FrameCounter.Instance.OnUpdate += HandleUpdate;
 		FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
@@ -27,6 +28,10 @@
 
 	public virtual void HandleLateUpdate()
 	{
-		
+		// Check if input directions should be neutralized;
+        input.ClearConcurrent();
+        snapshot = new InputSnapshot<T>(oldInput, input);
+        buffer.AddInput(snapshot);
+		responder.ApplyInput(snapshot);
 	}
 }

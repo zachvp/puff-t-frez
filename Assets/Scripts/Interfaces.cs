@@ -1,6 +1,18 @@
 ﻿using UnityEngine;
 using InControl;
 
+public interface ICoreInput<T> where T : CoreInput, IFactoryInput<T>, new()
+{
+	void ApplyInput(InputSnapshot<T> input);
+}
+
+public interface IFactoryInput<T> where T : CoreInput
+{
+    T Clone();
+    T Released(T oldInput);
+    T Pressed(T oldInput);
+}
+
 public interface IInputPlayerBody
 {
 	void ApplyInput(InputSnapshot<PlayerInput> input);
@@ -48,11 +60,4 @@ public interface IMotor
 	// TODO: Can maybe get rid of these had have them as Motor read only properties.
     Vector3 GetVelocity();
     Vector3 GetDirection();
-}
-
-public interface IFactoryInput<T> where T : CoreInput
-{
-	T Clone();
-	T Released(T oldInput);
-	T Pressed(T oldInput);
 }

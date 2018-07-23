@@ -2,10 +2,10 @@
 using InControl;
 using UnityEngine;
 
-public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeInput, IPlayerMarionette>
+public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeInput, PlayerMarionette>
 {
-	public PlayerGrenadeInputControllerGamepad(IPlayerMarionette m)
-		: base(m)
+	public PlayerGrenadeInputControllerGamepad(ICoreInput<HandGrenadeInput> r, InputBuffer<InputSnapshot<HandGrenadeInput>> b)
+		: base(r, b)
 	{ }
 
 	public override void HandleUpdate(long currentFrame, float deltaTime)
@@ -19,10 +19,6 @@ public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeIn
 
 			input.direction = CoreUtilities.Convert(leftStick);
 			input.launch = device.RightBumper.IsPressed;
-            
-			var snapshot = new InputSnapshot<HandGrenadeInput>(oldInput, input);
-
-			responder.ApplyGrenadeInput(snapshot);
 		}
 	}
 }

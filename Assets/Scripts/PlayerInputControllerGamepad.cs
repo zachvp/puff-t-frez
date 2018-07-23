@@ -2,9 +2,9 @@
 
 public class PlayerInputControllerGamepad : PlayerInputController
 {
-	public PlayerInputControllerGamepad(IPlayerMarionette inPlayer,
-                             InputBuffer<InputSnapshot<PlayerInput>> inputBuffer)
-		: base(inPlayer, inputBuffer)
+	public PlayerInputControllerGamepad(ICoreInput<PlayerInput> r,
+	                                    InputBuffer<InputSnapshot<PlayerInput>> b)
+		: base(r, b)
 	{ }
 
 	public override void HandleUpdate(long currentFrame, float deltaTime)

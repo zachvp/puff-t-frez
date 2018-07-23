@@ -13,6 +13,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 	{
 		// TODO: This should be a marionette input snapshot buffer
 		var buffer = new InputBuffer<InputSnapshot<PlayerInput>>();
+		var grenadeBuffer = new InputBuffer<InputSnapshot<HandGrenadeInput>>();
         
 		var bodyEntity = Instantiate(bodyTemplate, transform.position, Quaternion.identity);
 		var bodyCollider = bodyEntity.GetComponent<BoxCollider2D>();
@@ -41,9 +42,9 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var skeleton = new PlayerSkeleton(bodyMotor, handMotor, footMotor, grenadeMotor);
 		var marionette = new PlayerMarionette(skeleton);
 
-		var keyboardGrenade = new PlayerHandGrenadeInputControllerKeyboard(marionette);
+		var keyboardGrenade = new PlayerHandGrenadeInputControllerKeyboard(marionette, grenadeBuffer);
 		var keyboardController = new PlayerInputControllerKeyboard(marionette, buffer);
-		var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette);
+		var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette, grenadeBuffer);
 		var gamepadPlayer = new PlayerInputControllerGamepad(marionette, buffer);
 	}
 }

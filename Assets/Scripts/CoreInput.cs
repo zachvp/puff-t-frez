@@ -2,6 +2,8 @@
 
 public class CoreInput
 {
+	public Direction2D direction;
+
     // Released
     public Direction2D GetInputReleased(Direction2D oldInput, Direction2D newInput)
     {
@@ -80,5 +82,27 @@ public class CoreInput
         }
 
         return result;
+    }
+
+	protected void Release(CoreInput oldInput)
+	{
+		direction = GetInputReleased(oldInput.direction, direction);
+	}
+
+	protected void Press(CoreInput oldInput)
+	{
+		direction = GetInputPressed(oldInput.direction, direction);
+	}
+
+	public void ClearConcurrent()
+    {
+		if (FlagsHelper.IsSet(direction, Direction2D.HORIZONTAL, true))
+        {
+			FlagsHelper.Unset(ref direction, Direction2D.HORIZONTAL);
+        }
+		if (FlagsHelper.IsSet(direction, Direction2D.VERTICAL, true))
+        {
+			FlagsHelper.Unset(ref direction, Direction2D.VERTICAL);
+        }
     }
 }

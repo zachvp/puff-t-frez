@@ -92,16 +92,4 @@ public static class CoreUtilities
 
 		return result;
 	}
-
-	public static void ClearConcurrent(ref Direction2D original, Direction2D axes)
-	{
-		if (FlagsHelper.IsSet(original, Direction2D.HORIZONTAL, true))
-		{
-			FlagsHelper.Unset(ref original, Direction2D.HORIZONTAL);
-		}
-		if (FlagsHelper.IsSet(original, Direction2D.VERTICAL, true))
-		{
-			FlagsHelper.Unset(ref original, Direction2D.VERTICAL);
-		}
-	}
 }

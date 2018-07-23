@@ -2,8 +2,8 @@
 
 public class PlayerInputControllerKeyboard : PlayerInputController
 {
-	public PlayerInputControllerKeyboard(IPlayerMarionette playerInput, InputBuffer<InputSnapshot<PlayerInput>> inputBuffer)
-		: base(playerInput, inputBuffer)
+	public PlayerInputControllerKeyboard(ICoreInput<PlayerInput> r, InputBuffer<InputSnapshot<PlayerInput>> b)
+		: base(r, b)
 	{ }
 
 	public override void HandleUpdate(long currentFrame, float deltaTime)
