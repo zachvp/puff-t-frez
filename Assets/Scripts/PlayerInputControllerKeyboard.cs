@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerInputControllerKeyboard : PlayerInputController
+public class PlayerInputControllerKeyboard : InputController<PlayerInput, PlayerMarionette>
 {
 	public PlayerInputControllerKeyboard(ICoreInput<PlayerInput> r, InputBuffer<InputSnapshot<PlayerInput>> b)
 		: base(r, b)

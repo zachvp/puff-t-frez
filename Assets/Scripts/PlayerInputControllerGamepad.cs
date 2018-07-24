@@ -1,6 +1,6 @@
 ﻿using InControl;
 
-public class PlayerInputControllerGamepad : PlayerInputController
+public class PlayerInputControllerGamepad : InputController<PlayerInput, PlayerMarionette>
 {
 	public PlayerInputControllerGamepad(ICoreInput<PlayerInput> r,
 	                                    InputBuffer<InputSnapshot<PlayerInput>> b)
