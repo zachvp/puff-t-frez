@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 
 // TODO: This isn't tied into replay - need to buffer input at the marionette level i think
-public class PlayerHandGrenadeInputControllerKeyboard : InputController<HandGrenadeInput, PlayerMarionette>
+public class PlayerGrenadeInputControllerKeyboard : InputController<HandGrenadeInput, PlayerMarionette>
 {
-	public PlayerHandGrenadeInputControllerKeyboard(ICoreInput<HandGrenadeInput> r,
-	                                                InputBuffer<InputSnapshot<HandGrenadeInput>> b)
+	public PlayerGrenadeInputControllerKeyboard(ICoreInput<HandGrenadeInput> r,
+	                                            InputBuffer<InputSnapshot<HandGrenadeInput>> b)
 		: base(r, b)
 	{ }
 

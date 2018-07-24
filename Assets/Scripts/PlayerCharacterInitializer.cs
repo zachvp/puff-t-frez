@@ -28,7 +28,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 
 		// Spawn the limbs
 		var handEntity = Instantiate(handTemplate, bodyEntity.handAnchor.position, Quaternion.identity);
-		var handMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchor);
+		var handMotor = new PlayerHandMotor(handEntity, bodyEntity.handAnchor);
 
 		var grenadeEntity = Instantiate(handGrenadeTemplate, handEntity.Position, handEntity.Rotation);
 		var grenadeMotor = new PlayerGrenadeMotor(grenadeEntity, handEntity.transform);
@@ -51,7 +51,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		}
 		else
 		{
-			var keyboardGrenade = new PlayerHandGrenadeInputControllerKeyboard(marionette, grenadeBuffer);
+			var keyboardGrenade = new PlayerGrenadeInputControllerKeyboard(marionette, grenadeBuffer);
             var keyboardController = new PlayerInputControllerKeyboard(marionette, buffer);
 		}
 	}

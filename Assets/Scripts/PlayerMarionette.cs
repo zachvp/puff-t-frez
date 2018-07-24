@@ -2,10 +2,11 @@
 //    Passing input to limbs
 //    Enabling/disabling limbs
 public class PlayerMarionette :
-      ICoreInput<HandGrenadeInput>,
-      ICoreInput<PlayerInput>
+    ICoreInput<HandGrenadeInput>,
+    ICoreInput<PlayerInput>,
+    ICoreInput<HandInput>
 {
-	private PlayerSkeleton skeleton;
+	private readonly PlayerSkeleton skeleton;
     
 	public PlayerMarionette() { }
 
@@ -21,6 +22,11 @@ public class PlayerMarionette :
 	public void ApplyInput(InputSnapshot<PlayerInput> input)
 	{
 		skeleton.body.ApplyInput(input);
+	}
+
+	public void ApplyInput(InputSnapshot<HandInput> input)
+	{
+		
 	}
 
 	public void ApplyInput(InputSnapshot<HandGrenadeInput> input)
@@ -39,14 +45,7 @@ public class PlayerMarionette :
 			skeleton.grenade.entity.SetPosition(skeleton.hand.entity.Position);
 		}
 	}
-
-	public void ApplyDeltaTime(float deltaTime)
-	{
-		skeleton.body.ApplyDeltaTime(deltaTime);
-		skeleton.grenade.ApplyDeltaTime(deltaTime);
-	}
-	// IPlayerMarionette end
-
+    
     public void HandleGrenadePickup()
 	{
 		skeleton.hand.entity.SetPosition(skeleton.grenade.entity.Position);

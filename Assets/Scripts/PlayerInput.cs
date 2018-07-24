@@ -89,6 +89,44 @@ public class MotorData
 	}
 }
 
+public class HandInput : CoreInput, IFactoryInput<HandInput>
+{
+	public HandInput()
+	{
+		Construct(this);
+	}
+
+	public HandInput(HandInput input)
+	{
+		Construct(input);
+	}
+
+	// IFactoryInput
+	public HandInput Clone()
+	{
+		return new HandInput(this);
+	}
+
+	public HandInput Released(HandInput oldInput)
+	{
+		var c = Clone();
+
+		c.Release(oldInput);
+
+		return c;
+	}
+
+	public HandInput Pressed(HandInput oldInput)
+	{
+		var c = Clone();
+
+		c.Press(oldInput);
+
+        return c;
+	}
+
+}
+
 public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 {
 	public bool launch;
@@ -102,11 +140,6 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 
 	public HandGrenadeInput(HandGrenadeInput input)
 	{
-		if (input.launch)
-		{
-			var t = 0;
-		}
-
 		Construct(input);
 		launch = input.launch;
 		data = new MotorData(input.data);
@@ -120,23 +153,23 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 
 	public HandGrenadeInput Released(HandGrenadeInput oldInput)
 	{
-		var copy = Clone();
+		var c = Clone();
 
-		Release(oldInput);
-		copy.direction = GetInputReleased(oldInput.direction, direction);
-		copy.launch = GetInputReleased(oldInput.launch, launch);
+		c.Release(oldInput);
+		c.direction = GetInputReleased(oldInput.direction, direction);
+		c.launch = GetInputReleased(oldInput.launch, launch);
 
-		return copy;
+		return c;
 	}
 
 	public HandGrenadeInput Pressed(HandGrenadeInput oldInput)
 	{
-		var copy = Clone();
+		var c = Clone();
 
-		Press(oldInput);
-		copy.direction = GetInputPressed(oldInput.direction, direction);
-		copy.launch = GetInputPressed(oldInput.launch, launch);
+		c.Press(oldInput);
+		c.direction = GetInputPressed(oldInput.direction, direction);
+		c.launch = GetInputPressed(oldInput.launch, launch);
 
-		return copy;
+		return c;
 	}
 }

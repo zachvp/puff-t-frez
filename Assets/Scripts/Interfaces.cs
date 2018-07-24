@@ -25,13 +25,6 @@ public interface IInputPlayerHandGrenade
 	void ApplyDeltaTime(float deltaTime);
 }
 
-public interface IPlayerMarionette
-{
-	void ApplyPlayerInput(InputSnapshot<PlayerInput> snapshot);
-	void ApplyGrenadeInput(InputSnapshot<HandGrenadeInput> snapshot);
-    void ApplyDeltaTime(float deltaTime);
-}
-
 public interface IInputLob
 {
 	void Lob(CoreDirection direction, Vector3 baseVelocity);
