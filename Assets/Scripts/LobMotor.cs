@@ -35,7 +35,7 @@ public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
 				velocity = speed * data.multiplier * multiplier;
                 
                 // Set the velocity direction based on the input direction.
-				velocity.x *= direction.vector.x;
+				velocity.x *= direction.Vector.x;
                 --forceFrameCount;
 			}
 

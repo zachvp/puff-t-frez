@@ -110,7 +110,7 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 
     private void HandleGrounded()
 	{
-		var movement = input.held.direction.vector;
+		var movement = input.held.direction.Vector;
 
 		FlagsHelper.Unset(ref state, State.JUMP);
         
@@ -157,7 +157,7 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 
     private void HandleNotGrounded()
 	{
-		var movement = input.held.direction.vector;
+		var movement = input.held.direction.Vector;
 
         // Motor is not grounded.
         // Air directional influence
@@ -167,7 +167,7 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
         velocity.x = Mathf.Clamp(velocity.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
 
 		// Check for wall collision in air, which should zero out x velocity.
-		var isNeutralInput = !FlagsHelper.IsSet(input.held.direction.flags, Direction2D.LEFT | Direction2D.RIGHT);
+		var isNeutralInput = !FlagsHelper.IsSet(input.held.direction.Flags, Direction2D.LEFT | Direction2D.RIGHT);
         if (isNeutralInput && (engine.collision.Right || engine.collision.Left))
         {
             velocity.x = 0;
@@ -249,7 +249,7 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 
     private void ComputeMotorDirection()
     {
-		var result = motorDirection.vector;
+		var result = motorDirection.Vector;
 
         // Set the motor direction based on the velocty.
         // Motor direction should be 1 for positive velocity and -1 for

@@ -52,7 +52,7 @@ public class CoreInput
 	public CoreDirection GetInputReleased(CoreDirection oldInput, CoreDirection newInput)
 	{
 		var result = new CoreDirection();
-		var prime = GetInputReleased(oldInput.vector, newInput.vector);
+		var prime = GetInputReleased(oldInput.Vector, newInput.Vector);
 
 		result.Update(prime);
 
@@ -102,7 +102,7 @@ public class CoreInput
 	public CoreDirection GetInputPressed(CoreDirection oldInput, CoreDirection newInput)
     {
         var result = new CoreDirection();
-		var prime = GetInputPressed(oldInput.vector, newInput.vector);
+		var prime = GetInputPressed(oldInput.Vector, newInput.Vector);
 
 		result.Update(prime);
 

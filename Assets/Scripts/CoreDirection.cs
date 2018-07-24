@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 public class CoreDirection
 {
-    public Direction2D flags
+    public Direction2D Flags
     {
         get { return varFlags; }
         private set { varFlags = value; }
     }
-    public Vector2 vector { get; private set; }
+    public Vector2 Vector { get; private set; }
 
     // Field to back the public property since we can't pass properties
     // by reference.
@@ -33,34 +33,34 @@ public class CoreDirection
 
     public void Update(CoreDirection d)
     {
-        Update(d.vector);
+        Update(d.Vector);
     }
 
     public void Update(Vector2 v)
     {
-        vector = v;
+        Vector = v;
         varFlags = Convert(v);
     }
 
     public void Update(Direction2D d, bool isSet)
     {
         FlagsHelper.Set(ref varFlags, d, isSet);
-        vector = Convert(varFlags);
+        Vector = Convert(varFlags);
     }
 
     public void Update(Direction2D f)
     {
         varFlags = f;
-        vector = Convert(f);
+        Vector = Convert(f);
     }
 
 	public void ClearConcurrent()
     {
-        if (FlagsHelper.IsSet(flags, Direction2D.HORIZONTAL, Logical.AND))
+        if (FlagsHelper.IsSet(Flags, Direction2D.HORIZONTAL, Logical.AND))
         {
             Update(Direction2D.HORIZONTAL, false);
         }
-        if (FlagsHelper.IsSet(flags, Direction2D.VERTICAL, Logical.AND))
+        if (FlagsHelper.IsSet(Flags, Direction2D.VERTICAL, Logical.AND))
         {
             Update(Direction2D.VERTICAL, false);
         }
@@ -68,13 +68,13 @@ public class CoreDirection
 
 	public bool IsEmpty()
 	{
-		return flags == Direction2D.NONE;
+		return Flags == Direction2D.NONE;
 	}
 
     // Overrides
     public override string ToString()
     {
-        var r = string.Format("flags: {0}  vector: {1}", flags, vector);
+        var r = string.Format("flags: {0}  vector: {1}", Flags, Vector);
 
         return r;
     }

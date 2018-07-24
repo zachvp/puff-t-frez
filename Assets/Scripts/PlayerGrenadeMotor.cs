@@ -26,10 +26,10 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 				input.held.direction.Update(input.held.data.direction);
 			}
 
-			Debug.AssertFormat(FlagsHelper.IsSet(input.held.direction.flags,
+			Debug.AssertFormat(FlagsHelper.IsSet(input.held.direction.Flags,
                                      Direction2D.HORIZONTAL,
                                      Logical.OR),
-			                   "Invalid direction given: {0}", input.held.direction.flags);
+			                   "Invalid direction given: {0}", input.held.direction.Flags);
 
 			Lob(input.held.direction, addVelocity);
         }
