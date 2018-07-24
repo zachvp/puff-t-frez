@@ -16,13 +16,11 @@ public interface IFactoryInput<T> where T : CoreInput
 public interface IInputPlayerBody
 {
 	void ApplyInput(InputSnapshot<PlayerInput> input);
-    void ApplyDeltaTime(float deltaTime);
 }
 
 public interface IInputPlayerHandGrenade
 {
 	void ApplyInput(InputSnapshot<HandGrenadeInput> input);
-	void ApplyDeltaTime(float deltaTime);
 }
 
 public interface IInputLob

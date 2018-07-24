@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 
 // Records and plays back player input
+// TODO: Make generic so can be done for all input types
 public class InputPlaybackControllerPlayer
 {
 	public static EventHandler OnPlaybackStarted;
 
+	// TODO: Replace this with PlayerMotor
 	private IInputPlayerBody player;
 	private Entity entity;
 
@@ -55,7 +57,6 @@ public class InputPlaybackControllerPlayer
             var deltaTime = timeCopy[i];
 
             player.ApplyInput(input);
-            player.ApplyDeltaTime(deltaTime);
             i++;
             yield return null;
         }

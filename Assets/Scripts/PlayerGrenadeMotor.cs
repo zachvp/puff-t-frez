@@ -34,11 +34,6 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 			Lob(input.held.direction, addVelocity);
         }
 	}
-    
-	public void ApplyDeltaTime(float deltaTime)
-	{
-		
-	}
 
     // Handlers
 	public override void HandleTriggerEnter(CollisionContext context)

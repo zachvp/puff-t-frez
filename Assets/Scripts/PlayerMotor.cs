@@ -18,9 +18,6 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
     // How many times a jump has been performed.
     private int jumpCount;
     
-    // The provided time between frames.
-    private float deltaTime;
-
 	private State state;
         
 	public PlayerMotor(PlayerCharacterEntity pc,
@@ -88,11 +85,6 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 	public void ApplyInput(InputSnapshot<PlayerInput> inputSnapshot)
 	{
         input = inputSnapshot;
-    }
-
-    public void ApplyDeltaTime(float time)
-	{
-        deltaTime = time;
     }
 
     // IMotor functions
