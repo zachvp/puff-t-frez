@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 // TODO: Tie into replay system
-public class IdleLimbMotor<T> : Motor<T, Entity> where T : IdleLimbMotorData
+public class IdleLimbMotor : Motor<IdleLimbMotorData, Entity>
 {
 	// Influenced means something else may be controlling this motor's position.
 	protected enum State { IDLE, INFLUENCED }

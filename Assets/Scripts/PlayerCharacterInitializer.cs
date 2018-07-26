@@ -29,13 +29,13 @@ public class PlayerCharacterInitializer : MonoBehaviour
 
 		// Spawn the limbs
 		var handEntity = Instantiate(handTemplate, bodyEntity.handAnchor.position, Quaternion.identity);
-		var handMotor = new PlayerHandMotor(handEntity, bodyEntity.handAnchor);
+		var handMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchor);
 
 		var grenadeEntity = Instantiate(handGrenadeTemplate, handEntity.Position, handEntity.Rotation);
 		var grenadeMotor = new PlayerGrenadeMotor(grenadeEntity, handEntity.transform);
 
 		var footEntity = Instantiate(footTemplate, bodyEntity.footAnchor.position, Quaternion.identity);
-		var footMotor = new IdleLimbMotor<IdleLimbMotorData>(footEntity, bodyEntity.footAnchor);
+		var footMotor = new IdleLimbMotor(footEntity, bodyEntity.footAnchor);
 
         // Playback
 		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);
@@ -54,7 +54,6 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		{
 			var keyboardBody = new PlayerInputControllerKeyboard(marionette, buffer);
 			var keyboardGrenade = new PlayerGrenadeInputControllerKeyboard(marionette, grenadeBuffer);
-			var keyboardHand = new PlayerHandInputControllerKeyboard(marionette, handBuffer);
 		}
 	}
 }

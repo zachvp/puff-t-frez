@@ -3,8 +3,7 @@
 //    Enabling/disabling limbs
 public class PlayerMarionette :
     ICoreInput<HandGrenadeInput>,
-    ICoreInput<PlayerInput>,
-    ICoreInput<HandInput>
+    ICoreInput<PlayerInput>
 {
 	private readonly PlayerSkeleton skeleton;
     
@@ -25,7 +24,6 @@ public class PlayerMarionette :
         // corresponding to the new direction.
         if (FlagsHelper.IsSet(input.pressed.direction.Flags, Direction2D.LEFT))
         {
-			UnityEngine.Debug.Log("pressed left - adjust anchors");
 			skeleton.body.entity.handAnchorLeft.gameObject.SetActive(true);
 			skeleton.body.entity.handAnchor.gameObject.SetActive(false);
 
@@ -33,7 +31,6 @@ public class PlayerMarionette :
         }
         else if (FlagsHelper.IsSet(input.pressed.direction.Flags, Direction2D.RIGHT))
         {
-			UnityEngine.Debug.Log("pressed right - adjust anchors");
 			skeleton.body.entity.handAnchorLeft.gameObject.SetActive(false);
 			skeleton.body.entity.handAnchor.gameObject.SetActive(true);
 
@@ -42,11 +39,6 @@ public class PlayerMarionette :
 
         // After making skeleton adjustments, apply input.
 		skeleton.body.ApplyInput(input);
-	}
-
-	public void ApplyInput(InputSnapshot<HandInput> input)
-	{
-		skeleton.hand.ApplyInput(input);
 	}
 
 	public void ApplyInput(InputSnapshot<HandGrenadeInput> input)

@@ -6,8 +6,8 @@ public class PlayerSkeleton
 	// Param 1: Newly attached limb
 	public EventHandler<Limb, Limb> OnLimbAttached;
 
-	public PlayerHandMotor hand { get; private set; }
-	public IdleLimbMotor<IdleLimbMotorData> foot { get; private set; }
+	public IdleLimbMotor hand { get; private set; }
+	public IdleLimbMotor foot { get; private set; }
 	public PlayerGrenadeMotor grenade { get; private set; }
 
 	public PlayerMotor body;
@@ -17,8 +17,8 @@ public class PlayerSkeleton
 
 
 	public PlayerSkeleton(PlayerMotor playerMotor,
-	                      PlayerHandMotor handMotor,
-	                      IdleLimbMotor<IdleLimbMotorData> footMotor,
+	                      IdleLimbMotor handMotor,
+	                      IdleLimbMotor footMotor,
 	                      PlayerGrenadeMotor grenadeMotor)
 	{
 		AttachBody(playerMotor)
@@ -37,7 +37,7 @@ public class PlayerSkeleton
 		return this;
 	}
 
-	public PlayerSkeleton AttachHand(PlayerHandMotor motor)
+	public PlayerSkeleton AttachHand(IdleLimbMotor motor)
 	{
 		hand = motor;
         hand.entity.OnActivationChange += HandleHandActivationChange;
@@ -47,7 +47,7 @@ public class PlayerSkeleton
 		return this;
 	}
 
-	public PlayerSkeleton AttachFoot(IdleLimbMotor<IdleLimbMotorData> motor)
+	public PlayerSkeleton AttachFoot(IdleLimbMotor motor)
     {
         foot = motor;
         foot.entity.OnActivationChange += HandleFootActivationChange;
