@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System;
 
 public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 {
@@ -16,6 +15,7 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
     
 	public void ApplyInput(InputSnapshot<HandGrenadeInput> input)
 	{
+		// TODO: Move this check to Update() and simply set input member variable
 		if (IsGrenadeInputAvailable() && input.pressed.launch)
         {
 			var addVelocity = input.held.data.velocity * data.lobVelocityCoefficient;

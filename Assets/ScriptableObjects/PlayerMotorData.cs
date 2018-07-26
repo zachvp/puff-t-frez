@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
-public class PlayerMotorData : ScriptableObject {
+public class PlayerMotorData : ScriptableObject
+{
 	// TODO: Doc these values
 	public int velocityHorizontalGroundMax = 1600;
 	public int velocityHorizontalAirMax = 2000;
@@ -21,5 +22,10 @@ public class PlayerMotorData : ScriptableObject {
 	/// How many frames the additive jump will last.
 	/// </summary>
 	public int frameLimitJumpAdditive = 24;
+
+    // How many frames the motor will be immune to gravity at the start of
+    // the jump.
 	public int frameLimitJumpGravityImmunity = 2;
+
+	public CoreDirection initialDirection = new CoreDirection(new Vector2(1, -1));
 }

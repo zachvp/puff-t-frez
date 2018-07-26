@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System;
 
-public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInputPlayerBody, IMotor
+public class PlayerMotor :
+    Motor<PlayerMotorData, PlayerCharacterEntity>,
+    ICoreInput<PlayerInput>, IMotor
 {
     // Reference to the character controller engine.
     private CharacterController2D engine;
@@ -21,8 +23,8 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 	private State state;
         
 	public PlayerMotor(PlayerCharacterEntity pc,
-	                   CharacterController2D e,
-	                   Transform t)
+	                   Transform t,
+	                   CharacterController2D e)
 		: base(pc, t)
 	{
 		input = new InputSnapshot<PlayerInput>();
@@ -31,14 +33,14 @@ public class PlayerMotor : Motor<PlayerMotorData, PlayerCharacterEntity>, IInput
 		data = ScriptableObject.CreateInstance<PlayerMotorData>();
 
 		// TOOD: Move magic to data class
-		motorDirection = new CoreDirection(new Vector2(1, -1));
-
-		FrameCounter.Instance.OnUpdate += HandleUpdate;
+		motorDirection = data.initialDirection;
 	}
 
 	// When update is called, all input has been processed.
-	public void HandleUpdate(long currentFrame, float deltaTime)
+	public override void HandleUpdate(long currentFrame, float deltaTime)
     {
+		base.HandleUpdate(currentFrame, deltaTime);
+
         if (engine.isGrounded)
         {
             HandleGrounded();

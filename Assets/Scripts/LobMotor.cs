@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 
-public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
+public class LobMotor<T> :
+    Motor<T, Entity>, IInputLob
+	where T : LobMotorData
 {
 	private int forceFrameCount;
 	private int additiveSpeed; 
@@ -18,8 +20,10 @@ public class LobMotor<T> : Motor<T, Entity>, IInputLob where T : LobMotorData
 	}
 
     // Handlers begin
-	public virtual void HandleUpdate(long currentFrame, float deltaTime)
+	public override void HandleUpdate(long currentFrame, float deltaTime)
 	{
+		base.HandleUpdate(currentFrame, deltaTime);
+
 		if (state == State.NONE)
 		{
 			entity.SetPosition(root.position);

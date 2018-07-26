@@ -30,6 +30,9 @@ public class InputController<T, U>
 
 	public virtual void HandleLateUpdate()
 	{
+		Debug.AssertFormat(CoreUtilities.IsConstrained(input.direction.Vector, 1),
+                           "invalid input");
+
 		// Check if input directions should be neutralized;
 		input.direction.ClearConcurrent();
         snapshot = new InputSnapshot<T>(oldInput, input);

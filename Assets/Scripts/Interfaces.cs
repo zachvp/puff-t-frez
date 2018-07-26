@@ -13,16 +13,6 @@ public interface IFactoryInput<T> where T : CoreInput
     T Pressed(T oldInput);
 }
 
-public interface IInputPlayerBody
-{
-	void ApplyInput(InputSnapshot<PlayerInput> input);
-}
-
-public interface IInputPlayerHandGrenade
-{
-	void ApplyInput(InputSnapshot<HandGrenadeInput> input);
-}
-
 public interface IInputLob
 {
 	void Lob(CoreDirection direction, Vector3 baseVelocity);

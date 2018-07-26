@@ -21,12 +21,32 @@ public class PlayerMarionette :
 
 	public void ApplyInput(InputSnapshot<PlayerInput> input)
 	{
+		// Now that we have the motor direction, we can adjust entity anchors
+        // corresponding to the new direction.
+        if (FlagsHelper.IsSet(input.pressed.direction.Flags, Direction2D.LEFT))
+        {
+			UnityEngine.Debug.Log("pressed left - adjust anchors");
+			skeleton.body.entity.handAnchorLeft.gameObject.SetActive(true);
+			skeleton.body.entity.handAnchor.gameObject.SetActive(false);
+
+			skeleton.hand.SetRoot(skeleton.body.entity.handAnchorLeft);
+        }
+        else if (FlagsHelper.IsSet(input.pressed.direction.Flags, Direction2D.RIGHT))
+        {
+			UnityEngine.Debug.Log("pressed right - adjust anchors");
+			skeleton.body.entity.handAnchorLeft.gameObject.SetActive(false);
+			skeleton.body.entity.handAnchor.gameObject.SetActive(true);
+
+			skeleton.hand.SetRoot(skeleton.body.entity.handAnchor);
+        }
+
+        // After making skeleton adjustments, apply input.
 		skeleton.body.ApplyInput(input);
 	}
 
 	public void ApplyInput(InputSnapshot<HandInput> input)
 	{
-		
+		skeleton.hand.ApplyInput(input);
 	}
 
 	public void ApplyInput(InputSnapshot<HandGrenadeInput> input)

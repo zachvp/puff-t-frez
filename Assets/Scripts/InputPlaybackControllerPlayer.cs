@@ -9,7 +9,7 @@ public class InputPlaybackControllerPlayer
 	public static EventHandler OnPlaybackStarted;
 
 	// TODO: Replace this with PlayerMotor
-	private IInputPlayerBody player;
+	private ICoreInput<PlayerInput> player;
 	private Entity entity;
 
 	private InputBuffer<InputSnapshot<PlayerInput>> buffer;
@@ -19,7 +19,7 @@ public class InputPlaybackControllerPlayer
     private Vector3 finalPosition;
 #endif
     
-	public InputPlaybackControllerPlayer(IInputPlayerBody playerMotor,
+	public InputPlaybackControllerPlayer(ICoreInput<PlayerInput> playerMotor,
 	                                     Entity playerTransform,
 	                                     InputBuffer<InputSnapshot<PlayerInput>> inputBuffer)
 	{

@@ -35,4 +35,12 @@ public static class CoreUtilities
 
         return r * multiplier;
     }
+
+    // Constraint is the maximum value for all vector components
+	public static bool IsConstrained(Vector3 subject, int constraint)
+	{
+		return Mathf.Abs(subject.x) <= constraint &&
+			   Mathf.Abs(subject.y) <= constraint &&
+	  		   Mathf.Abs(subject.z) <= constraint;
+	}
 }

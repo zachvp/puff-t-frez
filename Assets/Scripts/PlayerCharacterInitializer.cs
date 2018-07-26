@@ -12,16 +12,17 @@ public class PlayerCharacterInitializer : MonoBehaviour
 
     public void Awake()
 	{
-		// TODO: This should be a marionette input snapshot buffer
 		var buffer = new InputBuffer<InputSnapshot<PlayerInput>>();
 		var grenadeBuffer = new InputBuffer<InputSnapshot<HandGrenadeInput>>();
+		var handBuffer = new InputBuffer<InputSnapshot<HandInput>>();
         
 		var bodyEntity = Instantiate(bodyTemplate, transform.position, Quaternion.identity);
 		var bodyCollider = bodyEntity.GetComponent<BoxCollider2D>();
 		var bodyRigidBody = bodyEntity.GetComponent<Rigidbody2D>();
 
+		// TODO: Think only the body motor should care about the engine - try to init it there.
 		var bodyEngine = new CharacterController2D(bodyEntity, bodyCollider, bodyRigidBody);
-		var bodyMotor = new PlayerMotor(bodyEntity, bodyEngine, transform);
+		var bodyMotor = new PlayerMotor(bodyEntity, transform, bodyEngine);
 
 		// TODO: This should look up an available input controller from the
 		// connection manager/registry (yet to be created).
@@ -34,7 +35,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var grenadeMotor = new PlayerGrenadeMotor(grenadeEntity, handEntity.transform);
 
 		var footEntity = Instantiate(footTemplate, bodyEntity.footAnchor.position, Quaternion.identity);
-		var footMotor = new IdleLimbMotor(footEntity, bodyEntity.footAnchor);
+		var footMotor = new IdleLimbMotor<IdleLimbMotorData>(footEntity, bodyEntity.footAnchor);
 
         // Playback
 		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);
@@ -46,13 +47,14 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		// TODO: this is a convenience hack for now
 		if (InputManager.Devices.Count > 0)
 		{
+			var gamepadBody = new PlayerInputControllerGamepad(marionette, buffer);
 			var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette, grenadeBuffer);
-            var gamepadPlayer = new PlayerInputControllerGamepad(marionette, buffer);
 		}
 		else
 		{
+			var keyboardBody = new PlayerInputControllerKeyboard(marionette, buffer);
 			var keyboardGrenade = new PlayerGrenadeInputControllerKeyboard(marionette, grenadeBuffer);
-            var keyboardController = new PlayerInputControllerKeyboard(marionette, buffer);
+			var keyboardHand = new PlayerHandInputControllerKeyboard(marionette, handBuffer);
 		}
 	}
 }

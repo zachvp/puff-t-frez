@@ -3,8 +3,8 @@
 public class Motor<T, U> where T : ScriptableObject where U : Entity
 {
 	public readonly U entity;
+	public Transform root { get; protected set; }
 
-	protected readonly Transform root;
 	protected CoreDirection direction;
 
 	protected Vector3 velocity;
@@ -20,8 +20,20 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
 		entity = e;
 		root = t;
 
+		SetFrameUpdate(HandleUpdate);
+
 		Debug.Assert(e != null, "entity is null");
         Debug.Assert(t != null, "root is null");
+	}
+
+	public void SetRoot(Transform t)
+	{
+		root = t;
+	}
+
+    public virtual void HandleUpdate(long currentFrame, float deltaTime)
+	{
+		
 	}
 
 	protected void SetFrameUpdate(EventHandler<long, float> handler)

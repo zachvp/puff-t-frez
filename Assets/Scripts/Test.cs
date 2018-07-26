@@ -30,7 +30,6 @@ public class Test : MonoBehaviour
 	private void RaycastTest()
 	{
         RaycastHit2D hit;
-        LayerMask mask = LayerMask.NameToLayer("Obstacle");
         var direction = transform.TransformDirection(Vector3.down);
         var distance = 1024;
 

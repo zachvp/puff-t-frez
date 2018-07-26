@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 public class PlayerSkeleton
 {
@@ -7,8 +6,8 @@ public class PlayerSkeleton
 	// Param 1: Newly attached limb
 	public EventHandler<Limb, Limb> OnLimbAttached;
 
-	public IdleLimbMotor hand { get; private set; }
-	public IdleLimbMotor foot { get; private set; }
+	public PlayerHandMotor hand { get; private set; }
+	public IdleLimbMotor<IdleLimbMotorData> foot { get; private set; }
 	public PlayerGrenadeMotor grenade { get; private set; }
 
 	public PlayerMotor body;
@@ -18,8 +17,8 @@ public class PlayerSkeleton
 
 
 	public PlayerSkeleton(PlayerMotor playerMotor,
-	                      IdleLimbMotor handMotor,
-	                      IdleLimbMotor footMotor,
+	                      PlayerHandMotor handMotor,
+	                      IdleLimbMotor<IdleLimbMotorData> footMotor,
 	                      PlayerGrenadeMotor grenadeMotor)
 	{
 		AttachBody(playerMotor)
@@ -38,7 +37,7 @@ public class PlayerSkeleton
 		return this;
 	}
 
-	public PlayerSkeleton AttachHand(IdleLimbMotor motor)
+	public PlayerSkeleton AttachHand(PlayerHandMotor motor)
 	{
 		hand = motor;
         hand.entity.OnActivationChange += HandleHandActivationChange;
@@ -48,7 +47,7 @@ public class PlayerSkeleton
 		return this;
 	}
 
-	public PlayerSkeleton AttachFoot(IdleLimbMotor motor)
+	public PlayerSkeleton AttachFoot(IdleLimbMotor<IdleLimbMotorData> motor)
     {
         foot = motor;
         foot.entity.OnActivationChange += HandleFootActivationChange;
