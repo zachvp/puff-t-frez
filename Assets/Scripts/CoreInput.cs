@@ -89,13 +89,13 @@ public class CoreInput
 
         if (Mathf.Abs(newInput.x) > 0 && Mathf.Abs(oldInput.x) < 1)
         {
-            result.x = 1;
+			result.x = newInput.x;
         }
         if (Mathf.Abs(newInput.y) > 0 && Mathf.Abs(oldInput.y) < 1)
         {
-            result.y = 1;
+			result.y = newInput.y;
         }
-
+        
         return result;
     }
 
