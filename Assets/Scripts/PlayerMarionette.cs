@@ -24,17 +24,19 @@ public class PlayerMarionette :
         // corresponding to the new direction.
         if (FlagsHelper.IsSet(input.pressed.direction.Flags, Direction2D.LEFT))
         {
-			skeleton.body.entity.handAnchorLeft.gameObject.SetActive(true);
-			skeleton.body.entity.handAnchor.gameObject.SetActive(false);
-
+			// Set hand anchor.
 			skeleton.hand.SetRoot(skeleton.body.entity.handAnchorLeft);
+
+			// Set foot anchor.
+			skeleton.foot.SetRoot(skeleton.body.entity.footAnchorLeft);
         }
         else if (FlagsHelper.IsSet(input.pressed.direction.Flags, Direction2D.RIGHT))
         {
-			skeleton.body.entity.handAnchorLeft.gameObject.SetActive(false);
-			skeleton.body.entity.handAnchor.gameObject.SetActive(true);
+			// Set hand anchor
+			skeleton.hand.SetRoot(skeleton.body.entity.handAnchorRight);
 
-			skeleton.hand.SetRoot(skeleton.body.entity.handAnchor);
+			// Set foot anchor.
+			skeleton.foot.SetRoot(skeleton.body.entity.footAnchorRight);
         }
 
         // After making skeleton adjustments, apply input.

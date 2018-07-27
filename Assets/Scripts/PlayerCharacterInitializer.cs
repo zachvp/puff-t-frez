@@ -28,14 +28,14 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		// connection manager/registry (yet to be created).
 
 		// Spawn the limbs
-		var handEntity = Instantiate(handTemplate, bodyEntity.handAnchor.position, Quaternion.identity);
-		var handMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchor);
+		var handEntity = Instantiate(handTemplate, bodyEntity.handAnchorRight.position, Quaternion.identity);
+		var handMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchorRight);
 
 		var grenadeEntity = Instantiate(handGrenadeTemplate, handEntity.Position, handEntity.Rotation);
 		var grenadeMotor = new PlayerGrenadeMotor(grenadeEntity, handEntity.transform);
 
-		var footEntity = Instantiate(footTemplate, bodyEntity.footAnchor.position, Quaternion.identity);
-		var footMotor = new IdleLimbMotor(footEntity, bodyEntity.footAnchor);
+		var footEntity = Instantiate(footTemplate, bodyEntity.footAnchorRight.position, Quaternion.identity);
+		var footMotor = new IdleLimbMotor(footEntity, bodyEntity.footAnchorRight);
 
         // Playback
 		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);

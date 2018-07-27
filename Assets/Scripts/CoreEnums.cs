@@ -81,7 +81,7 @@ public static class FlagsHelper
 	public static void Set<T>(ref T mask, T flag) where T : struct
     {
 		var maskValue = (int)(object) mask;
-        int flagValue = (int)(object) flag;
+        var flagValue = (int)(object) flag;
 
         mask = (T)(object) (maskValue | flagValue);
     }

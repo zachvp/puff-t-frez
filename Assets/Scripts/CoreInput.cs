@@ -124,3 +124,25 @@ public class CoreInput
 		direction = GetInputPressed(oldInput.direction, direction);
 	}
 }
+
+// Represents a snapshot of input in a single frame.
+public class InputSnapshot<T> where T : CoreInput, IFactoryInput<T>, new()
+{
+    public T pressed;
+    public T held;
+    public T released;
+
+    public InputSnapshot()
+    {
+        pressed = new T();
+        held = new T();
+        released = new T();
+    }
+
+    public InputSnapshot(T oldInput, T newInput)
+    {
+        held = newInput.Clone();
+        pressed = newInput.Pressed(oldInput);
+        released = newInput.Released(oldInput);
+    }
+}

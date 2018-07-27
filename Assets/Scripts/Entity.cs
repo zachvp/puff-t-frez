@@ -27,7 +27,7 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 		private set { SetRotation(value); }
 	}
 
-	public StoreTransform PriorTransform
+	public CoreTransform PriorTransform
 	{
 		get { return oldTransform; }
 	}
@@ -55,7 +55,7 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 	public EventHandler<bool> OnActivationChange;
     
 	new protected Collider2D collider;
-	protected StoreTransform oldTransform;
+	protected CoreTransform oldTransform;
 
 	public void SetAffinity(Affinity affinityPrime)
 	{
@@ -104,7 +104,7 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 	// Monobehaviour events
 	public void Awake()
 	{
-		oldTransform = new StoreTransform();
+		oldTransform = new CoreTransform();
 		collider = GetComponent<Collider2D>();
 
 		id = idCount;

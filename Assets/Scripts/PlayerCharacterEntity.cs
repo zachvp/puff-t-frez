@@ -3,10 +3,11 @@
 public class PlayerCharacterEntity : Entity
 {
 	// Anchors
-	public Transform handAnchor;
+	public Transform handAnchorRight;
 	public Transform handAnchorLeft;
 
-	public Transform footAnchor;
+	public Transform footAnchorRight;
+	public Transform footAnchorLeft;
     
 	new public BoxCollider2D Collider
     {
