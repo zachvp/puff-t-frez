@@ -14,9 +14,8 @@ public class LobMotor<T> :
 		: base(e, t)
 	{
 		additiveSpeed = 1;
-        
-		entity.OnTriggerEnter += HandleTriggerEnter;
-		entity.OnTriggerStay += HandleTriggerStay;
+     
+		SetFrameUpdate(HandleUpdate);
 	}
 
     // Handlers begin
@@ -47,26 +46,15 @@ public class LobMotor<T> :
 			velocity.y -= data.gravity;
 
             var newPosition = entity.Position + deltaTime * velocity;
-
+            
             entity.SetPosition(newPosition);
 		}
-    }
 
-	public virtual void HandleTriggerEnter(CollisionContext context)
-    {
-		if (context.IsColliding(Constants.Layers.OBSTACLE))
+		if (entity.context.current.IsColliding(Constants.Layers.OBSTACLE))
         {
-            if (state != State.FREEZE)
-            {
-                Freeze();
-            }
+            Freeze();
         }
     }
-
-	public virtual void HandleTriggerStay(CollisionContext context)
-	{
-		
-	}
     
     // Handlers end
 
@@ -80,7 +68,6 @@ public class LobMotor<T> :
 
 		entity.SetActive(true);
 		direction.Update(lobDirection);
-		SetFrameUpdate(HandleUpdate);
         
         // To handle cases when the motor is lobbed from an object in motion,
         // we add the given velocity to our force frames.
@@ -98,7 +85,6 @@ public class LobMotor<T> :
 		forceFrameCount = data.forceFrameLength;
 
 		state = State.NONE;
-		UnsetFrameUpdate(HandleUpdate);
 		entity.SetActive(false);
 		entity.SetPosition(root.position);
 	}

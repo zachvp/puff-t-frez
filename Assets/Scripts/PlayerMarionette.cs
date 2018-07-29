@@ -6,7 +6,7 @@ public class PlayerMarionette :
     ICoreInput<PlayerInput>
 {
 	private readonly PlayerSkeleton skeleton;
-    
+        
 	public PlayerMarionette() { }
 
 	public PlayerMarionette(PlayerSkeleton playerSkeleton)
@@ -22,7 +22,7 @@ public class PlayerMarionette :
 	{
 		// Now that we have the motor direction, we can adjust entity anchors
         // corresponding to the new direction.
-        if (FlagsHelper.IsSet(input.pressed.direction.Flags, Direction2D.LEFT))
+		if (FlagsHelper.IsSet(input.held.direction.Flags, Direction2D.LEFT))
         {
 			// Set hand anchor.
 			skeleton.hand.SetRoot(skeleton.body.entity.handAnchorLeft);
@@ -30,7 +30,7 @@ public class PlayerMarionette :
 			// Set foot anchor.
 			skeleton.foot.SetRoot(skeleton.body.entity.footAnchorLeft);
         }
-        else if (FlagsHelper.IsSet(input.pressed.direction.Flags, Direction2D.RIGHT))
+		else if (FlagsHelper.IsSet(input.held.direction.Flags, Direction2D.RIGHT))
         {
 			// Set hand anchor
 			skeleton.hand.SetRoot(skeleton.body.entity.handAnchorRight);
@@ -60,7 +60,7 @@ public class PlayerMarionette :
 		}
 	}
     
-    public void HandleGrenadePickup()
+	public void HandleGrenadePickup(CollisionContext context)
 	{
 		skeleton.hand.entity.SetPosition(skeleton.grenade.entity.Position);
 		skeleton.grenade.Reset();

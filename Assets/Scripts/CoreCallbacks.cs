@@ -35,6 +35,11 @@ public class CallbackManager
         }
     }
 
+	public void PostCallback(int delay, EventHandler method)
+	{
+		PostCallback(delay, new Callback(method));
+	}
+
 	public void PostCallback(int delay, Callback callback)
 	{
 		var fireFrame = FrameCounter.Instance.count + delay;

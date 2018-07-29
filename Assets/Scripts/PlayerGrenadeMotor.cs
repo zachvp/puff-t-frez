@@ -2,17 +2,68 @@
 
 public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 {
-	public EventHandler OnGrab;
+	public EventHandler<CollisionContext> OnGrab;
 
 	private CallbackManager manager;
-	private int playerHitCount;
 
+	private int nonPlayerTouchCount;
+    
 	public PlayerGrenadeMotor(Entity entityInstance, Transform rootInstance)
 		: base(entityInstance, rootInstance)
 	{
 		manager = new CallbackManager();
 	}
-    
+
+	public override void HandleUpdate(long currentFrame, float deltaTime)
+	{
+		base.HandleUpdate(currentFrame, deltaTime);
+
+		//if (state == State.LAUNCHED)
+		//{
+		//	if (entity.context.current.IsColliding(Affinity.PLAYER))
+		//	{
+		//		if (nonPlayerTouchCount > 4)
+		//		{
+		//			Debug.LogFormat("reset nonPlayerTouchCount");
+  //                  nonPlayerTouchCount = 0;
+		//		}
+		//	}
+		//	else
+		//	{
+		//		Debug.LogFormat("increment nonPlayerTouchCount");
+		//		nonPlayerTouchCount++;
+		//	}
+		//}
+        
+		if (entity.context.current.IsColliding(Constants.Layers.OBSTACLE) &&
+            entity.context.current.IsColliding(Affinity.PLAYER))
+        {
+            if (state == State.FREEZE)
+            {
+                EventHandler c = delegate
+                {
+                    Debug.LogFormat("grab from trigger stay");
+					Grab(entity.context.current);
+                };
+
+                manager.PostIdempotentCallback(2, new Callback(c));
+            }
+        }
+
+		if (state == State.LAUNCHED &&
+		    !entity.context.previous.IsColliding(Affinity.PLAYER) &&
+		    entity.context.current.IsColliding(Affinity.PLAYER))
+        {
+			nonPlayerTouchCount++;
+
+			if (nonPlayerTouchCount > 1)
+			{
+				Debug.LogFormat("grab from trigger enter");
+				Grab(entity.context.current);
+			}
+        }
+	}
+
 	public void ApplyInput(InputSnapshot<HandGrenadeInput> input)
 	{
 		// TODO: Move this check to Update() and simply set input member variable
@@ -35,49 +86,15 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
         }
 	}
 
-    // Handlers
-	public override void HandleTriggerEnter(CollisionContext context)
+	// Private
+	private void Grab(CollisionContext context)
 	{
-		base.HandleTriggerEnter(context);
-
-		if (context.IsColliding(Affinity.PLAYER))
-        {
-			playerHitCount++;
-
-			if (playerHitCount > 1)
-			{
-				Grab();
-			}
-        }
+		nonPlayerTouchCount = 0;
+		Events.Raise(OnGrab, context);
 	}
 
-	public override void HandleTriggerStay(CollisionContext context)
-	{
-		base.HandleTriggerStay(context);
-
-		if (context.IsColliding(Affinity.PLAYER))
-        {
-            if (state == State.FREEZE)
-            {
-                manager.PostIdempotentCallback(2, new Callback(Grab));
-            }
-        }
-	}
-
-	public void Grab()
-	{
-		playerHitCount = 0;
-		Events.Raise(OnGrab);
-	}
-
-	public override void Reset()
-    {
-		base.Reset();		
-    }
-
-    // Private
 	private bool IsGrenadeInputAvailable()
     {
-		return  state == State.NONE;
+		return  state == State.NONE && nonPlayerTouchCount == 0;
     }
 }

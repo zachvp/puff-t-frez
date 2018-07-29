@@ -2,14 +2,16 @@
 
 public class Test : MonoBehaviour
 {
-    public void Update()
+	CollisionContext context;
+
+	public void Awake()
+	{
+		context = new CollisionContext();
+	}
+
+	public void Update()
     {
-		var newPos = transform.position;
-		newPos.y += -160 * Time.deltaTime;
-
-		transform.position = newPos;
-
-		//transform.Translate(0, -160 * Time.deltaTime, 0);
+		
     }
 
 	public void FixedUpdate()
@@ -17,15 +19,30 @@ public class Test : MonoBehaviour
 		
 	}
 
-	public void OnCollisionEnter2D(Collision2D col)
-	{
-		Debug.LogFormat("Collided with a thinggg");
-	}
+	public void OnTriggerEnter2D(Collider2D collider)
+    {
+        context.Add(collider);
+    }
 
-	public void OnTriggerEnter2D(Collider2D col)
-	{
-		Debug.LogFormat("TRIGGERED");
-	}
+    public void OnTriggerStay2D(Collider2D collider)
+    {
+        context.Add(collider);
+    }
+
+    public void OnTriggerExit2D(Collider2D collider)
+    {
+        context.Remove(collider);
+    }
+
+    public void OnCollisionEnter2D(Collision2D collision)
+    {
+        context.Add(collision);
+    }
+
+    public void OnCollisionExit2D(Collision2D collision)
+    {
+        context.Remove(collision);
+    }
 
 	private void RaycastTest()
 	{

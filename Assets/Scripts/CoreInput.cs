@@ -2,6 +2,7 @@
 
 public class CoreInput
 {
+	// TODO: Add event to signal when direction has changed (pass old dir, new dir)
 	public CoreDirection direction;
 
 	public CoreInput()

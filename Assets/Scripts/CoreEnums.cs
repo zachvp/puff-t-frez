@@ -9,6 +9,13 @@ public enum Logical
     XOR  = 3
 }
 
+public enum Affinity
+{
+    NONE = 0,
+    PLAYER = 1,
+    NPC = 2
+}
+
 [Flags]
 public enum Direction2D
 {

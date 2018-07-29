@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 // For any given GameObject in a scene, this handles position setting, collision
 // events, etc.
@@ -41,50 +40,101 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 	{
 		get { return gameObject.layer; }
 	}
-        
+
+	// TODO: remove
 	// Trigger events
-	public EventHandler<CollisionContext> OnTriggerEnter;
-	public EventHandler<CollisionContext> OnTriggerStay;
-	public EventHandler<CollisionContext> OnTriggerExit;
+	public EventHandler<CollisionContextSnapshot> OnTriggerEnter;
+	public EventHandler<CollisionContextSnapshot> OnTriggerStay;
+	public EventHandler<CollisionContextSnapshot> OnTriggerExit;
 
 	public EventHandler<Vector3> OnScaleChange;
 
     // Collision events
-	public EventHandler<CollisionContext> OnCollisionEnter;
+	// TODO: remove
+	public EventHandler<CollisionContextSnapshot> OnCollisionEnter;
+	public EventHandler<CollisionContextSnapshot> OnCollisionExit;
 
 	public EventHandler<bool> OnActivationChange;
     
 	new protected Collider2D collider;
 	protected CoreTransform oldTransform;
 
-	public void SetAffinity(Affinity affinityPrime)
-	{
-		affinity = affinityPrime;
-	}
-    
-	// ITransform begin
-	public void SetPosition(Vector3 position)
+	public CollisionContextSnapshot context { get; private set; }
+
+	// Monobehaviour events
+    public void Awake()
     {
-		oldTransform.position = transform.position;
-        transform.position = position;
+        oldTransform = new CoreTransform();
+		context = new CollisionContextSnapshot();
+        collider = GetComponent<Collider2D>();
+
+        id = idCount;
+        idCount++;
     }
 
-	public void SetLocalScale(Vector3 scale)
+    public void LateUpdate()
+    {
+		context.Store();
+        SetPosition(CoreUtilities.NormalizePosition(Position));
+    }
+
+    public void OnTriggerEnter2D(Collider2D collider)
+    {
+		context.current.Add(collider);
+		Events.Raise(OnTriggerEnter, context);
+    }
+
+    public void OnTriggerStay2D(Collider2D collider)
+    {
+		context.current.Add(collider);
+		Events.Raise(OnTriggerStay, context);
+    }
+
+    public void OnTriggerExit2D(Collider2D collider)
+    {
+		context.current.Remove(collider);
+		Events.Raise(OnTriggerExit, context);
+    }
+
+    public void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.LogWarning("did you mean to call OnTriggerEnter instead?");
+
+		context.current.Add(collision);
+		Events.Raise(OnCollisionExit, context);
+    }
+
+    public void OnCollisionExit2D(Collision2D collision)
+    {
+        Debug.LogWarning("did you mean to call OnTriggerExit instead?");
+
+		context.current.Remove(collision);
+		Events.Raise(OnCollisionExit, context);
+    }
+    
+	// ITransform begin
+	public void SetPosition(Vector3 p)
+    {
+		oldTransform.position = transform.position;
+        transform.position = p;
+    }
+
+	public void SetLocalScale(Vector3 s)
 	{
 		oldTransform.localScale = transform.localScale;
-		transform.localScale = scale;
+		transform.localScale = s;
 
-		Events.Raise(OnScaleChange, scale);
+		Events.Raise(OnScaleChange, s);
 	}
 
-	public void SetRotation(Quaternion rotation)
+	public void SetRotation(Quaternion r)
 	{
-		oldTransform.rotation = rotation;
-		transform.rotation = rotation;
+		oldTransform.rotation = r;
+		transform.rotation = r;
 	}
     // ITransform end
 
-    // IBehavior begin
+	// IBehavior begin - TODO: Remove this interface
     public bool IsActive()
 	{
 		return isActiveAndEnabled;
@@ -95,49 +145,23 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 		if (gameObject.activeInHierarchy != isActive)
 		{
 			Events.Raise(OnActivationChange, isActive);
+
+			if (!isActive)
+			{
+				context.current.Clear();
+				context.previous.Clear();
+			}
 		}
 
 		gameObject.SetActive(isActive);
 	}
+
+	public void SetAffinity(Affinity a)
+    {
+        affinity = a;
+    }
 	// IBehavior end
-
-	// Monobehaviour events
-	public void Awake()
-	{
-		oldTransform = new CoreTransform();
-		collider = GetComponent<Collider2D>();
-
-		id = idCount;
-        idCount++;
-	}
-
-	public void LateUpdate()
-    {
-        SetPosition(CoreUtilities.NormalizePosition(Position));
-    }
-
-	public void OnTriggerEnter2D(Collider2D collider)
-	{
-		Events.Raise(OnTriggerEnter, new CollisionContext(collider));
-	}
-
-	public void OnTriggerStay2D(Collider2D collider)
-	{
-		Events.Raise(OnTriggerStay, new CollisionContext(collider));
-	}
-
-	public void OnTriggerExit2D(Collider2D collider)
-	{
-		Events.Raise(OnTriggerExit, new CollisionContext(collider));
-
-	}
-
-	public void OnCollisionEnter2D(Collision2D collision)
-    {
-		Debug.LogWarning("did you mean to call OnTriggerEnter instead?");
-		Events.Raise(OnTriggerExit, new CollisionContext(collision));
-    }
-        
+    
 	// Overrides
 	public override bool Equals(object other)
 	{
@@ -155,101 +179,5 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 	public override int GetHashCode()
 	{
 		return id.GetHashCode();
-	}
-}
-
-public enum Affinity
-{
-	NONE = 0,
-	PLAYER = 1,
-    NPC = 2
-}
-
-public class CollisionContext
-{
-	private HashSet<Entity> entities;
-	private HashSet<LayerMask> layers;
-	private List<Affinity> affinities;
-
-	public CollisionContext()
-	{
-		entities = new HashSet<Entity>();
-		affinities = new List<Affinity>();
-		layers = new HashSet<LayerMask>();
-	}
-
-	public CollisionContext(Collider2D c) : this()
-	{
-		var checkEntity = c.GetComponent<Entity>();
-        
-        if (checkEntity)
-        {
-			Add(checkEntity);
-        }
-        else
-        {
-			Add(Affinity.NONE);
-			Add(c.gameObject.layer);
-        }
-	}
-
-	public CollisionContext(Collision2D c)
-		: this(c.gameObject.GetComponent<Collider2D>())
-	{ }
-
-	public void Add(Entity e)
-	{
-		entities.Add(e);
-		Add(e.Layer);
-		Add(e.affinity);
-	}
-
-	public void Add(int l)
-	{
-		layers.Add(l);
-	}
-
-	public void Add(Affinity a)
-	{
-		affinities.Add(a);
-	}
-
-	public void Remove(Entity e)
-    {
-		entities.Remove(e);
-		Remove(e.Layer);
-		Remove(e.affinity);
-    }
-
-	public void Remove(int l)
-    {
-		layers.Remove(l);
-    }
-
-	public void Remove(Affinity a)
-	{
-		affinities.Remove(a);
-	}
-
-    public void Clear()
-	{
-		affinities.Clear();
-		entities.Clear();
-		layers.Clear();
-	}
-
-	public bool IsColliding(Affinity a)
-    {
-		return affinities.Contains(a);
-    }
-
-	public bool IsColliding(LayerMask layer)
-	{
-		return layers.Contains(layer);
-	}
-
-	public bool IsColliding(Entity e)
-	{
-		return entities.Contains(e);
 	}
 }
