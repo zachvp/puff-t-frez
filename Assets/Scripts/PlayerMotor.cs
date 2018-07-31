@@ -107,9 +107,12 @@ public class PlayerMotor :
 		var movement = input.held.direction.Vector;
 
 		FlagsHelper.Unset(ref state, State.JUMP);
-        
+
+		Debug.LogFormat("movement: {0}", movement);
         // Horizontal movement.
-        velocity.x = movement.x * data.velocityHorizontalGroundMax;
+		{
+			velocity.x = movement.x * data.velocityHorizontalGroundMax;
+		}
 
         // Reset jump states if jump isn't pressed.
 		if (!input.held.jump) {

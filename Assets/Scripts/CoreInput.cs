@@ -99,7 +99,7 @@ public class CoreInput
         
         return result;
     }
-
+    
 	public CoreDirection GetInputPressed(CoreDirection oldInput, CoreDirection newInput)
     {
         var result = new CoreDirection();

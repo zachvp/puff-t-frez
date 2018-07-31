@@ -71,6 +71,11 @@ public class CoreDirection
 		return Flags == Direction2D.NONE;
 	}
 
+	public void CardinalizeVector()
+    {
+        Update(Flags);
+    }
+
     // Overrides
     public override string ToString()
     {

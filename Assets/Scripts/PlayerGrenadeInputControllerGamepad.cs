@@ -16,6 +16,8 @@ public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeIn
 
 			input.direction = new CoreDirection(device.LeftStick.Value);
 			input.launch = device.RightBumper.IsPressed;
+
+			input.direction.CardinalizeVector();
 		}
 	}
 }
