@@ -30,6 +30,7 @@ public class FrameCounter : MonoSingleton<FrameCounter>
 
     public void Update()
 	{
+		Debug.LogFormat("delta time: {0}", deltaTime);
 		Events.Raise(OnUpdate, count, deltaTime);
     }
 

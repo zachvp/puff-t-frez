@@ -1,4 +1,6 @@
-﻿// Responsible for
+﻿using UnityEngine;
+
+// Responsible for
 //    Passing input to limbs
 //    Enabling/disabling limbs
 public class PlayerMarionette :
@@ -6,6 +8,10 @@ public class PlayerMarionette :
     ICoreInput<PlayerInput>
 {
 	private readonly PlayerSkeleton skeleton;
+
+	private Vector2 footTick;
+	private float t = 200000;
+	float u = 0;
         
 	public PlayerMarionette() { }
 
@@ -41,6 +47,56 @@ public class PlayerMarionette :
 
         // After making skeleton adjustments, apply input.
 		skeleton.body.ApplyInput(input);
+
+		// TODO: Move this to foot motor and handle with states.
+		var bodyVelocity = skeleton.body.GetVelocity();
+		var amplitude = 32;
+		var interval = 0.12f;
+
+		if (skeleton.body.engine.isGrounded)
+		{
+			if (bodyVelocity.x > 0)
+			{
+				var deltaPos = skeleton.foot.entity.Position - 
+		                       skeleton.body.entity.footAnchorRight.position;
+
+				//Debug.LogFormat("delta pos mag: {0}", deltaPos.magnitude);
+
+				if (deltaPos.magnitude > 0)
+				{
+					t = Mathf.Min(t, deltaPos.magnitude);
+				}
+
+				u = Mathf.Max(u, deltaPos.magnitude);
+                
+				var footPos = skeleton.body.entity.footAnchorRight.position;
+                
+                footPos = skeleton.foot.entity.Position;
+
+				footPos.x -= Mathf.Sin(footTick.x) * amplitude;
+				footTick.x += interval;
+
+				skeleton.foot.entity.SetPosition(footPos);
+			}
+			else if (bodyVelocity.x < 0)
+			{
+				var deltaPos = skeleton.foot.entity.Position -
+		                       skeleton.body.entity.footAnchorLeft.position;
+                
+				var footPos = skeleton.body.entity.footAnchorLeft.position;
+
+				footPos = skeleton.foot.entity.Position;
+
+				footPos.x += Mathf.Sin(footTick.y) * amplitude;
+				footTick.y += interval;
+
+                skeleton.foot.entity.SetPosition(footPos);
+			}
+			else
+			{
+				footTick = Vector2.zero;
+			}
+		}
 	}
 
 	public void ApplyInput(InputSnapshot<HandGrenadeInput> input)

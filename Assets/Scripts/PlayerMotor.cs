@@ -6,7 +6,7 @@ public class PlayerMotor :
     ICoreInput<PlayerInput>, IMotor
 {
     // Reference to the character controller engine.
-    private CharacterController2D engine;
+	public CharacterController2D engine { get; private set; }
 
     // The direction of input.
 	private InputSnapshot<PlayerInput> input;
@@ -71,10 +71,14 @@ public class PlayerMotor :
         // Update the controller with the computed velocity.
         engine.Move(deltaTime * velocity);
 
+		// Kind of a hack. The normally computed velocity is unreliable.
+        // The only other case velocity is used is in handling slopes.
+		if (Mathf.Abs(engine.velocity.x) < data.velocityThresholdMin)
+        {
+            velocity.x = 0;
+        }
 		if (Mathf.Abs(engine.velocity.y) < data.velocityThresholdMin)
 		{
-            // Kind of a hack. The normally computed velocity is unreliable.
-            // The only other case velocity is used is in handling slopes.
             velocity.y = 0;
         }
 
@@ -108,11 +112,8 @@ public class PlayerMotor :
 
 		FlagsHelper.Unset(ref state, State.JUMP);
 
-		Debug.LogFormat("movement: {0}", movement);
         // Horizontal movement.
-		{
-			velocity.x = movement.x * data.velocityHorizontalGroundMax;
-		}
+		velocity.x = movement.x * data.velocityHorizontalGroundMax;
 
         // Reset jump states if jump isn't pressed.
 		if (!input.held.jump) {
@@ -239,7 +240,7 @@ public class PlayerMotor :
         }
 		else
 		{
-            velocity.y += Mathf.RoundToInt(data.velocityJumpMax / additiveJumpFrameCount);
+            velocity.y += data.velocityJumpMax / additiveJumpFrameCount;
 			additiveJumpFrameCount++;
         }
     }
