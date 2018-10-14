@@ -9,3 +9,6 @@ Temp/
 .vs/
 .vscode/
 
+# Binaries
+Builds/
+
