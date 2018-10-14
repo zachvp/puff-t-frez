@@ -2,16 +2,39 @@
 
 public class Test : MonoBehaviour
 {
+	public int speed = 300;
+	public Vector3 dir = Vector3.right;
+
 	CollisionContext context;
+
+	private Vector3 originalPosition;
 
 	public void Awake()
 	{
 		context = new CollisionContext();
+		originalPosition = transform.position;
 	}
 
 	public void Update()
     {
-		
+		if (Input.GetKeyDown(KeyCode.Return))
+		{
+			transform.position = originalPosition;
+		}
+		if (Input.GetKeyDown(KeyCode.UpArrow))
+		{
+			speed += 50;
+		}
+		if (Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			speed -= 50;
+		}
+
+		var newPos = transform.position;
+
+		newPos += dir * speed * Time.deltaTime;
+
+		transform.position = CoreUtilities.NormalizePosition(newPos);
     }
 
 	public void FixedUpdate()

@@ -15,9 +15,9 @@ public class InputPlaybackControllerPlayer
 	private InputBuffer<InputSnapshot<PlayerInput>> buffer;
     private Vector3 initialPosition;
     
-#if DEBUG
+//#if DEBUG
     private Vector3 finalPosition;
-#endif
+//#endif
     
 	public InputPlaybackControllerPlayer(ICoreInput<PlayerInput> playerMotor,
 	                                     Entity playerTransform,
