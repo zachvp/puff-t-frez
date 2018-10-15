@@ -2,11 +2,11 @@
 
 public class Test : MonoBehaviour
 {
-	public int speed = 300;
+	public int speed = 900;
 	public Vector3 dir = Vector3.right;
 
 	CollisionContext context;
-
+    
 	private Vector3 originalPosition;
 
 	public void Awake()
