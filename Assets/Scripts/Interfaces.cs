@@ -25,6 +25,7 @@ public interface ITransform
     void SetPosition(Vector3 position);
 	void SetLocalScale(Vector3 scale);
 	void SetRotation(Quaternion rotation);
+    void SetParent(Transform parent);
 }
 
 // TODO: Consider getting rid of this

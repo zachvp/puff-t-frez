@@ -20,6 +20,7 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 		get { return transform.localScale; }
 		private set { SetLocalScale(value); }
 	}
+
 	public Quaternion Rotation
 	{
 		get { return transform.rotation; }
@@ -41,9 +42,13 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 		get { return gameObject.layer; }
 	}
 
-	// TODO: remove
-	// Trigger events
-	public EventHandler<CollisionContextSnapshot> OnTriggerEnter;
+    // Lifecycle events
+    // todo: add handling for scene change to null this out (may get complicated with async/concurrent scene loading)
+    public static EventHandler<Entity> OnCreate;
+
+    // TODO: remove
+    // Trigger events
+    public EventHandler<CollisionContextSnapshot> OnTriggerEnter;
 	public EventHandler<CollisionContextSnapshot> OnTriggerStay;
 	public EventHandler<CollisionContextSnapshot> OnTriggerExit;
 
@@ -54,6 +59,7 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 	public EventHandler<CollisionContextSnapshot> OnCollisionEnter;
 	public EventHandler<CollisionContextSnapshot> OnCollisionExit;
 
+    // Activation events
 	public EventHandler<bool> OnActivationChange;
     
 	new protected Collider2D collider;
@@ -70,6 +76,8 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 
         id = idCount;
         idCount++;
+
+        Events.Raise(OnCreate, this);
     }
 
     public void LateUpdate()
@@ -132,6 +140,20 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 		oldTransform.rotation = r;
 		transform.rotation = r;
 	}
+
+    public void SetTransform(CoreTransform t)
+    {
+        SetPosition(t.position);
+        SetRotation(t.rotation);
+        SetLocalScale(t.localScale);
+    }
+
+    public void SetParent(Transform p)
+    {
+        oldTransform.parent = p;
+        transform.parent = p;
+    }
+
     // ITransform end
 
 	// IBehavior begin - TODO: Remove this interface
