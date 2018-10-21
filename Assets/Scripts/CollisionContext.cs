@@ -82,6 +82,7 @@ public class CollisionContext
         affinities.Clear();
         entities.Clear();
         layers.Clear();
+        colliders.Clear();
     }
 
     public bool IsColliding(Affinity a)
@@ -103,8 +104,13 @@ public class CollisionContext
 	{
 		return affinities.Count(element => element == a);
 	}
-    
-	private void Add(Entity e)
+
+    public override string ToString()
+    {
+        return CoreDebug.CollectionString(colliders);
+    }
+
+    private void Add(Entity e)
     {
         entities.Add(e);
         Add(e.Layer);
@@ -154,4 +160,10 @@ public class CollisionContextSnapshot
 	{
 		previous = new CollisionContext(current);
 	}
+
+    public void Clear()
+    {
+        previous.Clear();
+        current.Clear();
+    }
 }

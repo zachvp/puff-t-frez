@@ -87,6 +87,7 @@ public class LobMotor<T> :
 		state = State.NONE;
 		entity.SetActive(false);
 		entity.SetPosition(root.position);
+        entity.context.Clear();
 	}
     // ILobMotor end
 }

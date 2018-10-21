@@ -18,6 +18,10 @@ public class SceneInitializer : MonoBehaviour
 
             SceneManager.LoadScene(scene.buildIndex);
         }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+
+        }
     }
 
     public void OnEntityCreate(Entity e)

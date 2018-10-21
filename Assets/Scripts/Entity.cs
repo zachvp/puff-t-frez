@@ -77,10 +77,12 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
         id = idCount;
         idCount++;
 
+        FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
+
         Events.Raise(OnCreate, this);
     }
 
-    public void LateUpdate()
+    public void HandleLateUpdate()
     {
 		context.Store();
         SetPosition(CoreUtilities.NormalizePosition(Position));

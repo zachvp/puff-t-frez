@@ -1,29 +1,27 @@
-﻿using System;
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
-public class CoreDebug {
-	public static void LogCollection(String name, System.Object blob) {
-		var logString = new StringBuilder ();
-		var i = 0;
-		var collection = (ICollection) blob;
+public class CoreDebug
+{
+    public static string CollectionString<T>(IEnumerable<T> items)
+    {
+        var output = new StringBuilder();
+        var index = 0;
 
-		Debug.Assert (collection != null, "Expected parameter to be of type ICollection");
+        output.AppendLine();
 
-		logString.AppendFormat ("---Begin collection: {0}\n", name);
+        foreach (var item in items)
+        {
+            output.AppendFormat("[{0}]: {1}", index, item.ToString());
+            output.AppendLine();
+            index++;
+        }
 
-		foreach (System.Object element in collection) {
-			if (element is ICollection) {
-				LogCollection (name, element);
-			} else {
-				logString.AppendFormat ("[{0}]: {1}\n", i, element.ToString ());
-			}
-			i++;
-		}
+        if (index == 0)
+        {
+            output.AppendLine("EMPTY");
+        }
 
-		logString.Append ("---End collection");
-		Debug.LogFormat ("{0}", logString.ToString ());
-	}
+        return output.ToString();
+    }
 }

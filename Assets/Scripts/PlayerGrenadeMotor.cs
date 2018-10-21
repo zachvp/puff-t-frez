@@ -18,23 +18,6 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 	{
 		base.HandleUpdate(currentFrame, deltaTime);
 
-		//if (state == State.LAUNCHED)
-		//{
-		//	if (entity.context.current.IsColliding(Affinity.PLAYER))
-		//	{
-		//		if (nonPlayerTouchCount > 4)
-		//		{
-		//			Debug.LogFormat("reset nonPlayerTouchCount");
-  //                  nonPlayerTouchCount = 0;
-		//		}
-		//	}
-		//	else
-		//	{
-		//		Debug.LogFormat("increment nonPlayerTouchCount");
-		//		nonPlayerTouchCount++;
-		//	}
-		//}
-        
 		if (entity.context.current.IsColliding(Constants.Layers.OBSTACLE) &&
             entity.context.current.IsColliding(Affinity.PLAYER))
         {
@@ -95,6 +78,6 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 
 	private bool IsGrenadeInputAvailable()
     {
-		return  state == State.NONE && nonPlayerTouchCount == 0;
+		return state == State.NONE && nonPlayerTouchCount == 0;
     }
 }
