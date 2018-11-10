@@ -11,12 +11,12 @@ public class PlayerInputControllerKeyboard : InputController<PlayerInput, Player
 		base.HandleUpdate(currentFrame, deltaTime);
 
         // Direction control
-		input.direction.Update(Direction2D.RIGHT, Input.GetKey(KeyCode.RightArrow));
-        input.direction.Update(Direction2D.LEFT, Input.GetKey(KeyCode.LeftArrow));
-		input.direction.Update(Direction2D.UP, Input.GetKey(KeyCode.UpArrow));
-		input.direction.Update(Direction2D.DOWN, Input.GetKey(KeyCode.DownArrow));
+		input.direction.Update(Direction2D.RIGHT, Input.GetKey(KeyCode.D));
+        input.direction.Update(Direction2D.LEFT, Input.GetKey(KeyCode.A));
+		input.direction.Update(Direction2D.UP, Input.GetKey(KeyCode.W));
+		input.direction.Update(Direction2D.DOWN, Input.GetKey(KeyCode.S));
 
-		input.jump = Input.GetKey(KeyCode.UpArrow);
-		input.crouch = Input.GetKey(KeyCode.DownArrow);
+		input.jump = Input.GetKey(KeyCode.W);
+		input.crouch = Input.GetKey(KeyCode.S);
 	}
 }

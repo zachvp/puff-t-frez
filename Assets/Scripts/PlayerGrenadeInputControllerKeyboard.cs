@@ -12,9 +12,9 @@ public class PlayerGrenadeInputControllerKeyboard : InputController<HandGrenadeI
 	{
 		base.HandleUpdate(currentFrame, deltaTime);
 
-		input.direction.Update(Direction2D.RIGHT, Input.GetKey(KeyCode.RightArrow));
-		input.direction.Update(Direction2D.LEFT, Input.GetKey(KeyCode.LeftArrow));
+		input.direction.Update(Direction2D.RIGHT, Input.GetKey(KeyCode.D));
+		input.direction.Update(Direction2D.LEFT, Input.GetKey(KeyCode.A));
         
-		input.launch = Input.GetKey(KeyCode.D);
+		input.launch = Input.GetKey(KeyCode.E);
 	}
 }
