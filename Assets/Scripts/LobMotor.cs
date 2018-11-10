@@ -23,7 +23,12 @@ public class LobMotor<T> :
 	{
 		base.HandleUpdate(currentFrame, deltaTime);
 
-		if (state == State.NONE)
+        if (entity.context.current.IsColliding(Constants.Layers.OBSTACLE))
+        {
+            Freeze();
+        }
+
+        if (state == State.NONE)
 		{
 			entity.SetPosition(root.position);
 		}
@@ -49,11 +54,6 @@ public class LobMotor<T> :
             
             entity.SetPosition(newPosition);
 		}
-
-		if (entity.context.current.IsColliding(Constants.Layers.OBSTACLE))
-        {
-            Freeze();
-        }
     }
     
     // Handlers end

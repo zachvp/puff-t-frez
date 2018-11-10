@@ -10,7 +10,7 @@ public class PlayerMotorData : ScriptableObject
 	public int velocityJumpImpulse = 200;
 
 	public int velocityJumpMax = 1400;
-    public int velocityWallJumpHorizontal = 400;
+    public int velocityWallJumpHorizontal = 500;
     public int velocityWallJumpVertical = 3600;
 	public int gravity = 200;
 
