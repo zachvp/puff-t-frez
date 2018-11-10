@@ -19,6 +19,9 @@ public class PlayerMotor :
 
     // How many times a jump has been performed.
     private int jumpCount;
+
+    // The direction of the most recent wall jump.
+    private CoreDirection wallJumpDirection;
     
 	private State state;
         
@@ -34,6 +37,7 @@ public class PlayerMotor :
 
 		// TOOD: Move magic to data class
 		motorDirection = data.initialDirection;
+        wallJumpDirection = new CoreDirection();
 	}
 
 	// When update is called, all input has been processed.
@@ -111,6 +115,7 @@ public class PlayerMotor :
 		var movement = input.held.direction.Vector;
 
 		FlagsHelper.Unset(ref state, State.JUMP);
+        wallJumpDirection.Clear();
 
         // Horizontal movement.
 		velocity.x = movement.x * data.velocityHorizontalGroundMax;
@@ -176,15 +181,21 @@ public class PlayerMotor :
         {
             // Buffer collision state X frames
             // Check if .left is in buffer up to Y frames back
-            if (engine.IsCollisionBuffered(Direction2D.LEFT))
+            // Wall jump direction check prevents motor from indefinitely climbing up the same wall.
+            // Motor jump off the opposite wall for this to reset.
+            if (wallJumpDirection.Vector.x < 1 && engine.IsCollisionBuffered(Direction2D.LEFT))
             {
                 velocity.y = data.velocityWallJumpVertical;
                 velocity.x = data.velocityWallJumpHorizontal;
+
+                wallJumpDirection.Update(Direction2D.RIGHT);
             }
-            if (engine.IsCollisionBuffered(Direction2D.RIGHT))
+            if (wallJumpDirection.Vector.x > -1 && engine.IsCollisionBuffered(Direction2D.RIGHT))
             {
                 velocity.y = data.velocityWallJumpVertical;
                 velocity.x = -data.velocityWallJumpHorizontal;
+
+                wallJumpDirection.Update(Direction2D.LEFT);
             }
         }
 

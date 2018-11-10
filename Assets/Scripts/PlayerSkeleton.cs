@@ -92,7 +92,7 @@ public class PlayerSkeleton
 	private PlayerSkeleton AttachLimb(Limb limb, Entity entity)
 	{
 		FlagsHelper.Set(ref existing, limb);
-		Activate(limb, true);
+		SetActive(limb, true);
 		entity.SetAffinity(Affinity.PLAYER);
 		Events.Raise(OnLimbAttached, existing, limb);
 
@@ -111,7 +111,7 @@ public class PlayerSkeleton
         }
     }
 
-    public void Activate(Limb limbs, bool isActive)
+    public void SetActive(Limb limbs, bool isActive)
     {
         if (FlagsHelper.IsSet(limbs, Limb.BODY))
         {

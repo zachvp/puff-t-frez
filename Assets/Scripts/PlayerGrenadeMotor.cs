@@ -6,7 +6,8 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 
 	private CallbackManager manager;
 
-	private int nonPlayerTouchCount;
+    // Tracks the number of times the motor has touched the player.
+	private int playerTouchCount;
     
 	public PlayerGrenadeMotor(Entity entityInstance, Transform rootInstance)
 		: base(entityInstance, rootInstance)
@@ -25,7 +26,6 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
             {
                 EventHandler c = delegate
                 {
-                    Debug.LogFormat("grab from trigger stay");
 					Grab(entity.context.current);
                 };
 
@@ -37,11 +37,10 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 		    !entity.context.previous.IsColliding(Affinity.PLAYER) &&
 		    entity.context.current.IsColliding(Affinity.PLAYER))
         {
-			nonPlayerTouchCount++;
+			playerTouchCount++;
 
-			if (nonPlayerTouchCount > 1)
+			if (playerTouchCount > 1)
 			{
-				Debug.LogFormat("grab from trigger enter");
 				Grab(entity.context.current);
 			}
         }
@@ -72,12 +71,12 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 	// Private
 	private void Grab(CollisionContext context)
 	{
-		nonPlayerTouchCount = 0;
+		playerTouchCount = 0;
 		Events.Raise(OnGrab, context);
 	}
 
 	private bool IsGrenadeInputAvailable()
     {
-		return state == State.NONE && nonPlayerTouchCount == 0;
+		return state == State.NONE && playerTouchCount == 0;
     }
 }

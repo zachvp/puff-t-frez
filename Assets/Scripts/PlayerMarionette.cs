@@ -21,7 +21,7 @@ public class PlayerMarionette :
 		skeleton.OnLimbAttached += HandleLimbAttached;
 
 		skeleton.grenade.OnGrab += HandleGrenadePickup;
-		skeleton.Activate(Limb.GRENADE, false);
+		skeleton.SetActive(Limb.GRENADE, false);
 	}
 
 	public void ApplyInput(InputSnapshot<PlayerInput> input)
@@ -110,8 +110,8 @@ public class PlayerMarionette :
 
 			skeleton.grenade.ApplyInput(input);
 
-			skeleton.Activate(Limb.GRENADE, true);
-			skeleton.Activate(Limb.HAND, false);
+			skeleton.SetActive(Limb.GRENADE, true);
+			skeleton.SetActive(Limb.HAND, false);
 			skeleton.grenade.entity.SetPosition(skeleton.hand.entity.Position);
 		}
 	}
@@ -121,8 +121,8 @@ public class PlayerMarionette :
 		skeleton.hand.entity.SetPosition(skeleton.grenade.entity.Position);
 		skeleton.grenade.Reset();
 
-		skeleton.Activate(Limb.HAND, true);
-		skeleton.Activate(Limb.GRENADE, false);
+		skeleton.SetActive(Limb.HAND, true);
+		skeleton.SetActive(Limb.GRENADE, false);
 	}
 
     // Handlers
@@ -138,6 +138,6 @@ public class PlayerMarionette :
 	private void Reset()
     {
 		skeleton.hand.entity.SetPosition(skeleton.body.entity.Position);
-		skeleton.Activate(Limb.HAND, true);
+		skeleton.SetActive(Limb.HAND, true);
     }
 }

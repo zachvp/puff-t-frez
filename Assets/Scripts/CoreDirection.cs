@@ -54,6 +54,11 @@ public class CoreDirection
         Vector = Convert(f);
     }
 
+    public void Clear()
+    {
+        Update(Direction2D.NONE);
+    }
+
 	public void ClearConcurrent()
     {
         if (FlagsHelper.IsSet(Flags, Direction2D.HORIZONTAL, Logical.AND))

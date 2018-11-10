@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// todo: rename to DebugController or sth
 public class SceneInitializer : MonoBehaviour
 {
     ScenePlaybackController playback;
