@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 
-// For any given GameObject in a scene, this handles position setting, collision
-// events, etc.
+// For any given GameObject in a scene, this handles Transform info.
 public class Entity : MonoBehaviour, ITransform, IBehavior
 {
 	public static long idCount;
@@ -32,94 +31,26 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 		get { return oldTransform; }
 	}
 
-	public Collider2D Collider
-    {
-        get { return collider; }
-    }
-
-	public int Layer
-	{
-		get { return gameObject.layer; }
-	}
-
     // Lifecycle events
     // todo: add handling for scene change to null this out (may get complicated with async/concurrent scene loading)
     public static EventHandler<Entity> OnCreate;
 
-    // TODO: remove
-    // Trigger events
-    public EventHandler<CollisionContextSnapshot> OnTriggerEnter;
-	public EventHandler<CollisionContextSnapshot> OnTriggerStay;
-	public EventHandler<CollisionContextSnapshot> OnTriggerExit;
-
-	public EventHandler<Vector3> OnScaleChange;
-
-    // Collision events
-	// TODO: remove
-	public EventHandler<CollisionContextSnapshot> OnCollisionEnter;
-	public EventHandler<CollisionContextSnapshot> OnCollisionExit;
+    public EventHandler<Vector3> OnScaleChange;
 
     // Activation events
-	public EventHandler<bool> OnActivationChange;
+    public EventHandler<bool> OnActivationChange;
     
-	new protected Collider2D collider;
 	protected CoreTransform oldTransform;
 
-	public CollisionContextSnapshot context { get; private set; }
-
 	// Monobehaviour events
-    public void Awake()
+    public virtual void Awake()
     {
         oldTransform = new CoreTransform();
-		context = new CollisionContextSnapshot();
-        collider = GetComponent<Collider2D>();
 
         id = idCount;
         idCount++;
 
-        FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
-
         Events.Raise(OnCreate, this);
-    }
-
-    public void HandleLateUpdate()
-    {
-		context.Store();
-        SetPosition(CoreUtilities.NormalizePosition(Position));
-    }
-
-    public void OnTriggerEnter2D(Collider2D collider)
-    {
-		context.current.Add(collider);
-		Events.Raise(OnTriggerEnter, context);
-    }
-
-    public void OnTriggerStay2D(Collider2D collider)
-    {
-		context.current.Add(collider);
-		Events.Raise(OnTriggerStay, context);
-    }
-
-    public void OnTriggerExit2D(Collider2D collider)
-    {
-		context.current.Remove(collider);
-		Events.Raise(OnTriggerExit, context);
-    }
-
-    public void OnCollisionEnter2D(Collision2D collision)
-    {
-        Debug.LogWarning("did you mean to call OnTriggerEnter instead?");
-
-		context.current.Add(collision);
-		Events.Raise(OnCollisionExit, context);
-    }
-
-    public void OnCollisionExit2D(Collision2D collision)
-    {
-        Debug.LogWarning("did you mean to call OnTriggerExit instead?");
-
-		context.current.Remove(collision);
-		Events.Raise(OnCollisionExit, context);
     }
     
 	// ITransform begin
@@ -169,12 +100,6 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
 		if (gameObject.activeInHierarchy != isActive)
 		{
 			Events.Raise(OnActivationChange, isActive);
-
-			if (!isActive)
-			{
-				context.current.Clear();
-				context.previous.Clear();
-			}
 		}
 
 		gameObject.SetActive(isActive);

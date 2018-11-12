@@ -2,7 +2,7 @@
 
 public class EnemyInitializer : MonoBehaviour
 {
-    public Entity enemyTemplate;
+    public PhysicsEntity enemyTemplate;
 
     public void Awake()
     {

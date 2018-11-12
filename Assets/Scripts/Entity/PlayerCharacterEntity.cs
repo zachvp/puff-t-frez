@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerCharacterEntity : Entity
+public class PlayerCharacterEntity : PhysicsEntity
 {
 	// Anchors
 	public Transform handAnchorRight;
@@ -8,9 +8,13 @@ public class PlayerCharacterEntity : Entity
 
 	public Transform footAnchorRight;
 	public Transform footAnchorLeft;
-    
-	new public BoxCollider2D Collider
+
+    new public BoxCollider2D collider;
+
+    public override void Awake()
     {
-		get { return (BoxCollider2D) collider; }
+        base.Awake();
+
+        collider = GetComponent<BoxCollider2D>();
     }
 }

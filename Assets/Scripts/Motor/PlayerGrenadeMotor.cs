@@ -9,7 +9,7 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
     // Tracks the number of times the motor has touched the player.
 	private int playerTouchCount;
     
-	public PlayerGrenadeMotor(Entity entityInstance, Transform rootInstance)
+	public PlayerGrenadeMotor(PhysicsEntity entityInstance, Transform rootInstance)
 		: base(entityInstance, rootInstance)
 	{
 		manager = new CallbackManager();

@@ -36,7 +36,7 @@ public class CollisionContext
 	{
 		if (!colliders.Contains(c))
 		{
-			var checkEntity = c.GetComponent<Entity>();
+			var checkEntity = c.GetComponent<PhysicsEntity>();
 
 			if (checkEntity)
 			{
@@ -56,7 +56,7 @@ public class CollisionContext
 	{
 		if (colliders.Contains(c))
 		{
-			var checkEntity = c.GetComponent<Entity>();
+			var checkEntity = c.GetComponent<PhysicsEntity>();
 
 			if (checkEntity)
 			{
@@ -110,7 +110,7 @@ public class CollisionContext
         return CoreDebug.CollectionString(colliders);
     }
 
-    private void Add(Entity e)
+    private void Add(PhysicsEntity e)
     {
         entities.Add(e);
         Add(e.Layer);
@@ -127,7 +127,7 @@ public class CollisionContext
         affinities.Add(a);
     }
 
-    private void Remove(Entity e)
+    private void Remove(PhysicsEntity e)
     {
         entities.Remove(e);
         Remove(e.Layer);

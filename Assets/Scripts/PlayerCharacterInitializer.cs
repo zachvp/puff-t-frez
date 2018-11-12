@@ -8,7 +8,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 	public PlayerCharacterEntity bodyTemplate;
 	public Entity handTemplate;
     public Entity footTemplate;
-	public Entity handGrenadeTemplate;
+	public PhysicsEntity handGrenadeTemplate;
 
     public void Awake()
 	{

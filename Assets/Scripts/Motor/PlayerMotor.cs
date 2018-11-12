@@ -137,7 +137,7 @@ public class PlayerMotor :
 				newBounds.y *= data.boundsMultiplierCrouchY;
                 crouchPosition.y -= entity.LocalScale.y;
 
-				var sizeOffset = CoreUtilities.GetWorldSpaceSize(newBounds, entity.Collider, 0.5f).x;
+				var sizeOffset = CoreUtilities.GetWorldSpaceSize(newBounds, entity.collider, 0.5f).x;
 				var checkDistance = newBounds.x;
                 var hitLeft = engine.CheckLeft(checkDistance, 1);
                 var hitRight = engine.CheckRight(checkDistance, 1);

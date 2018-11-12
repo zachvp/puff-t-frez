@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 public class LobMotor<T> :
-    Motor<T, Entity>, IInputLob
+    Motor<T, PhysicsEntity>, IInputLob
 	where T : LobMotorData
 {
 	private int forceFrameCount;
@@ -10,7 +10,7 @@ public class LobMotor<T> :
 	protected enum State { NONE, LAUNCHED, FREEZE }
 	protected State state;
     
-	public LobMotor(Entity e, Transform t)
+	public LobMotor(PhysicsEntity e, Transform t)
 		: base(e, t)
 	{
 		additiveSpeed = 1;
