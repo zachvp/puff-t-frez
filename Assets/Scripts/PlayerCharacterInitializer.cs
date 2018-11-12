@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
+using InControl;
 
 // TODO: Motor data scriptable object should be public serialized members too.
 //       Can then pass data to motor classes.
-using InControl;
 public class PlayerCharacterInitializer : MonoBehaviour
 {
 	public PlayerCharacterEntity bodyTemplate;

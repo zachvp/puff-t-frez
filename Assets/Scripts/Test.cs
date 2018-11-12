@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Test : MonoBehaviour
 {
@@ -17,6 +18,11 @@ public class Test : MonoBehaviour
 
 	public void Update()
     {
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
 		if (Input.GetKeyDown(KeyCode.Return))
 		{
 			transform.position = originalPosition;
@@ -30,11 +36,11 @@ public class Test : MonoBehaviour
 			speed -= 50;
 		}
 
-		var newPos = transform.position;
+		//var newPos = transform.position;
 
-		newPos += dir * speed * Time.deltaTime;
+		//newPos += dir * speed * Time.deltaTime;
 
-		transform.position = CoreUtilities.NormalizePosition(newPos);
+		//transform.position = CoreUtilities.NormalizePosition(newPos);
     }
 
 	public void FixedUpdate()
