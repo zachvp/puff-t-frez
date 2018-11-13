@@ -12,10 +12,10 @@ public class EnemyMotor : Motor<EnemyMotorData, PhysicsEntity>
     {
         if (entity.context.current.state.Below)
         {
-            var d = Vector2.up;
-            var v = d * 6400;
+            var v = new Vector2(-200, 1600);
 
             entity.SetVelocity(v);
+
         }
 
         Debug.LogFormat("enemy collision: {0}", entity.context.current.state);
