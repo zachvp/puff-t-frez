@@ -19,14 +19,14 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 	{
 		base.HandleUpdate(currentFrame, deltaTime);
 
-		if (entity.context.current.IsColliding(Constants.Layers.OBSTACLE) &&
-            entity.context.current.IsColliding(Affinity.PLAYER))
+		if (entity.collision.current.IsColliding(Constants.Layers.OBSTACLE) &&
+            entity.collision.current.IsColliding(Affinity.PLAYER))
         {
             if (state == State.FREEZE)
             {
                 EventHandler c = delegate
                 {
-					Grab(entity.context.current);
+					Grab(entity.collision.current);
                 };
 
                 manager.PostIdempotentCallback(2, new Callback(c));
@@ -34,14 +34,14 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
         }
 
 		if (state == State.LAUNCHED &&
-		    !entity.context.previous.IsColliding(Affinity.PLAYER) &&
-		    entity.context.current.IsColliding(Affinity.PLAYER))
+		    !entity.collision.previous.IsColliding(Affinity.PLAYER) &&
+		    entity.collision.current.IsColliding(Affinity.PLAYER))
         {
 			playerTouchCount++;
 
 			if (playerTouchCount > 1)
 			{
-				Grab(entity.context.current);
+				Grab(entity.collision.current);
 			}
         }
 	}

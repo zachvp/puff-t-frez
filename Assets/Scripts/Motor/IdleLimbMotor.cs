@@ -11,12 +11,12 @@ public class IdleLimbMotor : Motor<IdleLimbMotorData, Entity>
 		: base(e, t)
 	{
 		entity.SetPosition(root.position);
-	}
 
-	public override void HandleUpdate(long currentFrame, float deltaTime)
+        FrameCounter.Instance.OnUpdate += HandleUpdate;
+    }
+
+    public void HandleUpdate(long currentFrame, float deltaTime)
 	{
-		base.HandleUpdate(currentFrame, deltaTime);
-
 		if (state == State.IDLE)
 		{
 			HandleIdle(deltaTime);

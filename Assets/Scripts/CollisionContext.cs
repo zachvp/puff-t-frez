@@ -19,6 +19,7 @@ public class CollisionContext
         affinities = new List<Affinity>();
         layers = new HashSet<LayerMask>();
 		colliders = new HashSet<Collider2D>();
+
         state = new CollisionState2D();
     }
 
@@ -33,7 +34,7 @@ public class CollisionContext
 
 	public void Add(Collision2D c)
 	{
-		Add(c.gameObject.GetComponent<Collider2D>());
+        Add(c.collider);
 	}
 
     // todo: shouldn't have all this implicit stuff smh
@@ -79,7 +80,7 @@ public class CollisionContext
 
 	public void Remove(Collision2D c)
 	{
-		Remove(c.gameObject.GetComponent<Collider2D>());
+		Remove(c.collider);
 	}
 
     public void Clear()

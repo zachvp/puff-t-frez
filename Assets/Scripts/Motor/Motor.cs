@@ -7,6 +7,7 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
 
 	protected CoreDirection direction;
 
+    // todo: remove
 	protected Vector3 velocity;
 	protected T data;
 
@@ -20,10 +21,6 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
 		entity = e;
 		root = t;
 
-		SetFrameUpdate(HandleUpdate);
-
-        FrameCounter.Instance.OnFixedUpdate += HandleFixedUpdate;
-
 		Debug.Assert(e != null, "entity is null");
         Debug.Assert(t != null, "root is null");
 	}
@@ -31,33 +28,5 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
 	public void SetRoot(Transform t)
 	{
 		root = t;
-	}
-
-    public virtual void HandleUpdate(long currentFrame, float deltaTime)
-	{
-		
-	}
-
-    public virtual void HandleFixedUpdate(float deltaTime)
-    {
-
-    }
-
-	protected void SetFrameUpdate(EventHandler<long, float> handler)
-	{
-		if (!isSubscribedToUpdate)
-        {
-            isSubscribedToUpdate = true;
-			FrameCounter.Instance.OnUpdate += handler;
-        }
-	}
-
-	protected void UnsetFrameUpdate(EventHandler<long, float> handler)
-	{
-		if (isSubscribedToUpdate)
-        {
-            isSubscribedToUpdate = false;
-			FrameCounter.Instance.OnUpdate -= handler;
-        }
 	}
 }

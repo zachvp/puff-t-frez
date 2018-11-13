@@ -14,7 +14,7 @@ public class CoreDirection
     // by reference.
     private Direction2D varFlags;
 
-	public CoreDirection() { }
+    public CoreDirection() { }
 
     public CoreDirection(CoreDirection d)
     {

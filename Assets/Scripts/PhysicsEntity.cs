@@ -1,46 +1,144 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 public class PhysicsEntity : Entity
 {
-    public CollisionContextSnapshot context { get; private set; }
-
-    private Rigidbody2D body;
+    public CollisionContextSnapshot collision { get; private set; }
 
     public int Layer
     {
         get { return gameObject.layer; }
     }
 
+    public Vector2 velocity
+    {
+        get
+        {
+            return body.velocity;
+        }
+        private set
+        {
+            body.velocity = value;
+        }
+    }
+
+    private Rigidbody2D body;
+
+    private LinkedList<CollisionState2D> collisionBuffer;
+
     // Monobehaviour methods
     public override void Awake()
     {
         base.Awake();
 
-        context = new CollisionContextSnapshot();
+        collision = new CollisionContextSnapshot();
+        collisionBuffer = new LinkedList<CollisionState2D>();
 
         body = GetComponent<Rigidbody2D>();
 
         FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
-        FrameCounter.Instance.OnUpdate += HandleUpdate;
 
         OnActivationChange += HandleActivationChange;
     }
 
-    // Public methods
-    public void SetVelocity(Vector2 v)
+    // public methods
+    public void AddVelocity(float x, float y)
     {
+        var v = body.velocity;
+
+        v.x += x;
+        v.y += y;
+
         body.velocity = v;
     }
 
-    // Frame events
-    public void HandleUpdate(long currentFrame, float deltaTime)
+    public void SetVelocity(Vector2 v)
     {
-        // Update collision state
+        velocity = v;
+    }
+
+    public void SetVelocity(float x, float y)
+    {
+        var v = body.velocity;
+
+        v.x = x;
+        v.y = y;
+
+        body.velocity = v;
+    }
+
+    // todo: should return leftmost collider of four colliders
+    public RaycastHit2D Check(CoreDirection direction, float distance)
+    {
+        ContactFilter2D filter = new ContactFilter2D();
+        var results = new RaycastHit2D[1];
+
+        filter.layerMask = Constants.Layers.OBSTACLE;
+
+        body.Cast(direction.Vector, filter, results, distance);
+
+        // Return the first index
+        return results[0];
+    }
+
+    public CollisionState2D CheckProximity(float distance, Direction2D mask)
+    {
+        var proximityCollision = new CollisionState2D();
+
+        // Check below
+        if (FlagsHelper.IsSet(mask, Direction2D.DOWN))
+        {
+            proximityCollision.Below = Check(Constants.Directions.DOWN, distance);
+        }
+
+        // Check above
+        if (FlagsHelper.IsSet(mask, Direction2D.UP))
+        {
+            proximityCollision.Above = Check(Constants.Directions.UP, distance);
+        }
+
+        // Check right.
+        if (FlagsHelper.IsSet(mask, Direction2D.RIGHT))
+        {
+            proximityCollision.Right = Check(Constants.Directions.RIGHT, distance);
+        }
+
+        // Check left
+        if (FlagsHelper.IsSet(mask, Direction2D.LEFT))
+        {
+            proximityCollision.Left = Check(Constants.Directions.LEFT, distance);
+        }
+
+        return proximityCollision;
+    }
+
+    public bool IsCollisionBuffered(Direction2D direction)
+    {
+        var result = false;
+
+        foreach (CollisionState2D collisionState in collisionBuffer)
+        {
+            result |= FlagsHelper.IsSet(collisionState.direction, direction);
+        }
+
+        return result;
     }
 
     public void HandleLateUpdate()
     {
-        context.Store();
+        // Update current collision state.
+        collision.current.state.Update(CheckProximity(8, Direction2D.ALL));
+
+        // Add to the collision buffer.
+        // todo: should just update pre-existing states in the buffer so not allocating new instances every frame
+        collisionBuffer.AddFirst(new CollisionState2D(collision.current.state));
+
+        if (collisionBuffer.Count > 4)
+        {
+            collisionBuffer.RemoveLast();
+        }
+
+        collision.Store();
     }
 
     // Entity events
@@ -48,32 +146,29 @@ public class PhysicsEntity : Entity
     {
         if (!isActive)
         {
-            context.current.Clear();
-            context.previous.Clear();
+            collision.current.Clear();
+            collision.previous.Clear();
         }
     }
 
     // Collider events
     public void OnTriggerEnter2D(Collider2D c)
     {
-        context.current.Add(c);
+        collision.current.Add(c);
     }
 
     public void OnTriggerExit2D(Collider2D c)
     {
-        context.current.Remove(c);
+        collision.current.Remove(c);
     }
 
     public void OnCollisionEnter2D(Collision2D c)
     {
-        // Update collision context;
-        context.current.Add(c);
-        context.current.state.Update(c);
+        collision.current.Add(c);
     }
 
-    public void OnCollisionExit2D(Collision2D collision)
+    public void OnCollisionExit2D(Collision2D c)
     {
-        context.current.Remove(collision);
-        context.current.state.Reset();
+        this.collision.current.Remove(c);
     }
 }

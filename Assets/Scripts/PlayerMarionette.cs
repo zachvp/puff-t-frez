@@ -53,7 +53,7 @@ public class PlayerMarionette :
 		var amplitude = 32;
 		var interval = 0.12f;
 
-		if (skeleton.body.engine.isGrounded)
+		if (skeleton.body.entity.collision.current.state.Below)
 		{
 			if (bodyVelocity.x > 0)
 			{

@@ -16,7 +16,7 @@ public class PlayerEngineData : ScriptableObject
     /// <summary>
     /// mask with all layers that the player should interact with
     /// </summary>
-	public LayerMask platformMask = 1 << Constants.Layers.OBSTACLE;
+	public LayerMask platformMask = Constants.Layers.OBSTACLE;
 
 	/// <summary>
     /// mask with all layers that trigger events should fire when intersected

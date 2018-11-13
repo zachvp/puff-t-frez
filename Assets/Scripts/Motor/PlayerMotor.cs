@@ -5,9 +5,6 @@ public class PlayerMotor :
     Motor<PlayerMotorData, PlayerCharacterEntity>,
     ICoreInput<PlayerInput>, IMotor
 {
-    // Reference to the character controller engine.
-	public CharacterController2D engine { get; private set; }
-
     // The direction of input.
 	private InputSnapshot<PlayerInput> input;
 
@@ -24,28 +21,28 @@ public class PlayerMotor :
     private CoreDirection wallJumpDirection;
     
 	private State state;
-        
+
+    // todo: remove e param    
 	public PlayerMotor(PlayerCharacterEntity pc,
 	                   Transform t,
 	                   CharacterController2D e)
 		: base(pc, t)
 	{
 		input = new InputSnapshot<PlayerInput>();
+        wallJumpDirection = new CoreDirection();
 
-		engine = e;
-		data = ScriptableObject.CreateInstance<PlayerMotorData>();
+        data = ScriptableObject.CreateInstance<PlayerMotorData>();
 
 		// TOOD: Move magic to data class
 		motorDirection = data.initialDirection;
-        wallJumpDirection = new CoreDirection();
+
+        FrameCounter.Instance.OnFixedUpdate += HandleFixedUpdate;
 	}
 
 	// When update is called, all input has been processed.
-	public override void HandleUpdate(long currentFrame, float deltaTime)
+	public void HandleFixedUpdate(float deltaTime)
     {
-		base.HandleUpdate(currentFrame, deltaTime);
-
-        if (engine.isGrounded)
+        if (entity.collision.current.state.Below)
         {
             HandleGrounded();
         }
@@ -54,39 +51,18 @@ public class PlayerMotor :
             HandleNotGrounded();
         }
 
-		if (FlagsHelper.IsSet(state, State.CROUCH))
+        if (FlagsHelper.IsSet(state, State.CROUCH))
         {
-			HandleCrouch();
+            HandleCrouch();
         }
 
-		// Check all frames since jump was initiated for a release of the jump button.
-        if (input.released.jump && jumpCount < data.jumpCountMax)
+        if (!input.held.jump)
         {
-            jumpCount++;
+            additiveJumpFrameCount = 0;
+            jumpCount = 0;
         }
 
-		if (input.held.jump &&
-            additiveJumpFrameCount < data.frameLimitJumpAdditive &&
-            jumpCount < data.jumpCountMax)
-        {
-            ApplyJump();
-        }
-        
-        // Update the controller with the computed velocity.
-        engine.Move(deltaTime * velocity);
-
-		// Kind of a hack. The normally computed velocity is unreliable.
-        // The only other case velocity is used is in handling slopes.
-		if (Mathf.Abs(engine.velocity.x) < data.velocityThresholdMin)
-        {
-            velocity.x = 0;
-        }
-		if (Mathf.Abs(engine.velocity.y) < data.velocityThresholdMin)
-		{
-            velocity.y = 0;
-        }
-
-		// At this point, all the motor's velocity computations are complete,
+        // At this point, all the motor's velocity computations are complete,
         // so we can determine the motor's direction.
         ComputeMotorDirection();
     }
@@ -101,7 +77,7 @@ public class PlayerMotor :
 	// TODO: Make this a public Property like Position, etc in Motor super class
     public Vector3 GetVelocity()
 	{
-        return velocity;
+        return entity.velocity;
     }
 
 	// TODO: Make this a public Property like Position, etc in Motor super class
@@ -117,44 +93,52 @@ public class PlayerMotor :
 		FlagsHelper.Unset(ref state, State.JUMP);
         wallJumpDirection.Clear();
 
-        // Horizontal movement.
-		velocity.x = movement.x * data.velocityHorizontalGroundMax;
+        // Jump
+        if (input.held.jump)
+        {
+            Debug.Log("pressed jump");
 
-        // Reset jump states if jump isn't pressed.
-		if (!input.held.jump) {
-            additiveJumpFrameCount = 0;
-            jumpCount = 0;
+            if (jumpCount < data.jumpCountMax)
+            {
+                Debug.Log("applying jump");
+
+                jumpCount++;
+                ApplyJump();
+            }
         }
 
-		if (!FlagsHelper.IsSet(state, State.CROUCH))
+        // Horizontal movement.
+        entity.SetVelocity(movement.x * data.velocityHorizontalGroundMax, entity.velocity.y);
+
+        if (!FlagsHelper.IsSet(state, State.CROUCH))
         {
-			if (input.held.crouch)
-			{
-				var newBounds = entity.LocalScale;
+            if (input.held.crouch)
+            {
+                var newBounds = entity.LocalScale;
                 var crouchPosition = entity.Position;
 
-				newBounds.x *= data.boundsMultiplierCrouchX;
-				newBounds.y *= data.boundsMultiplierCrouchY;
+                newBounds.x *= data.boundsMultiplierCrouchX;
+                newBounds.y *= data.boundsMultiplierCrouchY;
                 crouchPosition.y -= entity.LocalScale.y;
 
-				var sizeOffset = CoreUtilities.GetWorldSpaceSize(newBounds, entity.collider, 0.5f).x;
-				var checkDistance = newBounds.x;
-                var hitLeft = engine.CheckLeft(checkDistance, 1);
-                var hitRight = engine.CheckRight(checkDistance, 1);
-                
-				if (hitLeft)
-				{
-					crouchPosition.x = hitLeft.point.x + sizeOffset;
-				}
-				if (hitRight)
-				{
-					crouchPosition.x = hitRight.point.x - sizeOffset;
-				}
+                var sizeOffset = CoreUtilities.GetWorldSpaceSize(newBounds, entity.collider, 0.5f).x;
+                var checkDistance = newBounds.x;
+                var hitLeft = entity.Check(Constants.Directions.LEFT, checkDistance);
+                var hitRight = entity.Check(Constants.Directions.RIGHT, checkDistance);
+
+                if (hitLeft)
+                {
+                    crouchPosition.x = hitLeft.point.x + sizeOffset;
+                }
+                if (hitRight)
+                {
+                    crouchPosition.x = hitRight.point.x - sizeOffset;
+                }
 
                 entity.SetLocalScale(newBounds);
                 entity.SetPosition(crouchPosition);
-				FlagsHelper.Set(ref state, State.CROUCH);
-			}
+                FlagsHelper.Set(ref state, State.CROUCH);
+            }
         }
     }
 
@@ -162,56 +146,41 @@ public class PlayerMotor :
 	{
 		var movement = input.held.direction.Vector;
 
+        Debug.LogFormat("player not grounded");
+
         // Motor is not grounded.
         // Air directional influence
-        velocity.x += movement.x * data.accelerationHorizontalAir;
+        // todo: use AddForce instead
+        entity.AddVelocity(movement.x * data.accelerationHorizontalAir, 0);
 
         // Clamp horizontal velocity so it doesn't get out of control.
         velocity.x = Mathf.Clamp(velocity.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
 
-		// Check for wall collision in air, which should zero out x velocity.
-		var isNeutralInput = !FlagsHelper.IsSet(input.held.direction.Flags, Direction2D.LEFT | Direction2D.RIGHT);
-        if (isNeutralInput && (engine.collision.Right || engine.collision.Left))
-        {
-            velocity.x = 0;
-        }
-
-		// Check for wall jump.
-		if (jumpCount > 0 && input.held.jump)
+        // Check for wall jump.
+        if (jumpCount > 0 && input.held.jump)
         {
             // Buffer collision state X frames
             // Check if .left is in buffer up to Y frames back
             // Wall jump direction check prevents motor from indefinitely climbing up the same wall.
             // Motor jump off the opposite wall for this to reset.
-            if (wallJumpDirection.Vector.x < 1 && engine.IsCollisionBuffered(Direction2D.LEFT))
+            if (wallJumpDirection.Vector.x < 1 && entity.IsCollisionBuffered(Direction2D.LEFT))
             {
-                velocity.y = data.velocityWallJumpVertical;
-                velocity.x = data.velocityWallJumpHorizontal;
+                entity.SetVelocity(data.velocityWallJumpHorizontal, data.velocityWallJumpVertical);
 
                 wallJumpDirection.Update(Direction2D.RIGHT);
             }
-            if (wallJumpDirection.Vector.x > -1 && engine.IsCollisionBuffered(Direction2D.RIGHT))
+            if (wallJumpDirection.Vector.x > -1 && entity.IsCollisionBuffered(Direction2D.RIGHT))
             {
-                velocity.y = data.velocityWallJumpVertical;
-                velocity.x = -data.velocityWallJumpHorizontal;
+                entity.SetVelocity(-data.velocityWallJumpHorizontal, data.velocityWallJumpVertical);
 
                 wallJumpDirection.Update(Direction2D.LEFT);
             }
         }
 
         // Cut short the jump if the motor bumped something above.
-        if (engine.collision.Above)
+        if (entity.collision.current.state.Above)
         {
             additiveJumpFrameCount = data.frameLimitJumpAdditive;
-            velocity.y = 0;
-        }
-
-        // Apply gravity if motor does not have jump immunity or if there is no
-        // jump input.
-        if (additiveJumpFrameCount > data.frameLimitJumpGravityImmunity ||
-		    !FlagsHelper.IsSet(state, State.JUMP))
-        {
-            velocity.y -= data.gravity;
         }
     }
 
@@ -219,7 +188,7 @@ public class PlayerMotor :
 	{
 		if (!input.held.crouch)
         {
-            var check = engine.CheckProximity(entity.LocalScale.y, Direction2D.UP);
+            var check = entity.CheckProximity(entity.LocalScale.y, Direction2D.UP);
 
             if (!check.Above)
             {
@@ -239,48 +208,12 @@ public class PlayerMotor :
     // certain amount of frames.
     private void ApplyJump()
     {
-        // Initial jump push off the ground.
-		if (additiveJumpFrameCount < 1)
-		{
-			if (engine.isGrounded)
-			{
-				FlagsHelper.Set(ref state, State.JUMP);
-				velocity.y = data.velocityJumpImpulse;
-				additiveJumpFrameCount++;
-			}
-        }
-		else
-		{
-            velocity.y += data.velocityJumpMax / additiveJumpFrameCount;
-			additiveJumpFrameCount++;
-        }
+        entity.SetVelocity(entity.velocity.x, data.velocityJumpImpulse);
     }
 
     private void ComputeMotorDirection()
     {
-		var result = motorDirection.Vector;
-
-        // Set the motor direction based on the velocty.
-        // Motor direction should be 1 for positive velocity and -1 for
-        // negative velocity.
-        // Check for nonzero velocity
-        if (Mathf.Abs(velocity.x) > 1)
-        {
-			result.x = velocity.x > 0 ? 1 : -1;
-        }
-        if (Mathf.Abs(velocity.y) > 1)
-        {
-			result.y = velocity.y > 0 ? 1 : -1;
-        }
-        
-		motorDirection.Update(result);
-
-		Debug.AssertFormat((int) Mathf.Abs(result.x) == 1 ||
-		                   (int) Mathf.Abs(result.x) == 0,
-		                   "Motor X direction should always have a magnitude of one.");
-		Debug.AssertFormat((int) Mathf.Abs(result.y) == 1 ||
-		                   (int) Mathf.Abs(result.y) == 0,
-		                   "Motor Y direction should always have a magnitude of one.");
+		motorDirection.Update(entity.velocity);
     }
 
 	[Flags]

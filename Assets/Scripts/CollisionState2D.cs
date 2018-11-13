@@ -35,6 +35,11 @@ public class CollisionState2D
         Update(other);
     }
 
+    public CollisionState2D(Collision2D c)
+    {
+        Update(c);
+    }
+
 	public bool HasCollision()
     {
 		return FlagsHelper.IsSet(direction, Direction2D.ALL);
@@ -52,10 +57,10 @@ public class CollisionState2D
     {
         foreach (ContactPoint2D contact in c.contacts)
         {
-            Below |= Utilities.EqualVectors(Vector2.up, contact.normal);
-            Above |= Utilities.EqualVectors(Vector2.down, contact.normal);
-            Left |= Utilities.EqualVectors(Vector2.right, contact.normal);
-            Right |= Utilities.EqualVectors(Vector2.left, contact.normal);
+            Below = Utilities.EqualVectors(Vector2.up, contact.normal);
+            Above = Utilities.EqualVectors(Vector2.down, contact.normal);
+            Left = Utilities.EqualVectors(Vector2.right, contact.normal);
+            Right = Utilities.EqualVectors(Vector2.left, contact.normal);
         }
     }
 

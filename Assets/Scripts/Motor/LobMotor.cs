@@ -14,16 +14,14 @@ public class LobMotor<T> :
 		: base(e, t)
 	{
 		additiveSpeed = 1;
-     
-		SetFrameUpdate(HandleUpdate);
+
+        FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
     // Handlers begin
-	public override void HandleUpdate(long currentFrame, float deltaTime)
+	public virtual void HandleUpdate(long currentFrame, float deltaTime)
 	{
-		base.HandleUpdate(currentFrame, deltaTime);
-
-        if (entity.context.current.IsColliding(Constants.Layers.OBSTACLE))
+        if (entity.collision.current.IsColliding(Constants.Layers.OBSTACLE))
         {
             Freeze();
         }
@@ -87,7 +85,7 @@ public class LobMotor<T> :
 		state = State.NONE;
 		entity.SetActive(false);
 		entity.SetPosition(root.position);
-        entity.context.Clear();
+        entity.collision.Clear();
 	}
     // ILobMotor end
 }
