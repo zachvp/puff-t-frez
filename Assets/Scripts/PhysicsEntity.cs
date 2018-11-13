@@ -2,15 +2,6 @@
 
 public class PhysicsEntity : Entity
 {
-    // Trigger collider events
-    public EventHandler<CollisionContextSnapshot> OnTriggerEnter;
-    public EventHandler<CollisionContextSnapshot> OnTriggerStay;
-    public EventHandler<CollisionContextSnapshot> OnTriggerExit;
-
-    // Collision collider events
-    public EventHandler<CollisionContextSnapshot> OnCollisionEnter;
-    public EventHandler<CollisionContextSnapshot> OnCollisionExit;
-
     public CollisionContextSnapshot context { get; private set; }
 
     private Rigidbody2D body;
@@ -20,14 +11,31 @@ public class PhysicsEntity : Entity
         get { return gameObject.layer; }
     }
 
+    // Monobehaviour methods
     public override void Awake()
     {
         base.Awake();
 
         context = new CollisionContextSnapshot();
 
+        body = GetComponent<Rigidbody2D>();
+
         FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
+        FrameCounter.Instance.OnUpdate += HandleUpdate;
+
         OnActivationChange += HandleActivationChange;
+    }
+
+    // Public methods
+    public void SetVelocity(Vector2 v)
+    {
+        body.velocity = v;
+    }
+
+    // Frame events
+    public void HandleUpdate(long currentFrame, float deltaTime)
+    {
+        // Update collision state
     }
 
     public void HandleLateUpdate()
@@ -46,37 +54,26 @@ public class PhysicsEntity : Entity
     }
 
     // Collider events
-    public void OnTriggerEnter2D(Collider2D collider)
+    public void OnTriggerEnter2D(Collider2D c)
     {
-        context.current.Add(collider);
-        Events.Raise(OnTriggerEnter, context);
+        context.current.Add(c);
     }
 
-    public void OnTriggerStay2D(Collider2D collider)
+    public void OnTriggerExit2D(Collider2D c)
     {
-        context.current.Add(collider);
-        Events.Raise(OnTriggerStay, context);
+        context.current.Remove(c);
     }
 
-    public void OnTriggerExit2D(Collider2D collider)
+    public void OnCollisionEnter2D(Collision2D c)
     {
-        context.current.Remove(collider);
-        Events.Raise(OnTriggerExit, context);
-    }
-
-    public void OnCollisionEnter2D(Collision2D collision)
-    {
-        Debug.LogWarning("did you mean to call OnTriggerEnter instead?");
-
-        context.current.Add(collision);
-        Events.Raise(OnCollisionExit, context);
+        // Update collision context;
+        context.current.Add(c);
+        context.current.state.Update(c);
     }
 
     public void OnCollisionExit2D(Collision2D collision)
     {
-        Debug.LogWarning("did you mean to call OnTriggerExit instead?");
-
         context.current.Remove(collision);
-        Events.Raise(OnCollisionExit, context);
+        context.current.state.Reset();
     }
 }

@@ -22,6 +22,8 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
 
 		SetFrameUpdate(HandleUpdate);
 
+        FrameCounter.Instance.OnFixedUpdate += HandleFixedUpdate;
+
 		Debug.Assert(e != null, "entity is null");
         Debug.Assert(t != null, "root is null");
 	}
@@ -35,6 +37,11 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
 	{
 		
 	}
+
+    public virtual void HandleFixedUpdate(float deltaTime)
+    {
+
+    }
 
 	protected void SetFrameUpdate(EventHandler<long, float> handler)
 	{

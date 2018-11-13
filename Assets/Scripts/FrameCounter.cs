@@ -8,6 +8,7 @@ public class FrameCounter : MonoSingleton<FrameCounter>
 	public EventHandler OnAwake;
 	public EventHandler OnStart;
     public EventHandler<long, float> OnUpdate;
+    public EventHandler<float> OnFixedUpdate;
 	public EventHandler OnLateUpdate;
 
 	public int count { get; private set; }
@@ -15,7 +16,7 @@ public class FrameCounter : MonoSingleton<FrameCounter>
 	public List<float> deltaTimes { get; private set; }
     public float deltaTime
 	{
-        get { return deltaTimes.Count > 0 ? deltaTimes[deltaTimes.Count - 1] : 0; }
+        get { return deltaTimes[deltaTimes.Count - 1]; }
         private set { deltaTime = value; }
     }
 
@@ -24,6 +25,7 @@ public class FrameCounter : MonoSingleton<FrameCounter>
         base.Awake();
 
         deltaTimes = new List<float>();
+        deltaTimes.Add(0);
 
 		Events.Raise(OnAwake);
 	}
@@ -33,7 +35,12 @@ public class FrameCounter : MonoSingleton<FrameCounter>
 		Events.Raise(OnUpdate, count, deltaTime);
     }
 
-	public void LateUpdate()
+    public void FixedUpdate()
+    {
+        Events.Raise(OnFixedUpdate, Time.fixedDeltaTime);
+    }
+
+    public void LateUpdate()
 	{
 		Events.Raise(OnLateUpdate);
 	}
@@ -46,12 +53,12 @@ public class FrameCounter : MonoSingleton<FrameCounter>
 		Events.Raise(OnStart);
 	}
 
-	private void HandleEarlyUpdate()
+	public void HandleEarlyUpdate()
 	{
         deltaTimes.Add(Time.deltaTime);
     }
 
-	private void HandlePostUpdateGlobal()
+	public void HandlePostUpdateGlobal()
 	{
 		++count;
 	}

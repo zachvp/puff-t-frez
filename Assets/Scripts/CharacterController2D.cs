@@ -12,7 +12,7 @@ public class CharacterController2D
 	public BoxCollider2D collider;
 	public Rigidbody2D rigidBody;
 
-	public CharacterCollisionState2D collision = new CharacterCollisionState2D();
+	public CollisionState2D collision = new CollisionState2D();
 	public Vector3 velocity;
     public bool isGrounded { get { return collision.Below; } }
 
@@ -43,7 +43,7 @@ public class CharacterController2D
 	// the reason is so that if we reach the end of the slope we can make an adjustment to stay grounded
 	private bool _isGoingUpSlope = false;
 
-	private LinkedList<CharacterCollisionState2D> collisionBuffer;
+	private LinkedList<CollisionState2D> collisionBuffer;
 
 	private Entity entity;
 
@@ -62,7 +62,7 @@ public class CharacterController2D
 	                             BoxCollider2D colliderInstance,
 	                             Rigidbody2D rigidbodyInstance)
     {
-		collisionBuffer = new LinkedList<CharacterCollisionState2D>();
+		collisionBuffer = new LinkedList<CollisionState2D>();
 		data = ScriptableObject.CreateInstance<PlayerEngineData>();
 
 
@@ -104,7 +104,7 @@ public class CharacterController2D
     {
         var result = false;
 
-        foreach (CharacterCollisionState2D collisionState in collisionBuffer)
+        foreach (CollisionState2D collisionState in collisionBuffer)
         {
 			result |= FlagsHelper.IsSet(collisionState.direction, direction);
         }
@@ -120,7 +120,7 @@ public class CharacterController2D
 	public void Move( Vector3 deltaMovement)
 	{
         // save off our current grounded state which we will use for becameGroundedThisFrame
-        var oldCollisionState = new CharacterCollisionState2D(collision);
+        var oldCollisionState = new CollisionState2D(collision);
 
 		// clear our state
 		collision.Reset();
@@ -167,7 +167,7 @@ public class CharacterController2D
 		collision = CheckProximity(data.skinWidth * 2, Direction2D.ALL);
 
 		// Add to the collision buffer.
-		collisionBuffer.AddFirst(new CharacterCollisionState2D(collision));
+		collisionBuffer.AddFirst(new CollisionState2D(collision));
 
 		if (collisionBuffer.Count > data.collisionBufferMax) {
 			collisionBuffer.RemoveLast();
@@ -246,7 +246,7 @@ public class CharacterController2D
 	/// we have to increase the ray distance skinWidth then remember to remove skinWidth from deltaMovement before
 	/// actually moving the player
 	/// </summary>
-    private void moveHorizontally( ref Vector3 deltaMovement, CharacterCollisionState2D oldCollisionState )
+    private void moveHorizontally( ref Vector3 deltaMovement, CollisionState2D oldCollisionState )
 	{
 		var isGoingRight = deltaMovement.x > 0;
 		var rayDistance = Mathf.Abs( deltaMovement.x ) + data.skinWidth;
@@ -338,7 +338,7 @@ public class CharacterController2D
 		return true;
 	}
 
-    private void moveVertically( ref Vector3 deltaMovement, CharacterCollisionState2D oldCollisionState )
+    private void moveVertically( ref Vector3 deltaMovement, CollisionState2D oldCollisionState )
 	{
 		var isGoingUp = deltaMovement.y > 0;
 		var rayDistance = Mathf.Abs( deltaMovement.y ) + data.skinWidth;
@@ -429,9 +429,9 @@ public class CharacterController2D
 		}
 	}
 
-	public CharacterCollisionState2D CheckProximity(float distance, Direction2D mask)
+	public CollisionState2D CheckProximity(float distance, Direction2D mask)
     {
-		var proximityCollision = new CharacterCollisionState2D();
+		var proximityCollision = new CollisionState2D();
 
 		// Check below
 		if (FlagsHelper.IsSet(mask, Direction2D.DOWN))

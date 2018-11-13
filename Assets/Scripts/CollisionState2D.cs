@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class CharacterCollisionState2D
+public class CollisionState2D
 {
 	public Direction2D direction;
 	public bool Left
@@ -28,14 +28,11 @@ public class CharacterCollisionState2D
     public bool movingDownSlope;
     public float slopeAngle;
 
-    public CharacterCollisionState2D() { }
+    public CollisionState2D() { }
 
-    public CharacterCollisionState2D(CharacterCollisionState2D other)
+    public CollisionState2D(CollisionState2D other)
     {
-		direction = other.direction;
-        becameGroundedThisFrame = other.becameGroundedThisFrame;
-        movingDownSlope = other.movingDownSlope;
-        slopeAngle = other.slopeAngle;
+        Update(other);
     }
 
 	public bool HasCollision()
@@ -43,6 +40,24 @@ public class CharacterCollisionState2D
 		return FlagsHelper.IsSet(direction, Direction2D.ALL);
     }
 
+    public void Update(CollisionState2D s)
+    {
+        direction = s.direction;
+        becameGroundedThisFrame = s.becameGroundedThisFrame;
+        movingDownSlope = s.movingDownSlope;
+        slopeAngle = s.slopeAngle;
+    }
+
+    public void Update(Collision2D c)
+    {
+        foreach (ContactPoint2D contact in c.contacts)
+        {
+            Below |= Utilities.EqualVectors(Vector2.up, contact.normal);
+            Above |= Utilities.EqualVectors(Vector2.down, contact.normal);
+            Left |= Utilities.EqualVectors(Vector2.right, contact.normal);
+            Right |= Utilities.EqualVectors(Vector2.left, contact.normal);
+        }
+    }
 
     public void Reset()
     {

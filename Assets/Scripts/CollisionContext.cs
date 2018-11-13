@@ -10,13 +10,16 @@ public class CollisionContext
 	private List<Affinity> affinities;
     private HashSet<LayerMask> layers;
 	private HashSet<Collider2D> colliders;
-    
+
+    public CollisionState2D state { get; private set; }
+
     public CollisionContext()
     {
         entities = new HashSet<Entity>();
         affinities = new List<Affinity>();
         layers = new HashSet<LayerMask>();
 		colliders = new HashSet<Collider2D>();
+        state = new CollisionState2D();
     }
 
 	public CollisionContext(CollisionContext other)
@@ -25,6 +28,7 @@ public class CollisionContext
 		affinities = new List<Affinity>(other.affinities);
 		layers = new HashSet<LayerMask>(other.layers);
 		colliders = new HashSet<Collider2D>(other.colliders);
+        state = new CollisionState2D(other.state);
 	}
 
 	public void Add(Collision2D c)
@@ -32,6 +36,7 @@ public class CollisionContext
 		Add(c.gameObject.GetComponent<Collider2D>());
 	}
 
+    // todo: shouldn't have all this implicit stuff smh
 	public void Add(Collider2D c)
 	{
 		if (!colliders.Contains(c))
@@ -83,6 +88,7 @@ public class CollisionContext
         entities.Clear();
         layers.Clear();
         colliders.Clear();
+        state.Reset();
     }
 
     public bool IsColliding(Affinity a)
@@ -105,15 +111,75 @@ public class CollisionContext
 		return affinities.Count(element => element == a);
 	}
 
+    public void Update(CollisionContext c)
+    {
+        Update(c.state);
+        Update(c.entities);
+        Update(c.affinities);
+        Update(c.layers);
+        Update(c.colliders);
+    }
+
+    public void Update(HashSet<Entity> set)
+    {
+        entities.Clear();
+        
+        foreach (Entity e in set)
+        {
+            Add(e);
+        }
+    }
+
+    public void Update(List<Affinity> set)
+    {
+        affinities.Clear();
+
+        foreach (Affinity a in set)
+        {
+            Add(a);
+        }
+    }
+
+    public void Update(HashSet<LayerMask> set)
+    {
+        layers.Clear();
+
+        foreach (LayerMask l in set)
+        {
+            Add(l);
+        }
+    }
+
+    public void Update(HashSet<Collider2D> set)
+    {
+        colliders.Clear();
+
+        foreach (Collider2D c in set)
+        {
+            Add(c);
+        }
+    }
+
+    public void Update(CollisionState2D s)
+    {
+        state.Update(s);
+    }
+
     public override string ToString()
     {
         return CoreDebug.CollectionString(colliders);
     }
 
-    private void Add(PhysicsEntity e)
+    private void Add(Entity e)
     {
+        var checkEntity = e as PhysicsEntity;
+
+        if (checkEntity)
+        {
+            Add(checkEntity.Layer);
+        }
+
         entities.Add(e);
-        Add(e.Layer);
         Add(e.affinity);
     }
 
@@ -158,7 +224,7 @@ public class CollisionContextSnapshot
 
     public void Store()
 	{
-		previous = new CollisionContext(current);
+		previous.Update(current);
 	}
 
     public void Clear()
