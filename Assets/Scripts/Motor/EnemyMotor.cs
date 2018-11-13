@@ -12,7 +12,7 @@ public class EnemyMotor : Motor<EnemyMotorData, PhysicsEntity>
     {
         if (entity.context.current.state.Below)
         {
-            var v = new Vector2(-200, 1600);
+            var v = new Vector2(-200, 1200);
 
             entity.SetVelocity(v);
 
