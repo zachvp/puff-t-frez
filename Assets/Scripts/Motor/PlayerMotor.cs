@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 public class PlayerMotor :
     Motor<PlayerMotorData, PlayerCharacterEntity>,
@@ -22,26 +23,34 @@ public class PlayerMotor :
     
 	private State state;
 
+    // Physical actions to perform in FixedUpdate
+    private HashSet<Action> actions;
+
+
     // todo: remove e param    
-	public PlayerMotor(PlayerCharacterEntity pc,
+    public PlayerMotor(PlayerCharacterEntity pc,
 	                   Transform t,
 	                   CharacterController2D e)
 		: base(pc, t)
 	{
 		input = new InputSnapshot<PlayerInput>();
         wallJumpDirection = new CoreDirection();
+        actions = new HashSet<Action>();
 
         data = ScriptableObject.CreateInstance<PlayerMotorData>();
 
 		// TOOD: Move magic to data class
 		motorDirection = data.initialDirection;
 
+        FrameCounter.Instance.OnUpdate += HandleUpdate;
         FrameCounter.Instance.OnFixedUpdate += HandleFixedUpdate;
-	}
+    }
 
-	// When update is called, all input has been processed.
-	public void HandleFixedUpdate(float deltaTime)
+    public void HandleUpdate(long count, float deltaTime)
     {
+        // Compute state from input
+
+        // In update, need to compute all possible physical actions the player must perform in FixedUpdate
         if (entity.collision.current.state.Below)
         {
             HandleGrounded();
@@ -67,6 +76,21 @@ public class PlayerMotor :
         ComputeMotorDirection();
     }
 
+	// When update is called, all input has been processed.
+	public void HandleFixedUpdate(float deltaTime)
+    {
+        var movement = input.held.direction.Vector;
+
+        if (actions.Contains(Action.JUMP))
+        {
+            ApplyJump();
+            actions.Remove(Action.JUMP);
+        }
+
+        // Horizontal movement.
+        entity.SetVelocity(movement.x * data.velocityHorizontalGroundMax, entity.velocity.y);
+    }
+
     // IPlayerInput functions
 	public void ApplyInput(InputSnapshot<PlayerInput> inputSnapshot)
 	{
@@ -88,8 +112,6 @@ public class PlayerMotor :
 
     private void HandleGrounded()
 	{
-		var movement = input.held.direction.Vector;
-
 		FlagsHelper.Unset(ref state, State.JUMP);
         wallJumpDirection.Clear();
 
@@ -100,13 +122,10 @@ public class PlayerMotor :
 
             if (jumpCount < data.jumpCountMax)
             {
+                actions.Add(Action.JUMP);
                 jumpCount++;
-                ApplyJump();
             }
         }
-
-        // Horizontal movement.
-        entity.SetVelocity(movement.x * data.velocityHorizontalGroundMax, entity.velocity.y);
 
         if (!FlagsHelper.IsSet(state, State.CROUCH))
         {
@@ -221,4 +240,9 @@ public class PlayerMotor :
 		CROUCH  = 1 << 1,
 		JUMP    = 1 << 2
 	}
+
+    private enum Action
+    {
+        JUMP = 0
+    }
 }

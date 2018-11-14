@@ -26,18 +26,27 @@ public class InputController<T, U>
 		// Get the data ready for the new frame
 		oldInput = input.Clone();
 		input = new T();
+
+        UpdateInput();
+
+        Debug.AssertFormat(CoreUtilities.IsConstrained(input.direction.Vector, 1),
+                   "invalid input");
+
+        // Check if input directions should be neutralized;
+        input.direction.ClearConcurrent();
+        snapshot = new InputSnapshot<T>(oldInput, input);
+        buffer.AddInput(snapshot);
+        responder.ApplyInput(snapshot);
+    }
+
+    protected virtual void UpdateInput()
+    {
+
     }
 
 	public virtual void HandleLateUpdate()
 	{
-		Debug.AssertFormat(CoreUtilities.IsConstrained(input.direction.Vector, 1),
-                           "invalid input");
 
-		// Check if input directions should be neutralized;
-		input.direction.ClearConcurrent();
-        snapshot = new InputSnapshot<T>(oldInput, input);
-        buffer.AddInput(snapshot);
-		responder.ApplyInput(snapshot);
 	}
 
 	public Vector2 RemoveDeadZone(Vector2 v)

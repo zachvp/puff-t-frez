@@ -6,10 +6,8 @@ public class PlayerInputControllerKeyboard : InputController<PlayerInput, Player
 		: base(r, b)
 	{ }
 
-	public override void HandleUpdate(long currentFrame, float deltaTime)
+	protected override void UpdateInput()
 	{
-		base.HandleUpdate(currentFrame, deltaTime);
-
         // Direction control
 		input.direction.Update(Direction2D.RIGHT, Input.GetKey(KeyCode.D));
         input.direction.Update(Direction2D.LEFT, Input.GetKey(KeyCode.A));
