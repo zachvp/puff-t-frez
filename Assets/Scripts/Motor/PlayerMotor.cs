@@ -94,14 +94,12 @@ public class PlayerMotor :
         wallJumpDirection.Clear();
 
         // Jump
-        if (input.held.jump)
+        if (input.pressed.jump)
         {
             Debug.Log("pressed jump");
 
             if (jumpCount < data.jumpCountMax)
             {
-                Debug.Log("applying jump");
-
                 jumpCount++;
                 ApplyJump();
             }
@@ -151,10 +149,10 @@ public class PlayerMotor :
         // Motor is not grounded.
         // Air directional influence
         // todo: use AddForce instead
-        entity.AddVelocity(movement.x * data.accelerationHorizontalAir, 0);
+        //entity.AddVelocity(movement.x * data.accelerationHorizontalAir, 0);
 
         // Clamp horizontal velocity so it doesn't get out of control.
-        velocity.x = Mathf.Clamp(velocity.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
+        //velocity.x = Mathf.Clamp(velocity.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
 
         // Check for wall jump.
         if (jumpCount > 0 && input.held.jump)
@@ -165,13 +163,13 @@ public class PlayerMotor :
             // Motor jump off the opposite wall for this to reset.
             if (wallJumpDirection.Vector.x < 1 && entity.IsCollisionBuffered(Direction2D.LEFT))
             {
-                entity.SetVelocity(data.velocityWallJumpHorizontal, data.velocityWallJumpVertical);
+                //entity.SetVelocity(data.velocityWallJumpHorizontal, data.velocityWallJumpVertical);
 
                 wallJumpDirection.Update(Direction2D.RIGHT);
             }
             if (wallJumpDirection.Vector.x > -1 && entity.IsCollisionBuffered(Direction2D.RIGHT))
             {
-                entity.SetVelocity(-data.velocityWallJumpHorizontal, data.velocityWallJumpVertical);
+                //entity.SetVelocity(-data.velocityWallJumpHorizontal, data.velocityWallJumpVertical);
 
                 wallJumpDirection.Update(Direction2D.LEFT);
             }

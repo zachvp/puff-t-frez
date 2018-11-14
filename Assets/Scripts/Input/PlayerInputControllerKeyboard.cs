@@ -17,6 +17,6 @@ public class PlayerInputControllerKeyboard : InputController<PlayerInput, Player
 		input.direction.Update(Direction2D.DOWN, Input.GetKey(KeyCode.S));
 
 		input.jump = Input.GetKey(KeyCode.W);
-		input.crouch = Input.GetKey(KeyCode.S);
+		input.crouch = Input.GetKey(KeyCode.S);   
 	}
 }
