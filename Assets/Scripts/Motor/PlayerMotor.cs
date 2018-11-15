@@ -115,8 +115,6 @@ public class PlayerMotor :
         // Jump
         if (input.pressed.jump)
         {
-            Debug.Log("pressed jump");
-
             if (jumpCount < data.jumpCountMax)
             {
                 actions.Add(Action.JUMP);
@@ -163,15 +161,12 @@ public class PlayerMotor :
 	{
 		var movement = input.held.direction.Vector;
 
-        Debug.LogFormat("player not grounded");
-
         // Motor is not grounded.
         // Air directional influence
-        // todo: use AddForce instead
-        //entity.AddVelocity(movement.x * data.accelerationHorizontalAir, 0);
-
-        // Clamp horizontal velocity so it doesn't get out of control.
-        //velocity.x = Mathf.Clamp(velocity.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
+        var v = entity.velocity;
+        v.x += movement.x * data.accelerationHorizontalAir;
+        v.x = Mathf.Clamp(v.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
+        entity.SetVelocity(v);
 
         // Check for wall jump.
         if (jumpCount > 0 && input.held.jump)
@@ -230,6 +225,7 @@ public class PlayerMotor :
 
     private void ComputeMotorDirection()
     {
+        // todo: restore impl from master branch
 		motorDirection.Update(entity.velocity);
     }
 
@@ -243,6 +239,6 @@ public class PlayerMotor :
 
     private enum Action
     {
-        JUMP = 0
+        JUMP
     }
 }

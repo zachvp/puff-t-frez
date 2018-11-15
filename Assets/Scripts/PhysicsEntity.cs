@@ -42,14 +42,16 @@ public class PhysicsEntity : Entity
     }
 
     // public methods
+    public void AddVelocity(Vector2 v)
+    {
+        velocity += v;
+    }
+
     public void AddVelocity(float x, float y)
     {
-        var v = body.velocity;
+        var v = new Vector2(x, y);
 
-        v.x += x;
-        v.y += y;
-
-        body.velocity = v;
+        AddVelocity(v);
     }
 
     public void SetVelocity(Vector2 v)
@@ -59,12 +61,16 @@ public class PhysicsEntity : Entity
 
     public void SetVelocity(float x, float y)
     {
-        var v = body.velocity;
+        var v = new Vector2(x, y);
 
-        v.x = x;
-        v.y = y;
+        SetVelocity(v);
+    }
 
-        body.velocity = v;
+    public void ApplyForce(float x, float y)
+    {
+        var v = new Vector2(x, y);
+
+        body.AddForce(v);
     }
 
     // todo: should return leftmost collider of four colliders
