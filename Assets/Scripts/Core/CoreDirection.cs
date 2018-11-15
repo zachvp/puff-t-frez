@@ -80,11 +80,11 @@ public class CoreDirection
 
 	public void ClearConcurrent()
     {
-        if (FlagsHelper.IsSet(Flags, Direction2D.HORIZONTAL, Logical.AND))
+        if (IsSimultaneousHorizontal())
         {
             ClearHorizontal();
         }
-        if (FlagsHelper.IsSet(Flags, Direction2D.VERTICAL, Logical.AND))
+        if (IsSimultaneousVertical())
         {
             ClearVertical();
         }
@@ -100,14 +100,24 @@ public class CoreDirection
         Update(Direction2D.VERTICAL, false);
     }
 
-	public bool IsEmpty()
-	{
-		return Flags == Direction2D.NONE;
-	}
-
 	public void CardinalizeVector()
     {
         Update(Flags);
+    }
+
+    public bool IsEmpty()
+    {
+        return Flags == Direction2D.NONE;
+    }
+
+    public bool IsSimultaneousHorizontal()
+    {
+        return FlagsHelper.IsSet(Flags, Direction2D.HORIZONTAL, Logical.AND);
+    }
+
+    public bool IsSimultaneousVertical()
+    {
+        return FlagsHelper.IsSet(Flags, Direction2D.VERTICAL, Logical.AND);
     }
 
     // Public static

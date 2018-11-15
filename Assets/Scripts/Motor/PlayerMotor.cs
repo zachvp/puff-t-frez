@@ -185,11 +185,14 @@ public class PlayerMotor :
             // Motor jump off the opposite wall for this to reset.
             Debug.Log("jump conditions met");
 
-            if (Mathf.Abs(wallJumpDirection.Vector.x) < 1)
-            {
-                physicsInput.bufferedCollisionState = entity.GetBufferedCollisionState();
+            physicsInput.bufferedCollisionState = entity.GetBufferedCollisionState();
 
-                if (Mathf.Abs(physicsInput.bufferedCollisionState.direction.Vector.x) > 0)
+            // todo: cleanup; bug if player goes between thin wall section
+            if (Mathf.Abs(wallJumpDirection.Vector.x) < 1 ||
+                CoreDirection.IsOppositeHorizontal(wallJumpDirection, physicsInput.bufferedCollisionState.direction))
+            {
+                if (Mathf.Abs(physicsInput.bufferedCollisionState.direction.Vector.x) > 0 ||
+                    physicsInput.bufferedCollisionState.direction.IsSimultaneousHorizontal())
                 {
                     physicsInput.actions.Add(Action.WALL_JUMP);
                     physicsInput.controlInput = new InputSnapshot<PlayerInput>(input);

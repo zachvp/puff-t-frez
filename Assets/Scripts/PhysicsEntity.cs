@@ -150,7 +150,7 @@ public class PhysicsEntity : Entity
     public void HandleLateUpdate()
     {
         // Update current collision state.
-        collision.current.state.Update(CheckProximity(16, Direction2D.ALL));
+        collision.current.state.Update(CheckProximity(8, Direction2D.ALL));
 
         // Add to the collision buffer.
         // todo: should just update pre-existing states in the buffer so not allocating new instances every frame
