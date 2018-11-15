@@ -110,6 +110,27 @@ public class CoreDirection
         Update(Flags);
     }
 
+    // Public static
+    public static bool IsOppositeHorizontal(CoreDirection lhs, CoreDirection rhs)
+    {
+        return lhs.Vector.x + rhs.Vector.x == 0;
+    }
+
+    public static bool IsOppositeVertical(CoreDirection lhs, CoreDirection rhs)
+    {
+        return lhs.Vector.y + rhs.Vector.y == 0;
+    }
+
+    public static bool IsSameHorizontal(CoreDirection lhs, CoreDirection rhs)
+    {
+        return lhs.Vector.x == rhs.Vector.x;
+    }
+
+    public static bool IsSameVertical(CoreDirection lhs, CoreDirection rhs)
+    {
+        return lhs.Vector.y == rhs.Vector.y;
+    }
+
     // Overrides
     public override string ToString()
     {
@@ -118,6 +139,7 @@ public class CoreDirection
         return r;
     }
 
+    // Private
     private Vector2 Convert(Direction2D f)
     {
         var result = Vector2.zero;

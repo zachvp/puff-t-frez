@@ -140,6 +140,13 @@ public class InputSnapshot<T> where T : CoreInput, IFactoryInput<T>, new()
         released = new T();
     }
 
+    public InputSnapshot(InputSnapshot<T> other)
+    {
+        pressed = other.pressed.Clone();
+        held = other.held.Clone();
+        released = other.released.Clone();
+    }
+
     public InputSnapshot(T oldInput, T newInput)
     {
         held = newInput.Clone();

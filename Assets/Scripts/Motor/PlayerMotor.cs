@@ -24,6 +24,7 @@ public class PlayerMotor :
 	private State state;
 
     // Physical actions to perform in FixedUpdate
+    // todo: should be map of actions to PhysicsInput (rip actions outta there)
     PhysicsInput physicsInput;
 
 
@@ -191,6 +192,8 @@ public class PlayerMotor :
                 if (Mathf.Abs(physicsInput.bufferedCollisionState.direction.Vector.x) > 0)
                 {
                     physicsInput.actions.Add(Action.WALL_JUMP);
+                    physicsInput.controlInput = new InputSnapshot<PlayerInput>(input);
+
                     wallJumpDirection.Update(physicsInput.bufferedCollisionState.direction);
                     wallJumpDirection.ClearVertical();
                 }
@@ -235,6 +238,12 @@ public class PlayerMotor :
     {
         var velocityX = -physicsInput.bufferedCollisionState.direction.Vector.x * data.velocityWallJumpHorizontal;
 
+        if (CoreDirection.IsSameHorizontal(physicsInput.bufferedCollisionState.direction, physicsInput.controlInput.held.direction))
+        {
+            // Zero out x velocity if input is in same direction as the collision side. Meant to help climbing up.
+            velocityX = 0;
+        }
+
         entity.SetVelocity(velocityX, data.velocityWallJumpVertical);
     }
 
@@ -262,17 +271,13 @@ public class PlayerMotor :
     {
         public HashSet<Action> actions;
         public CollisionState2D bufferedCollisionState;
+        public InputSnapshot<PlayerInput> controlInput;
 
         public PhysicsInput()
         {
             actions = new HashSet<Action>();
             bufferedCollisionState = new CollisionState2D();
-        }
-
-        public PhysicsInput(CollisionState2D s)
-        {
-            actions = new HashSet<Action>();
-            bufferedCollisionState = s;
+            controlInput = new InputSnapshot<PlayerInput>();
         }
     }
 }
