@@ -24,7 +24,7 @@ public class PlayerMotor :
 	private State state;
 
     // Physical actions to perform in FixedUpdate
-    private HashSet<Action> actions;
+    PhysicsInput physicsInput;
 
 
     // todo: remove e param    
@@ -35,7 +35,7 @@ public class PlayerMotor :
 	{
 		input = new InputSnapshot<PlayerInput>();
         wallJumpDirection = new CoreDirection();
-        actions = new HashSet<Action>();
+        physicsInput = new PhysicsInput();
 
         data = ScriptableObject.CreateInstance<PlayerMotorData>();
 
@@ -65,12 +65,6 @@ public class PlayerMotor :
             HandleCrouch();
         }
 
-        if (!input.held.jump)
-        {
-            additiveJumpFrameCount = 0;
-            jumpCount = 0;
-        }
-
         // At this point, all the motor's velocity computations are complete,
         // so we can determine the motor's direction.
         ComputeMotorDirection();
@@ -79,10 +73,16 @@ public class PlayerMotor :
 	// When update is called, all input has been processed.
 	public void HandleFixedUpdate(float deltaTime)
     {
-        if (actions.Contains(Action.JUMP))
+        if (physicsInput.actions.Contains(Action.JUMP))
         {
             ApplyJump();
-            actions.Remove(Action.JUMP);
+            physicsInput.actions.Remove(Action.JUMP);
+        }
+
+        if (physicsInput.actions.Contains(Action.WALL_JUMP))
+        {
+            ApplyWallJump();
+            physicsInput.actions.Remove(Action.WALL_JUMP);
         }
     }
 
@@ -117,7 +117,7 @@ public class PlayerMotor :
         {
             if (jumpCount < data.jumpCountMax)
             {
-                actions.Add(Action.JUMP);
+                physicsInput.actions.Add(Action.JUMP);
                 jumpCount++;
             }
         }
@@ -155,6 +155,12 @@ public class PlayerMotor :
                 FlagsHelper.Set(ref state, State.CROUCH);
             }
         }
+
+        if (!input.held.jump)
+        {
+            additiveJumpFrameCount = 0;
+            jumpCount = 0;
+        }
     }
 
     private void HandleNotGrounded()
@@ -170,22 +176,22 @@ public class PlayerMotor :
         entity.SetVelocity(v);
 
         // Check for wall jump.
-        if (jumpCount > 0 && input.held.jump)
+        if (jumpCount > 0 && input.pressed.jump)
         {
             // Buffer collision state X frames
             // Check if .left is in buffer up to Y frames back
             // Wall jump direction check prevents motor from indefinitely climbing up the same wall.
             // Motor jump off the opposite wall for this to reset.
+            Debug.Log("jump conditions met");
+
             if (Mathf.Abs(wallJumpDirection.Vector.x) < 1)
             {
-                var bufferedCollision = entity.GetBufferedCollisionState();
+                physicsInput.bufferedCollisionState = entity.GetBufferedCollisionState();
 
-                if (Mathf.Abs(bufferedCollision.direction.Vector.x) > 0)
+                if (Mathf.Abs(physicsInput.bufferedCollisionState.direction.Vector.x) > 0)
                 {
-                    var velocityX = -bufferedCollision.direction.Vector.x * data.velocityWallJumpHorizontal;
-
-                    entity.SetVelocity(velocityX, data.velocityWallJumpVertical);
-                    wallJumpDirection.Update(bufferedCollision.direction);
+                    physicsInput.actions.Add(Action.WALL_JUMP);
+                    wallJumpDirection.Update(physicsInput.bufferedCollisionState.direction);
                     wallJumpDirection.ClearVertical();
                 }
             }
@@ -227,7 +233,9 @@ public class PlayerMotor :
 
     private void ApplyWallJump()
     {
+        var velocityX = -physicsInput.bufferedCollisionState.direction.Vector.x * data.velocityWallJumpHorizontal;
 
+        entity.SetVelocity(velocityX, data.velocityWallJumpVertical);
     }
 
     private void ComputeMotorDirection()
@@ -237,15 +245,34 @@ public class PlayerMotor :
     }
 
 	[Flags]
-	private enum State
+	enum State
 	{
 		NONE    = 1 << 0,
 		CROUCH  = 1 << 1,
 		JUMP    = 1 << 2
 	}
 
-    private enum Action
+    enum Action
     {
-        JUMP
+        JUMP,
+        WALL_JUMP
+    }
+
+    class PhysicsInput
+    {
+        public HashSet<Action> actions;
+        public CollisionState2D bufferedCollisionState;
+
+        public PhysicsInput()
+        {
+            actions = new HashSet<Action>();
+            bufferedCollisionState = new CollisionState2D();
+        }
+
+        public PhysicsInput(CollisionState2D s)
+        {
+            actions = new HashSet<Action>();
+            bufferedCollisionState = s;
+        }
     }
 }
