@@ -42,6 +42,25 @@ public class CoreDirection
         varFlags = Convert(v);
     }
 
+    public void Add(CoreDirection d)
+    {
+        Update(Flags |= d.Flags);
+    }
+
+    public void Add(Direction2D d)
+    {
+        Update(Flags |= d);
+    }
+
+    public void Subtract(Direction2D d)
+    {
+        var f = Flags;
+
+        FlagsHelper.Unset(ref f, d);
+
+        Update(f);
+    }
+
     public void Update(Direction2D d, bool isSet)
     {
         FlagsHelper.Set(ref varFlags, d, isSet);
@@ -63,12 +82,22 @@ public class CoreDirection
     {
         if (FlagsHelper.IsSet(Flags, Direction2D.HORIZONTAL, Logical.AND))
         {
-            Update(Direction2D.HORIZONTAL, false);
+            ClearHorizontal();
         }
         if (FlagsHelper.IsSet(Flags, Direction2D.VERTICAL, Logical.AND))
         {
-            Update(Direction2D.VERTICAL, false);
+            ClearVertical();
         }
+    }
+
+    public void ClearHorizontal()
+    {
+        Update(Direction2D.HORIZONTAL, false);
+    }
+
+    public void ClearVertical()
+    {
+        Update(Direction2D.VERTICAL, false);
     }
 
 	public bool IsEmpty()

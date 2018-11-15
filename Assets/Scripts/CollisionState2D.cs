@@ -2,25 +2,25 @@
 
 public class CollisionState2D
 {
-	public Direction2D direction;
+	public CoreDirection direction;
 	public bool Left
 	{
-		get { return FlagsHelper.IsSet(direction, Direction2D.LEFT); }
+		get { return FlagsHelper.IsSet(direction.Flags, Direction2D.LEFT); }
 		set { SetDirectionForBool(Direction2D.LEFT, value); }
 	}
 	public bool Right
 	{
-		get { return FlagsHelper.IsSet(direction, Direction2D.RIGHT); }
+		get { return FlagsHelper.IsSet(direction.Flags, Direction2D.RIGHT); }
 		set { SetDirectionForBool(Direction2D.RIGHT, value); }
 	}
 	public bool Above
 	{
-		get { return FlagsHelper.IsSet(direction, Direction2D.UP); }
+		get { return FlagsHelper.IsSet(direction.Flags, Direction2D.UP); }
 		set { SetDirectionForBool(Direction2D.UP, value); }
 	}
 	public bool Below
 	{
-		get { return FlagsHelper.IsSet(direction, Direction2D.DOWN); }
+		get { return FlagsHelper.IsSet(direction.Flags, Direction2D.DOWN); }
 		set { SetDirectionForBool(Direction2D.DOWN, value); }
 	}
 
@@ -28,7 +28,10 @@ public class CollisionState2D
     public bool movingDownSlope;
     public float slopeAngle;
 
-    public CollisionState2D() { }
+    public CollisionState2D()
+    {
+        direction = new CoreDirection();
+    }
 
     public CollisionState2D(CollisionState2D other)
     {
@@ -42,7 +45,7 @@ public class CollisionState2D
 
 	public bool HasCollision()
     {
-		return FlagsHelper.IsSet(direction, Direction2D.ALL);
+		return FlagsHelper.IsSet(direction.Flags, Direction2D.ALL);
     }
 
     public void Update(CollisionState2D s)
@@ -51,6 +54,14 @@ public class CollisionState2D
         becameGroundedThisFrame = s.becameGroundedThisFrame;
         movingDownSlope = s.movingDownSlope;
         slopeAngle = s.slopeAngle;
+    }
+
+    public void Add(CollisionState2D s)
+    {
+        direction.Add(s.direction);
+        becameGroundedThisFrame |= s.becameGroundedThisFrame;
+        movingDownSlope |= s.movingDownSlope;
+        slopeAngle += s.slopeAngle;
     }
 
     public void Update(Collision2D c)
@@ -66,7 +77,7 @@ public class CollisionState2D
 
     public void Reset()
     {
-		direction = Direction2D.NONE;
+        direction.Clear();
 		becameGroundedThisFrame = movingDownSlope = false;
         slopeAngle = 0f;
     }
@@ -74,10 +85,10 @@ public class CollisionState2D
 
     public override string ToString()
     {
-		var rightStr = FlagsHelper.IsSet(direction, Direction2D.RIGHT);
-		var leftStr = FlagsHelper.IsSet(direction, Direction2D.LEFT);
-		var upStr = FlagsHelper.IsSet(direction, Direction2D.UP);
-		var downStr = FlagsHelper.IsSet(direction, Direction2D.DOWN);
+		var rightStr = FlagsHelper.IsSet(direction.Flags, Direction2D.RIGHT);
+		var leftStr = FlagsHelper.IsSet(direction.Flags, Direction2D.LEFT);
+		var upStr = FlagsHelper.IsSet(direction.Flags, Direction2D.UP);
+		var downStr = FlagsHelper.IsSet(direction.Flags, Direction2D.DOWN);
 
         return string.Format("[CharacterCollisionState2D] r: {0}, l: {1}, a: {2}, b: {3}, movingDownSlope: {4}, angle: {5}, becameGroundedThisFrame: {6}",
 		                     rightStr, leftStr, upStr, downStr, movingDownSlope, slopeAngle, becameGroundedThisFrame);
@@ -87,11 +98,11 @@ public class CollisionState2D
 	{
 		if (value)
 		{
-			FlagsHelper.Set(ref direction, flag);
+            direction.Add(flag);
 		}
 		else
 		{
-			FlagsHelper.Unset(ref direction, flag);
+            direction.Subtract(flag);
 		}
 	}
 }

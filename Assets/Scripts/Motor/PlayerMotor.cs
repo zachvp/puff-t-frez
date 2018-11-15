@@ -164,6 +164,7 @@ public class PlayerMotor :
         // Motor is not grounded.
         // Air directional influence
         var v = entity.velocity;
+
         v.x += movement.x * data.accelerationHorizontalAir;
         v.x = Mathf.Clamp(v.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
         entity.SetVelocity(v);
@@ -175,17 +176,18 @@ public class PlayerMotor :
             // Check if .left is in buffer up to Y frames back
             // Wall jump direction check prevents motor from indefinitely climbing up the same wall.
             // Motor jump off the opposite wall for this to reset.
-            if (wallJumpDirection.Vector.x < 1 && entity.IsCollisionBuffered(Direction2D.LEFT))
+            if (Mathf.Abs(wallJumpDirection.Vector.x) < 1)
             {
-                //entity.SetVelocity(data.velocityWallJumpHorizontal, data.velocityWallJumpVertical);
+                var bufferedCollision = entity.GetBufferedCollisionState();
 
-                wallJumpDirection.Update(Direction2D.RIGHT);
-            }
-            if (wallJumpDirection.Vector.x > -1 && entity.IsCollisionBuffered(Direction2D.RIGHT))
-            {
-                //entity.SetVelocity(-data.velocityWallJumpHorizontal, data.velocityWallJumpVertical);
+                if (Mathf.Abs(bufferedCollision.direction.Vector.x) > 0)
+                {
+                    var velocityX = -bufferedCollision.direction.Vector.x * data.velocityWallJumpHorizontal;
 
-                wallJumpDirection.Update(Direction2D.LEFT);
+                    entity.SetVelocity(velocityX, data.velocityWallJumpVertical);
+                    wallJumpDirection.Update(bufferedCollision.direction);
+                    wallJumpDirection.ClearVertical();
+                }
             }
         }
 
@@ -221,6 +223,11 @@ public class PlayerMotor :
     private void ApplyJump()
     {
         entity.SetVelocity(entity.velocity.x, data.velocityJumpImpulse);
+    }
+
+    private void ApplyWallJump()
+    {
+
     }
 
     private void ComputeMotorDirection()

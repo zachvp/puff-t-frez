@@ -124,7 +124,24 @@ public class PhysicsEntity : Entity
 
         foreach (CollisionState2D collisionState in collisionBuffer)
         {
-            result |= FlagsHelper.IsSet(collisionState.direction, direction);
+            result |= FlagsHelper.IsSet(collisionState.direction.Flags, direction);
+
+            if (result)
+            {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    public CollisionState2D GetBufferedCollisionState()
+    {
+        var result = new CollisionState2D();
+
+        foreach (CollisionState2D collisionState in collisionBuffer)
+        {
+            result.Add(collisionState);
         }
 
         return result;
@@ -133,7 +150,7 @@ public class PhysicsEntity : Entity
     public void HandleLateUpdate()
     {
         // Update current collision state.
-        collision.current.state.Update(CheckProximity(8, Direction2D.ALL));
+        collision.current.state.Update(CheckProximity(16, Direction2D.ALL));
 
         // Add to the collision buffer.
         // todo: should just update pre-existing states in the buffer so not allocating new instances every frame

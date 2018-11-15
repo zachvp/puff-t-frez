@@ -106,7 +106,7 @@ public class CharacterController2D
 
         foreach (CollisionState2D collisionState in collisionBuffer)
         {
-			result |= FlagsHelper.IsSet(collisionState.direction, direction);
+			result |= FlagsHelper.IsSet(collisionState.direction.Flags, direction);
         }
 
         return result;
