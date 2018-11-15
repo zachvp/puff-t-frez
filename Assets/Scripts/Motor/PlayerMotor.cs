@@ -79,16 +79,11 @@ public class PlayerMotor :
 	// When update is called, all input has been processed.
 	public void HandleFixedUpdate(float deltaTime)
     {
-        var movement = input.held.direction.Vector;
-
         if (actions.Contains(Action.JUMP))
         {
             ApplyJump();
             actions.Remove(Action.JUMP);
         }
-
-        // Horizontal movement.
-        entity.SetVelocity(movement.x * data.velocityHorizontalGroundMax, entity.velocity.y);
     }
 
     // IPlayerInput functions
@@ -112,6 +107,8 @@ public class PlayerMotor :
 
     private void HandleGrounded()
 	{
+        var movement = input.held.direction.Vector;
+
 		FlagsHelper.Unset(ref state, State.JUMP);
         wallJumpDirection.Clear();
 
@@ -126,6 +123,9 @@ public class PlayerMotor :
                 jumpCount++;
             }
         }
+
+        // Horizontal movement.
+        entity.SetVelocity(movement.x * data.velocityHorizontalGroundMax, entity.velocity.y);
 
         if (!FlagsHelper.IsSet(state, State.CROUCH))
         {
