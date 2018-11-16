@@ -21,6 +21,7 @@ public class InputController<T, U>
     	FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
 	}
 
+    // todo: make not virtual
 	public virtual void HandleUpdate(long currentFrame, float deltaTime)
     {
 		// Get the data ready for the new frame
