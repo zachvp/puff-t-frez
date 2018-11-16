@@ -83,6 +83,7 @@ public class PlayerMotor :
         if (physicsInput.actions.Contains(Action.WALL_JUMP))
         {
             ApplyWallJump();
+            wallJumpDirection.Clear();
             physicsInput.actions.Remove(Action.WALL_JUMP);
         }
     }
@@ -191,8 +192,7 @@ public class PlayerMotor :
             if (Mathf.Abs(wallJumpDirection.Vector.x) < 1 ||
                 CoreDirection.IsOppositeHorizontal(wallJumpDirection, physicsInput.bufferedCollisionState.direction))
             {
-                if (Mathf.Abs(physicsInput.bufferedCollisionState.direction.Vector.x) > 0 ||
-                    physicsInput.bufferedCollisionState.direction.IsSimultaneousHorizontal())
+                if (Mathf.Abs(physicsInput.bufferedCollisionState.direction.Vector.x) > 0)
                 {
                     physicsInput.actions.Add(Action.WALL_JUMP);
                     physicsInput.controlInput = new InputSnapshot<PlayerInput>(input);
