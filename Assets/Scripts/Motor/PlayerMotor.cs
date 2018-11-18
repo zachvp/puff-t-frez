@@ -19,7 +19,7 @@ public class PlayerMotor :
     private int jumpCount;
 
     // The direction of the most recent wall jump.
-    private CoreDirection wallJumpDirection;
+    private CoreDirection wallJumpImpactDirection;
     
 	private State state;
 
@@ -35,7 +35,7 @@ public class PlayerMotor :
 		: base(pc, t)
 	{
 		input = new InputSnapshot<PlayerInput>();
-        wallJumpDirection = new CoreDirection();
+        wallJumpImpactDirection = new CoreDirection();
         physicsInput = new PhysicsInput();
 
         data = ScriptableObject.CreateInstance<PlayerMotorData>();
@@ -83,7 +83,6 @@ public class PlayerMotor :
         if (physicsInput.actions.Contains(Action.WALL_JUMP))
         {
             ApplyWallJump();
-            wallJumpDirection.Clear();
             physicsInput.actions.Remove(Action.WALL_JUMP);
         }
     }
@@ -112,7 +111,7 @@ public class PlayerMotor :
         var movement = input.held.direction.Vector;
 
 		FlagsHelper.Unset(ref state, State.JUMP);
-        wallJumpDirection.Clear();
+        wallJumpImpactDirection.Clear();
 
         // Jump
         if (input.pressed.jump)
@@ -188,17 +187,16 @@ public class PlayerMotor :
 
             physicsInput.bufferedCollisionState = entity.GetBufferedCollisionState();
 
-            // todo: cleanup; bug if player goes between thin wall section
-            if (Mathf.Abs(wallJumpDirection.Vector.x) < 1 ||
-                CoreDirection.IsOppositeHorizontal(wallJumpDirection, physicsInput.bufferedCollisionState.direction))
+            if (Mathf.Abs(wallJumpImpactDirection.Vector.x) < 1 ||
+                CoreDirection.IsOppositeHorizontal(wallJumpImpactDirection, physicsInput.bufferedCollisionState.direction))
             {
                 if (Mathf.Abs(physicsInput.bufferedCollisionState.direction.Vector.x) > 0)
                 {
                     physicsInput.actions.Add(Action.WALL_JUMP);
                     physicsInput.controlInput = new InputSnapshot<PlayerInput>(input);
 
-                    wallJumpDirection.Update(physicsInput.bufferedCollisionState.direction);
-                    wallJumpDirection.ClearVertical();
+                    wallJumpImpactDirection.Update(physicsInput.bufferedCollisionState.direction);
+                    wallJumpImpactDirection.ClearVertical();
                 }
             }
         }

@@ -6,18 +6,16 @@ public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeIn
 		: base(r, b)
 	{ }
 
-	public override void HandleUpdate(long currentFrame, float deltaTime)
-	{
-		base.HandleUpdate(currentFrame, deltaTime);
+    protected override void UpdateInput()
+    {
+        if (InputManager.Devices.Count > 0)
+        {
+            var device = InputManager.Devices[0];
 
-		if (InputManager.Devices.Count > 0)
-		{
-			var device = InputManager.Devices[0];
+            input.direction = new CoreDirection(device.LeftStick.Value);
+            input.launch = device.RightBumper.IsPressed;
 
-			input.direction = new CoreDirection(device.LeftStick.Value);
-			input.launch = device.RightBumper.IsPressed;
-
-			input.direction.CardinalizeVector();
-		}
-	}
+            input.direction.CardinalizeVector();
+        }
+    }
 }

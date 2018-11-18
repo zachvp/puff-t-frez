@@ -22,7 +22,7 @@ public class InputController<T, U>
 	}
 
     // todo: make not virtual
-	public virtual void HandleUpdate(long currentFrame, float deltaTime)
+	public void HandleUpdate(long currentFrame, float deltaTime)
     {
 		// Get the data ready for the new frame
 		oldInput = input.Clone();
@@ -40,9 +40,10 @@ public class InputController<T, U>
         responder.ApplyInput(snapshot);
     }
 
+    // todo: move to interface and have reference to that interface instead?
     protected virtual void UpdateInput()
     {
-
+        Debug.Assert(false, "Child class must implement this.");
     }
 
 	public virtual void HandleLateUpdate()

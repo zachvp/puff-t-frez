@@ -7,6 +7,8 @@ public class IdleLimbMotor : Motor<IdleLimbMotorData, Entity>
 	protected enum State { IDLE, INFLUENCED }
 	protected State state;
 
+    private Vector3 velocity;
+
 	public IdleLimbMotor(Entity e, Transform t)
 		: base(e, t)
 	{

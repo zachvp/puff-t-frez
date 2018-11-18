@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 public class LobMotor<T> :
     Motor<T, PhysicsEntity>, IInputLob
@@ -9,11 +10,15 @@ public class LobMotor<T> :
 
 	protected enum State { NONE, LAUNCHED, FREEZE }
 	protected State state;
-    
-	public LobMotor(PhysicsEntity e, Transform t)
+
+    private PhysicsInput physicsInput;
+
+    public LobMotor(PhysicsEntity e, Transform t)
 		: base(e, t)
 	{
-		additiveSpeed = 1;
+        physicsInput = new PhysicsInput();
+
+        additiveSpeed = 1;
 
         FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
@@ -23,7 +28,7 @@ public class LobMotor<T> :
 	{
         if (entity.collision.current.IsColliding(Constants.Layers.OBSTACLE))
         {
-            Freeze();
+            physicsInput.states.Add(State.FREEZE);
         }
 
         if (state == State.NONE)
@@ -32,26 +37,37 @@ public class LobMotor<T> :
 		}
 		else if (state == State.LAUNCHED)
 		{
-			// Determine if force should be applied 
+            physicsInput.states.Add(State.LAUNCHED);
+        }
+    }
+
+    public virtual void HandleFixedUpdate(float deltaTime)
+    {
+        if (physicsInput.states.Contains(State.LAUNCHED))
+        {
+            var velocity = Vector3.zero;
+
+            // Determine if force should be applied 
             if (forceFrameCount > 0)
             {
                 var multiplier = 1 - (forceFrameCount / data.forceFrameLength);
-				var speed = data.speed + additiveSpeed;
+                var speed = data.speed + additiveSpeed;
 
-				velocity = speed * data.multiplier * multiplier;
-                
+                velocity = speed * data.multiplier * multiplier;
+
                 // Set the velocity direction based on the input direction.
-				velocity.x *= direction.Vector.x;
+                velocity.x *= direction.Vector.x;
                 --forceFrameCount;
-			}
+            }
 
-            // Apply gravity
-			velocity.y -= data.gravity;
+            entity.SetVelocity(velocity);
+            physicsInput.states.Remove(State.LAUNCHED);
+        }
 
-            var newPosition = entity.Position + deltaTime * velocity;
-            
-            entity.SetPosition(newPosition);
-		}
+        if (physicsInput.states.Contains(State.FREEZE))
+        {
+            Freeze();
+        }
     }
     
     // Handlers end
@@ -72,10 +88,11 @@ public class LobMotor<T> :
 		additiveSpeed = Mathf.RoundToInt(Mathf.Abs(baseVelocity.x));
     }
         
-	public virtual void Freeze()
+	private void Freeze()
 	{
-		velocity = Vector3.zero;
+        entity.SetVelocity(Vector3.zero);
 		state = State.FREEZE;
+        physicsInput.states.Add(State.FREEZE);
     }
 
 	public virtual void Reset()
@@ -88,4 +105,16 @@ public class LobMotor<T> :
         entity.collision.Clear();
 	}
     // ILobMotor end
+
+    class PhysicsInput
+    {
+        public HashSet<State> states;
+        public InputSnapshot<HandGrenadeInput> controlInput;
+
+        public PhysicsInput()
+        {
+            states = new HashSet<State>();
+            controlInput = new InputSnapshot<HandGrenadeInput>();
+        }
+    }
 }

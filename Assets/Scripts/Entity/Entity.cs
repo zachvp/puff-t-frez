@@ -54,12 +54,13 @@ public class Entity : MonoBehaviour, ITransform, IBehavior
     }
     
 	// ITransform begin
-	public void SetPosition(Vector3 p)
+	public virtual void SetPosition(Vector3 p)
     {
 		oldTransform.position = transform.position;
         transform.position = p;
     }
 
+    // todo: make virtual
 	public void SetLocalScale(Vector3 s)
 	{
 		oldTransform.localScale = transform.localScale;

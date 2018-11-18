@@ -16,7 +16,6 @@ public interface IFactoryInput<T> where T : CoreInput
 public interface IInputLob
 {
 	void Lob(CoreDirection direction, Vector3 baseVelocity);
-    void Freeze();
     void Reset();
 }
 

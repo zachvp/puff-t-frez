@@ -7,8 +7,6 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
 
 	protected CoreDirection direction;
 
-    // todo: remove
-	protected Vector3 velocity;
 	protected T data;
 
 	private bool isSubscribedToUpdate;

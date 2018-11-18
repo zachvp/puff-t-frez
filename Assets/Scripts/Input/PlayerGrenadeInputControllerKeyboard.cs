@@ -8,13 +8,11 @@ public class PlayerGrenadeInputControllerKeyboard : InputController<HandGrenadeI
 		: base(r, b)
 	{ }
 
-	public override void HandleUpdate(long currentFrame, float deltaTime)
-	{
-		base.HandleUpdate(currentFrame, deltaTime);
+    protected override void UpdateInput()
+    {
+        input.direction.Update(Direction2D.RIGHT, Input.GetKey(KeyCode.D));
+        input.direction.Update(Direction2D.LEFT, Input.GetKey(KeyCode.A));
 
-		input.direction.Update(Direction2D.RIGHT, Input.GetKey(KeyCode.D));
-		input.direction.Update(Direction2D.LEFT, Input.GetKey(KeyCode.A));
-        
-		input.launch = Input.GetKey(KeyCode.E);
-	}
+        input.launch = Input.GetKey(KeyCode.E);
+    }
 }

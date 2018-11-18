@@ -64,6 +64,7 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
                                      Logical.OR),
 			                   "Invalid direction given: {0}", input.held.direction.Flags);
 
+
 			Lob(input.held.direction, addVelocity);
         }
 	}

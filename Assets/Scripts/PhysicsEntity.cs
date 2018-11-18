@@ -73,6 +73,11 @@ public class PhysicsEntity : Entity
         body.AddForce(v);
     }
 
+    public override void SetPosition(Vector3 p)
+    {
+        body.MovePosition(p);
+    }
+
     // todo: should return leftmost collider of four colliders
     public RaycastHit2D Check(CoreDirection direction, float distance)
     {
