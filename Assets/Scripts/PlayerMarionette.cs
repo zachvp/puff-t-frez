@@ -3,6 +3,7 @@
 // Responsible for
 //    Passing input to limbs
 //    Enabling/disabling limbs
+// todo: this should detect collisions between entities and call approp methods in entities based on that
 public class PlayerMarionette :
     ICoreInput<HandGrenadeInput>,
     ICoreInput<PlayerInput>

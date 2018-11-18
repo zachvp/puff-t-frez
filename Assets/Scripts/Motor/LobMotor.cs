@@ -8,8 +8,8 @@ public class LobMotor<T> :
 	private int forceFrameCount;
 	private int additiveSpeed; 
 
-	protected enum State { NONE, LAUNCHED, FREEZE }
-	protected State state;
+	protected enum Action { NONE, LAUNCH, FREEZE }
+	protected Action state;
 
     private PhysicsInput physicsInput;
 
@@ -26,24 +26,12 @@ public class LobMotor<T> :
     // Handlers begin
 	public virtual void HandleUpdate(long currentFrame, float deltaTime)
 	{
-        if (entity.collision.current.IsColliding(Constants.Layers.OBSTACLE))
-        {
-            physicsInput.states.Add(State.FREEZE);
-        }
 
-        if (state == State.NONE)
-		{
-			entity.SetPosition(root.position);
-		}
-		else if (state == State.LAUNCHED)
-		{
-            physicsInput.states.Add(State.LAUNCHED);
-        }
     }
 
     public virtual void HandleFixedUpdate(float deltaTime)
     {
-        if (physicsInput.states.Contains(State.LAUNCHED))
+        if (physicsInput.actions.Contains(Action.LAUNCH))
         {
             //var velocity = (data.speed + additiveSpeed) * data.multiplier;
             var velocity = direction.Vector * data.speed;
@@ -52,10 +40,10 @@ public class LobMotor<T> :
             velocity.x *= direction.Vector.x;
 
             entity.SetVelocity(velocity);
-            physicsInput.states.Remove(State.LAUNCHED);
+            physicsInput.actions.Remove(Action.LAUNCH);
         }
 
-        if (physicsInput.states.Contains(State.FREEZE))
+        if (physicsInput.actions.Contains(Action.FREEZE))
         {
             Freeze();
         }
@@ -69,7 +57,7 @@ public class LobMotor<T> :
 		Debug.AssertFormat(!lobDirection.IsEmpty(), "illegal direction passed");
 
 		forceFrameCount = data.forceFrameLength;
-		state = State.LAUNCHED;
+		state = Action.LAUNCH;
 
 		entity.SetActive(true);
 		direction.Update(lobDirection);
@@ -82,15 +70,15 @@ public class LobMotor<T> :
 	private void Freeze()
 	{
         entity.SetVelocity(Vector3.zero);
-		state = State.FREEZE;
-        physicsInput.states.Add(State.FREEZE);
+		state = Action.FREEZE;
+        physicsInput.actions.Add(Action.FREEZE);
     }
 
 	public virtual void Reset()
 	{
 		forceFrameCount = data.forceFrameLength;
 
-		state = State.NONE;
+		state = Action.NONE;
 		entity.SetActive(false);
 		entity.SetPosition(root.position);
         entity.collision.Clear();
@@ -99,12 +87,12 @@ public class LobMotor<T> :
 
     class PhysicsInput
     {
-        public HashSet<State> states;
+        public HashSet<Action> actions;
         public InputSnapshot<HandGrenadeInput> controlInput;
 
         public PhysicsInput()
         {
-            states = new HashSet<State>();
+            actions = new HashSet<Action>();
             controlInput = new InputSnapshot<HandGrenadeInput>();
         }
     }

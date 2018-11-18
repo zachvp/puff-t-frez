@@ -9,6 +9,7 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
     // Tracks the number of times the motor has touched the player.
 	private int playerTouchCount;
     
+    // todo: this should probably be a grabbable component
 	public PlayerGrenadeMotor(PhysicsEntity entityInstance, Transform rootInstance)
 		: base(entityInstance, rootInstance)
 	{
@@ -22,7 +23,7 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 		if (entity.collision.current.IsColliding(Constants.Layers.OBSTACLE) &&
             entity.collision.current.IsColliding(Affinity.PLAYER))
         {
-            if (state == State.FREEZE)
+            if (state == Action.FREEZE)
             {
                 EventHandler c = delegate
                 {
@@ -33,7 +34,7 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
             }
         }
 
-		if (state == State.LAUNCHED &&
+		if (state == Action.LAUNCH &&
 		    !entity.collision.previous.IsColliding(Affinity.PLAYER) &&
 		    entity.collision.current.IsColliding(Affinity.PLAYER))
         {
@@ -78,6 +79,6 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 
 	private bool IsGrenadeInputAvailable()
     {
-		return state == State.NONE && playerTouchCount == 0;
+		return state == Action.NONE && playerTouchCount == 0;
     }
 }
