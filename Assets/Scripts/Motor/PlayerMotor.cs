@@ -40,7 +40,6 @@ public class PlayerMotor :
 
         data = ScriptableObject.CreateInstance<PlayerMotorData>();
 
-		// TOOD: Move magic to data class
 		motorDirection = data.initialDirection;
 
         FrameCounter.Instance.OnUpdate += HandleUpdate;
@@ -250,8 +249,29 @@ public class PlayerMotor :
 
     private void ComputeMotorDirection()
     {
-        // todo: restore impl from master branch
-		motorDirection.Update(entity.velocity);
+        var result = motorDirection.Vector;
+
+        // Set the motor direction based on the velocty.
+        // Motor direction should be 1 for positive velocity and -1 for
+        // negative velocity.
+        // Check for nonzero velocity
+        if (Mathf.Abs(entity.velocity.x) > 1)
+        {
+            result.x = entity.velocity.x > 0 ? 1 : -1;
+        }
+        if (Mathf.Abs(entity.velocity.y) > 1)
+        {
+            result.y = entity.velocity.y > 0 ? 1 : -1;
+        }
+
+        motorDirection.Update(result);
+
+        Debug.AssertFormat((int)Mathf.Abs(result.x) == 1 ||
+                           (int)Mathf.Abs(result.x) == 0,
+                           "Motor X direction should always have a magnitude of one.");
+        Debug.AssertFormat((int)Mathf.Abs(result.y) == 1 ||
+                           (int)Mathf.Abs(result.y) == 0,
+                           "Motor Y direction should always have a magnitude of one.");
     }
 
 	[Flags]

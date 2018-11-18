@@ -45,20 +45,11 @@ public class LobMotor<T> :
     {
         if (physicsInput.states.Contains(State.LAUNCHED))
         {
-            var velocity = Vector3.zero;
+            //var velocity = (data.speed + additiveSpeed) * data.multiplier;
+            var velocity = direction.Vector * data.speed;
 
-            // Determine if force should be applied 
-            if (forceFrameCount > 0)
-            {
-                var multiplier = 1 - (forceFrameCount / data.forceFrameLength);
-                var speed = data.speed + additiveSpeed;
-
-                velocity = speed * data.multiplier * multiplier;
-
-                // Set the velocity direction based on the input direction.
-                velocity.x *= direction.Vector.x;
-                --forceFrameCount;
-            }
+            // Set the velocity direction based on the input direction.
+            velocity.x *= direction.Vector.x;
 
             entity.SetVelocity(velocity);
             physicsInput.states.Remove(State.LAUNCHED);
