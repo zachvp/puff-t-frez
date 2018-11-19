@@ -8,6 +8,7 @@ public class PlayerGrenadeMotor : Motor<PlayerGrenadeMotorData, PhysicsEntity>
 
     }
 
+    // Public methods
     public void Launch()
     {
 
@@ -18,6 +19,14 @@ public class PlayerGrenadeMotor : Motor<PlayerGrenadeMotorData, PhysicsEntity>
         if (input.pressed.launch)
         {
             Debug.Log("pressed launch");
+
         }
     }
+
+    // Handlers
+    public void HandleUpdate(long frame, float deltaTime)
+    {
+        ComputeDirection(entity.velocity);
+    }
+
 }

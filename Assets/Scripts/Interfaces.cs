@@ -33,10 +33,3 @@ public interface IBehavior
 	void SetActive(bool isActive);
 	bool IsActive();
 }
-
-public interface IMotor
-{
-	// TODO: Can maybe get rid of these had have them as Motor read only properties.
-    Vector3 GetVelocity();
-	CoreDirection GetDirection();
-}

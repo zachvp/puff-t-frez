@@ -49,7 +49,7 @@ public class PlayerMarionette :
 		skeleton.body.ApplyInput(input);
 
 		// TODO: Move this to foot motor and handle with states.
-		var bodyVelocity = skeleton.body.GetVelocity();
+		var bodyVelocity = skeleton.body.entity.velocity;
 		var amplitude = 32;
 		var interval = 0.12f;
 
@@ -104,7 +104,6 @@ public class PlayerMarionette :
 		if (input.pressed.launch && !skeleton.IsActive(Limb.GRENADE))
 		{
             skeleton.grenade.ApplyInput(input);
-
             skeleton.grenade.entity.SetPosition(skeleton.hand.entity.Position);
 
             skeleton.SetActive(Limb.GRENADE, true);
@@ -113,18 +112,12 @@ public class PlayerMarionette :
 	}
 
     // Handlers
-	public void HandleLimbAttached(Limb skeleton, Limb attachedLimb)
+	public void HandleLimbAttached(Limb skeletonLimbs, Limb attachedLimb)
     {
-		if (FlagsHelper.IsSet(skeleton, Limb.HAND | Limb.BODY, Logical.AND))
+		if (FlagsHelper.IsSet(skeletonLimbs, Limb.HAND | Limb.BODY, Logical.AND))
 		{
-			Reset();
-		}
-    }
-
-    // Private
-	private void Reset()
-    {
-		skeleton.hand.entity.SetPosition(skeleton.body.entity.Position);
-		skeleton.SetActive(Limb.HAND, true);
+            skeleton.hand.entity.SetPosition(skeleton.body.entity.Position);
+            skeleton.SetActive(Limb.HAND, true);
+        }
     }
 }

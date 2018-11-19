@@ -27,6 +27,10 @@ public class PhysicsEntity : Entity
 
     private LinkedList<CollisionState2D> collisionBuffer;
 
+    // Velocities to sync on next FixedUpdate()
+    private Vector2 syncVelocity;
+    private bool isDirtySyncVelocity;
+
     // Monobehaviour methods
     public override void Awake()
     {
@@ -38,6 +42,7 @@ public class PhysicsEntity : Entity
 
         body = GetComponent<Rigidbody2D>();
 
+        FrameCounter.Instance.OnFixedUpdate += HandleFixedUpdate;
         FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
 
         OnActivationChange += HandleActivationChange;
@@ -46,7 +51,7 @@ public class PhysicsEntity : Entity
     // public methods
     public void AddVelocity(Vector2 v)
     {
-        velocity += v;
+        SetVelocity(velocity + v);
     }
 
     public void AddVelocity(float x, float y)
@@ -58,7 +63,13 @@ public class PhysicsEntity : Entity
 
     public void SetVelocity(Vector2 v)
     {
-        velocity = v;
+        var difference = Vector3.SqrMagnitude(v - velocity);
+
+        if (difference > 0)
+        {
+            syncVelocity = v;
+            isDirtySyncVelocity = true;
+        }
     }
 
     public void SetVelocity(float x, float y)
@@ -154,6 +165,15 @@ public class PhysicsEntity : Entity
         }
 
         return result;
+    }
+
+    public void HandleFixedUpdate(float deltaTime)
+    {
+        if (isDirtySyncVelocity)
+        {
+            velocity = syncVelocity;
+            isDirtySyncVelocity = false;
+        }
     }
 
     public void HandleLateUpdate()

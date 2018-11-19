@@ -4,13 +4,10 @@ using System.Collections.Generic;
 
 public class PlayerMotor :
     Motor<PlayerMotorData, PlayerCharacterEntity>,
-    ICoreInput<PlayerInput>, IMotor
+    ICoreInput<PlayerInput>
 {
     // The direction of input.
 	private InputSnapshot<PlayerInput> input;
-
-    // The direction the motor is facing.
-	private CoreDirection motorDirection;
 
     // The amount of frames the motor has been jumping.
     private int additiveJumpFrameCount;
@@ -23,11 +20,6 @@ public class PlayerMotor :
     
 	private State state;
 
-    // Physical actions to perform in FixedUpdate
-    // todo: should be map of actions to PhysicsInput (rip actions outta there)
-    PhysicsInput physicsInput;
-
-
     // todo: remove e param    
     public PlayerMotor(PlayerCharacterEntity pc,
 	                   Transform t,
@@ -36,14 +28,12 @@ public class PlayerMotor :
 	{
 		input = new InputSnapshot<PlayerInput>();
         wallJumpImpactDirection = new CoreDirection();
-        physicsInput = new PhysicsInput();
 
         data = ScriptableObject.CreateInstance<PlayerMotorData>();
 
-		motorDirection = data.initialDirection;
+		direction = data.initialDirection;
 
         FrameCounter.Instance.OnUpdate += HandleUpdate;
-        FrameCounter.Instance.OnFixedUpdate += HandleFixedUpdate;
     }
 
 
@@ -69,23 +59,7 @@ public class PlayerMotor :
 
         // At this point, all the motor's velocity computations are complete,
         // so we can determine the motor's direction.
-        ComputeMotorDirection();
-    }
-
-	// When update is called, all input has been processed.
-	public void HandleFixedUpdate(float deltaTime)
-    {
-        if (physicsInput.actions.Contains(Action.JUMP))
-        {
-            ApplyJump();
-            physicsInput.actions.Remove(Action.JUMP);
-        }
-
-        if (physicsInput.actions.Contains(Action.WALL_JUMP))
-        {
-            ApplyWallJump();
-            physicsInput.actions.Remove(Action.WALL_JUMP);
-        }
+        ComputeDirection(entity.velocity);
     }
 
     // IPlayerInput functions
@@ -101,12 +75,6 @@ public class PlayerMotor :
         return entity.velocity;
     }
 
-	// TODO: Make this a public Property like Position, etc in Motor super class
-	public CoreDirection GetDirection()
-	{
-        return motorDirection;
-    }
-
     private void HandleGrounded()
 	{
         var movement = input.held.direction.Vector;
@@ -119,7 +87,7 @@ public class PlayerMotor :
         {
             if (jumpCount < data.jumpCountMax)
             {
-                physicsInput.actions.Add(Action.JUMP);
+                ApplyJump();
                 jumpCount++;
             }
         }
@@ -187,18 +155,16 @@ public class PlayerMotor :
             // Motor jump off the opposite wall for this to reset.
             Debug.Log("jump conditions met");
 
-            physicsInput.bufferedCollisionState = entity.GetBufferedCollisionState();
+            var bufferedCollision = entity.GetBufferedCollisionState();
 
             if (Mathf.Abs(wallJumpImpactDirection.Vector.x) < 1 ||
-                CoreDirection.IsOppositeHorizontal(wallJumpImpactDirection, physicsInput.bufferedCollisionState.direction))
+                CoreDirection.IsOppositeHorizontal(wallJumpImpactDirection, bufferedCollision.direction))
             {
-                if (Mathf.Abs(physicsInput.bufferedCollisionState.direction.Vector.x) > 0)
+                if (Mathf.Abs(bufferedCollision.direction.Vector.x) > 0)
                 {
-                    physicsInput.actions.Add(Action.WALL_JUMP);
-                    physicsInput.controlInput = new InputSnapshot<PlayerInput>(input);
-
-                    wallJumpImpactDirection.Update(physicsInput.bufferedCollisionState.direction);
+                    wallJumpImpactDirection.Update(bufferedCollision.direction);
                     wallJumpImpactDirection.ClearVertical();
+                    ApplyWallJump(bufferedCollision, input.held.direction);
                 }
             }
         }
@@ -236,44 +202,17 @@ public class PlayerMotor :
         entity.SetVelocity(entity.velocity.x, data.velocityJumpImpulse);
     }
 
-    private void ApplyWallJump()
+    private void ApplyWallJump(CollisionState2D c, CoreDirection d)
     {
-        var velocityX = -physicsInput.bufferedCollisionState.direction.Vector.x * data.velocityWallJumpHorizontal;
+        var velocityX = -c.direction.Vector.x * data.velocityWallJumpHorizontal;
 
-        if (CoreDirection.IsSameHorizontal(physicsInput.bufferedCollisionState.direction, physicsInput.controlInput.held.direction))
+        if (CoreDirection.IsSameHorizontal(c.direction, d))
         {
             // Zero out x velocity if input is in same direction as the collision side. Meant to help climbing up.
             velocityX = 0;
         }
 
         entity.SetVelocity(velocityX, data.velocityWallJumpVertical);
-    }
-
-    private void ComputeMotorDirection()
-    {
-        var result = motorDirection.Vector;
-
-        // Set the motor direction based on the velocty.
-        // Motor direction should be 1 for positive velocity and -1 for
-        // negative velocity.
-        // Check for nonzero velocity
-        if (Mathf.Abs(entity.velocity.x) > 1)
-        {
-            result.x = entity.velocity.x > 0 ? 1 : -1;
-        }
-        if (Mathf.Abs(entity.velocity.y) > 1)
-        {
-            result.y = entity.velocity.y > 0 ? 1 : -1;
-        }
-
-        motorDirection.Update(result);
-
-        Debug.AssertFormat((int)Mathf.Abs(result.x) == 1 ||
-                           (int)Mathf.Abs(result.x) == 0,
-                           "Motor X direction should always have a magnitude of one.");
-        Debug.AssertFormat((int)Mathf.Abs(result.y) == 1 ||
-                           (int)Mathf.Abs(result.y) == 0,
-                           "Motor Y direction should always have a magnitude of one.");
     }
 
 	[Flags]
@@ -283,25 +222,4 @@ public class PlayerMotor :
 		CROUCH  = 1 << 1,
 		JUMP    = 1 << 2
 	}
-
-    enum Action
-    {
-        JUMP,
-        WALL_JUMP
-    }
-
-    // todo: probly uneccessary - can post velocity events to PhysicsEntity queue after doing whatever logic to compute final velocity for an action
-    class PhysicsInput
-    {
-        public HashSet<Action> actions;
-        public CollisionState2D bufferedCollisionState;
-        public InputSnapshot<PlayerInput> controlInput;
-
-        public PhysicsInput()
-        {
-            actions = new HashSet<Action>();
-            bufferedCollisionState = new CollisionState2D();
-            controlInput = new InputSnapshot<PlayerInput>();
-        }
-    }
 }
