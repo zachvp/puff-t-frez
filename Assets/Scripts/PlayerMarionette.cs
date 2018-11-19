@@ -109,17 +109,15 @@ public class PlayerMarionette :
 
 			input.held.data = bodyData;
 
-			skeleton.grenade.ApplyInput(input);
+            skeleton.grenade.ApplyInput(input);
 
-			skeleton.SetActive(Limb.GRENADE, true);
+            skeleton.SetActive(Limb.GRENADE, true);
 			skeleton.SetActive(Limb.HAND, false);
-			skeleton.grenade.entity.SetPosition(skeleton.hand.entity.Position);
 		}
 	}
     
-	public void HandleGrenadePickup(CollisionContext context)
+	public void HandleGrenadePickup(PhysicsContext context)
 	{
-		skeleton.hand.entity.SetPosition(skeleton.grenade.entity.Position);
 		skeleton.grenade.Reset();
 
 		skeleton.SetActive(Limb.HAND, true);

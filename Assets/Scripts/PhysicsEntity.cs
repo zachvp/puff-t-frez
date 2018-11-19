@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 public class PhysicsEntity : Entity
 {
-    public CollisionContextSnapshot collision { get; private set; }
+    public PhysicsContextSnapshot<CollisionContext> collision { get; private set; }
+    public PhysicsContextSnapshot<PhysicsContext> trigger { get; private set; }
 
     public int Layer
     {
@@ -31,7 +32,8 @@ public class PhysicsEntity : Entity
     {
         base.Awake();
 
-        collision = new CollisionContextSnapshot();
+        collision = new PhysicsContextSnapshot<CollisionContext>();
+        trigger = new PhysicsContextSnapshot<PhysicsContext>();
         collisionBuffer = new LinkedList<CollisionState2D>();
 
         body = GetComponent<Rigidbody2D>();
@@ -75,7 +77,7 @@ public class PhysicsEntity : Entity
 
     public override void SetPosition(Vector3 p)
     {
-        body.MovePosition(p);
+        body.position = p;
     }
 
     // todo: should return leftmost collider of four colliders
@@ -182,12 +184,12 @@ public class PhysicsEntity : Entity
     // Collider events
     public void OnTriggerEnter2D(Collider2D c)
     {
-        collision.current.Add(c);
+        trigger.current.Add(c);
     }
 
     public void OnTriggerExit2D(Collider2D c)
     {
-        collision.current.Remove(c);
+        trigger.current.Remove(c);
     }
 
     public void OnCollisionEnter2D(Collision2D c)

@@ -2,7 +2,7 @@
 
 public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 {
-	public EventHandler<CollisionContext> OnGrab;
+	public EventHandler<PhysicsContext> OnGrab;
 
 	private CallbackManager manager;
 
@@ -14,29 +14,28 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 		: base(entityInstance, rootInstance)
 	{
 		manager = new CallbackManager();
+
+        //FrameCounter.Instance.OnUpdate += HandleUpdate;
 	}
 
-	public override void HandleUpdate(long currentFrame, float deltaTime)
+	public void HandleUpdate(long currentFrame, float deltaTime)
 	{
-		base.HandleUpdate(currentFrame, deltaTime);
-
 		if (entity.collision.current.IsColliding(Constants.Layers.OBSTACLE) &&
-            entity.collision.current.IsColliding(Affinity.PLAYER))
+            entity.trigger.current.IsColliding(Affinity.PLAYER))
         {
-            if (state == Action.FREEZE)
-            {
-                EventHandler c = delegate
-                {
-					Grab(entity.collision.current);
-                };
+            Debug.LogFormat("should pick up");
 
-                manager.PostIdempotentCallback(2, new Callback(c));
-            }
+            EventHandler c = delegate
+            {
+				Grab(entity.collision.current);
+            };
+
+            manager.PostIdempotentCallback(2, new Callback(c));
         }
 
 		if (state == Action.LAUNCH &&
-		    !entity.collision.previous.IsColliding(Affinity.PLAYER) &&
-		    entity.collision.current.IsColliding(Affinity.PLAYER))
+		    !entity.trigger.previous.IsColliding(Affinity.PLAYER) &&
+		    entity.trigger.current.IsColliding(Affinity.PLAYER))
         {
 			playerTouchCount++;
 
@@ -71,7 +70,7 @@ public class PlayerGrenadeMotor : LobMotor<PlayerGrenadeMotorData>
 	}
 
 	// Private
-	private void Grab(CollisionContext context)
+	private void Grab(PhysicsContext context)
 	{
 		playerTouchCount = 0;
 		Events.Raise(OnGrab, context);

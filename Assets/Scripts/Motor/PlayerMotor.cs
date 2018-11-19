@@ -46,6 +46,8 @@ public class PlayerMotor :
         FrameCounter.Instance.OnFixedUpdate += HandleFixedUpdate;
     }
 
+
+    // todo: move this to handleInput
     public void HandleUpdate(long count, float deltaTime)
     {
         // Compute state from input
@@ -125,6 +127,7 @@ public class PlayerMotor :
         // Horizontal movement.
         entity.SetVelocity(movement.x * data.velocityHorizontalGroundMax, entity.velocity.y);
 
+        // todo: may want to have dedicated crouch collider
         if (!FlagsHelper.IsSet(state, State.CROUCH))
         {
             if (input.held.crouch)
@@ -227,8 +230,7 @@ public class PlayerMotor :
         }
 	}
 
-    // Additive jump. The longer the jump input, the higher the jump, for a
-    // certain amount of frames.
+    // Static jump.
     private void ApplyJump()
     {
         entity.SetVelocity(entity.velocity.x, data.velocityJumpImpulse);
@@ -288,6 +290,7 @@ public class PlayerMotor :
         WALL_JUMP
     }
 
+    // todo: probly uneccessary - can post velocity events to PhysicsEntity queue after doing whatever logic to compute final velocity for an action
     class PhysicsInput
     {
         public HashSet<Action> actions;

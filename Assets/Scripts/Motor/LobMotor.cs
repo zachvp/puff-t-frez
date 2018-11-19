@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 
 public class LobMotor<T> :
-    Motor<T, PhysicsEntity>, IInputLob
+    Motor<T, PhysicsEntity>
 	where T : LobMotorData
 {
-	private int forceFrameCount;
-	private int additiveSpeed; 
-
-	protected enum Action { NONE, LAUNCH, FREEZE }
+	protected enum Action { NONE, LAUNCH }
 	protected Action state;
 
     private PhysicsInput physicsInput;
@@ -18,72 +15,46 @@ public class LobMotor<T> :
 	{
         physicsInput = new PhysicsInput();
 
-        additiveSpeed = 1;
-
-        FrameCounter.Instance.OnUpdate += HandleUpdate;
+        FrameCounter.Instance.OnFixedUpdate += HandleFixedUpdate;
 	}
-
-    // Handlers begin
-	public virtual void HandleUpdate(long currentFrame, float deltaTime)
-	{
-
-    }
 
     public virtual void HandleFixedUpdate(float deltaTime)
     {
         if (physicsInput.actions.Contains(Action.LAUNCH))
         {
             //var velocity = (data.speed + additiveSpeed) * data.multiplier;
-            var velocity = direction.Vector * data.speed;
+            var velocity = Vector3.zero;
 
-            // Set the velocity direction based on the input direction.
-            velocity.x *= direction.Vector.x;
+            velocity.x = 400;
+            velocity.y = 200;
 
+            entity.SetPosition(root.position);
             entity.SetVelocity(velocity);
-            physicsInput.actions.Remove(Action.LAUNCH);
-        }
 
-        if (physicsInput.actions.Contains(Action.FREEZE))
-        {
-            Freeze();
+            physicsInput.actions.Remove(Action.LAUNCH);
         }
     }
     
     // Handlers end
 
-    // ILobmotor begin
 	public void Lob(CoreDirection lobDirection, Vector3 baseVelocity)
 	{
 		Debug.AssertFormat(!lobDirection.IsEmpty(), "illegal direction passed");
 
-		forceFrameCount = data.forceFrameLength;
-		state = Action.LAUNCH;
-
-		entity.SetActive(true);
-		direction.Update(lobDirection);
-        
-        // To handle cases when the motor is lobbed from an object in motion,
-        // we add the given velocity to our force frames.
-		additiveSpeed = Mathf.RoundToInt(Mathf.Abs(baseVelocity.x));
-    }
-        
-	private void Freeze()
-	{
-        entity.SetVelocity(Vector3.zero);
-		state = Action.FREEZE;
-        physicsInput.actions.Add(Action.FREEZE);
+        state = Action.LAUNCH;
+        physicsInput.actions.Add(Action.LAUNCH);
+        direction.Update(lobDirection);
     }
 
-	public virtual void Reset()
+	public void Reset()
 	{
-		forceFrameCount = data.forceFrameLength;
-
 		state = Action.NONE;
-		entity.SetActive(false);
-		entity.SetPosition(root.position);
+        entity.SetVelocity(Vector3.zero);
+        entity.SetPosition(root.position);
+
+        // todo: don't think this should be necessary
         entity.collision.Clear();
 	}
-    // ILobMotor end
 
     class PhysicsInput
     {

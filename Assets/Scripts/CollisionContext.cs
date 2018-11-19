@@ -2,34 +2,63 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class CollisionContext
+public class CollisionContext : PhysicsContext
 {
-	public int Count { get { return affinities.Count; } }
+    public CollisionState2D state { get; private set; }
 
+    public CollisionContext()
+        : base()
+    {
+        state = new CollisionState2D();
+    }
+
+    public CollisionContext(CollisionContext other)
+        : base(other)
+    {
+        state = new CollisionState2D(other.state);
+    }
+
+    public override void Clear()
+    {
+        base.Clear();
+
+        state.Reset();
+    }
+
+    public void Update(CollisionContext c)
+    {
+        base.Update(c);
+
+        Update(c.state);
+    }
+
+    public void Update(CollisionState2D s)
+    {
+        state.Update(s);
+    }
+}
+
+public class PhysicsContext
+{
 	private HashSet<Entity> entities;
 	private List<Affinity> affinities;
     private HashSet<LayerMask> layers;
 	private HashSet<Collider2D> colliders;
 
-    public CollisionState2D state { get; private set; }
-
-    public CollisionContext()
+    public PhysicsContext()
     {
         entities = new HashSet<Entity>();
         affinities = new List<Affinity>();
         layers = new HashSet<LayerMask>();
 		colliders = new HashSet<Collider2D>();
-
-        state = new CollisionState2D();
     }
 
-	public CollisionContext(CollisionContext other)
+	public PhysicsContext(PhysicsContext other)
 	{
 		entities = new HashSet<Entity>(other.entities);
 		affinities = new List<Affinity>(other.affinities);
 		layers = new HashSet<LayerMask>(other.layers);
 		colliders = new HashSet<Collider2D>(other.colliders);
-        state = new CollisionState2D(other.state);
 	}
 
 	public void Add(Collision2D c)
@@ -83,13 +112,12 @@ public class CollisionContext
 		Remove(c.collider);
 	}
 
-    public void Clear()
+    public virtual void Clear()
     {
         affinities.Clear();
         entities.Clear();
         layers.Clear();
         colliders.Clear();
-        state.Reset();
     }
 
     public bool IsColliding(Affinity a)
@@ -112,9 +140,8 @@ public class CollisionContext
 		return affinities.Count(element => element == a);
 	}
 
-    public void Update(CollisionContext c)
+    public virtual void Update(PhysicsContext c)
     {
-        Update(c.state);
         Update(c.entities);
         Update(c.affinities);
         Update(c.layers);
@@ -159,11 +186,6 @@ public class CollisionContext
         {
             Add(c);
         }
-    }
-
-    public void Update(CollisionState2D s)
-    {
-        state.Update(s);
     }
 
     public override string ToString()
@@ -212,15 +234,16 @@ public class CollisionContext
     }
 }
 
-public class CollisionContextSnapshot
+// todo: should be templated PhysicsContextSnapshot
+public class PhysicsContextSnapshot<T> where T : PhysicsContext, new()
 {
-	public CollisionContext previous { get; private set; }
-	public CollisionContext current  { get; private set; }
+	public T previous { get; private set; }
+	public T current  { get; private set; }
 
-	public CollisionContextSnapshot()
+	public PhysicsContextSnapshot()
 	{
-		previous = new CollisionContext();
-		current = new CollisionContext();
+		previous = new T();
+		current = new T();
 	}
 
     public void Store()
