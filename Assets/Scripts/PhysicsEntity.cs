@@ -173,6 +173,7 @@ public class PhysicsEntity : Entity
         {
             velocity = syncVelocity;
             isDirtySyncVelocity = false;
+            syncVelocity = Vector2.zero;
         }
     }
 

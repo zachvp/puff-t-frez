@@ -19,7 +19,10 @@ public class PlayerGrenadeMotor : Motor<PlayerGrenadeMotorData, PhysicsEntity>
         if (input.pressed.launch)
         {
             Debug.Log("pressed launch");
+            var d = new Vector2(1, 0.8f);
+            var v = d * data.speed;
 
+            entity.SetVelocity(v);
         }
     }
 

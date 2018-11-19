@@ -78,22 +78,13 @@ public class PlayerMotor :
     private void HandleGrounded()
 	{
         var movement = input.held.direction.Vector;
+        var resolvedVelocity = entity.velocity;
 
 		FlagsHelper.Unset(ref state, State.JUMP);
         wallJumpImpactDirection.Clear();
 
-        // Jump
-        if (input.pressed.jump)
-        {
-            if (jumpCount < data.jumpCountMax)
-            {
-                ApplyJump();
-                jumpCount++;
-            }
-        }
-
         // Horizontal movement.
-        entity.SetVelocity(movement.x * data.velocityHorizontalGroundMax, entity.velocity.y);
+        resolvedVelocity.x = movement.x * data.velocityHorizontalGroundMax;
 
         // todo: may want to have dedicated crouch collider
         if (!FlagsHelper.IsSet(state, State.CROUCH))
@@ -132,19 +123,28 @@ public class PlayerMotor :
             additiveJumpFrameCount = 0;
             jumpCount = 0;
         }
+
+        // Jump
+        if (input.pressed.jump)
+        {
+            if (jumpCount < data.jumpCountMax)
+            {
+                resolvedVelocity.y += data.velocityJumpImpulse;
+                jumpCount++;
+            }
+        }
+
+        entity.SetVelocity(resolvedVelocity);
     }
 
     private void HandleNotGrounded()
 	{
 		var movement = input.held.direction.Vector;
+        var resolvedVelocity = entity.velocity;
 
-        // Motor is not grounded.
         // Air directional influence
-        var v = entity.velocity;
-
-        v.x += movement.x * data.accelerationHorizontalAir;
-        v.x = Mathf.Clamp(v.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
-        entity.SetVelocity(v);
+        resolvedVelocity.x += movement.x * data.accelerationHorizontalAir;
+        resolvedVelocity.x = Mathf.Clamp(resolvedVelocity.x, -data.velocityHorizontalAirMax, data.velocityHorizontalAirMax);
 
         // Check for wall jump.
         if (jumpCount > 0 && input.pressed.jump)
@@ -164,7 +164,17 @@ public class PlayerMotor :
                 {
                     wallJumpImpactDirection.Update(bufferedCollision.direction);
                     wallJumpImpactDirection.ClearVertical();
-                    ApplyWallJump(bufferedCollision, input.held.direction);
+
+                    var velocityX = -bufferedCollision.direction.Vector.x * data.velocityWallJumpHorizontal;
+
+                    if (CoreDirection.IsSameHorizontal(bufferedCollision.direction, input.held.direction))
+                    {
+                        // Zero out x velocity if input is in same direction as the collision side. Meant to help climbing up.
+                        velocityX = 0;
+                    }
+
+                    resolvedVelocity.x = velocityX;
+                    resolvedVelocity.y = data.velocityWallJumpVertical;
                 }
             }
         }
@@ -174,6 +184,8 @@ public class PlayerMotor :
         {
             additiveJumpFrameCount = data.frameLimitJumpAdditive;
         }
+
+        entity.SetVelocity(resolvedVelocity);
     }
 
     private void HandleCrouch()
@@ -195,25 +207,6 @@ public class PlayerMotor :
             }
         }
 	}
-
-    // Static jump.
-    private void ApplyJump()
-    {
-        entity.SetVelocity(entity.velocity.x, data.velocityJumpImpulse);
-    }
-
-    private void ApplyWallJump(CollisionState2D c, CoreDirection d)
-    {
-        var velocityX = -c.direction.Vector.x * data.velocityWallJumpHorizontal;
-
-        if (CoreDirection.IsSameHorizontal(c.direction, d))
-        {
-            // Zero out x velocity if input is in same direction as the collision side. Meant to help climbing up.
-            velocityX = 0;
-        }
-
-        entity.SetVelocity(velocityX, data.velocityWallJumpVertical);
-    }
 
 	[Flags]
 	enum State
