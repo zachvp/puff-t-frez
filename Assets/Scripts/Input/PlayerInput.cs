@@ -108,11 +108,9 @@ public class HandInput : CoreInput, IFactoryInput<HandInput>
 public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 {
 	public bool launch;
-	public MotorData data;
 
 	public HandGrenadeInput()
 	{
-		data = new MotorData();
 		Construct(this);
 	}
 
@@ -120,7 +118,6 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 	{
 		Construct(input);
 		launch = input.launch;
-		data = new MotorData(input.data);
 	}
 
 	// IFactoryInput

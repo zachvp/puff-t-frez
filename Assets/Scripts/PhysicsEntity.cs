@@ -77,6 +77,8 @@ public class PhysicsEntity : Entity
 
     public override void SetPosition(Vector3 p)
     {
+        base.SetPosition(p);
+
         body.position = p;
     }
 

@@ -21,7 +21,6 @@ public class PlayerMarionette :
 		skeleton = playerSkeleton;
 		skeleton.OnLimbAttached += HandleLimbAttached;
 
-		skeleton.grenade.OnGrab += HandleGrenadePickup;
 		skeleton.SetActive(Limb.GRENADE, false);
 	}
 
@@ -104,24 +103,13 @@ public class PlayerMarionette :
 	{
 		if (input.pressed.launch && !skeleton.IsActive(Limb.GRENADE))
 		{
-			var bodyData = new MotorData(skeleton.body.GetDirection(),
-			                             skeleton.body.GetVelocity());
-
-			input.held.data = bodyData;
-
             skeleton.grenade.ApplyInput(input);
 
-            skeleton.SetActive(Limb.GRENADE, true);
-			skeleton.SetActive(Limb.HAND, false);
-		}
-	}
-    
-	public void HandleGrenadePickup(PhysicsContext context)
-	{
-		skeleton.grenade.Reset();
+            skeleton.grenade.entity.SetPosition(skeleton.hand.entity.Position);
 
-		skeleton.SetActive(Limb.HAND, true);
-		skeleton.SetActive(Limb.GRENADE, false);
+            skeleton.SetActive(Limb.GRENADE, true);
+            skeleton.SetActive(Limb.HAND, false);
+        }
 	}
 
     // Handlers
