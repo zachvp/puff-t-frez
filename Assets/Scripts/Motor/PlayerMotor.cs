@@ -129,7 +129,7 @@ public class PlayerMotor :
         {
             if (jumpCount < data.jumpCountMax)
             {
-                resolvedVelocity.y += data.velocityJumpImpulse;
+                resolvedVelocity.y = data.velocityJumpImpulse;
                 jumpCount++;
             }
         }
@@ -153,8 +153,6 @@ public class PlayerMotor :
             // Check if .left is in buffer up to Y frames back
             // Wall jump direction check prevents motor from indefinitely climbing up the same wall.
             // Motor jump off the opposite wall for this to reset.
-            Debug.Log("jump conditions met");
-
             var bufferedCollision = entity.GetBufferedCollisionState();
 
             if (Mathf.Abs(wallJumpImpactDirection.Vector.x) < 1 ||
@@ -175,6 +173,8 @@ public class PlayerMotor :
 
                     resolvedVelocity.x = velocityX;
                     resolvedVelocity.y = data.velocityWallJumpVertical;
+
+                    CallbackManager manager = new CallbackManager();
                 }
             }
         }
@@ -211,8 +211,8 @@ public class PlayerMotor :
 	[Flags]
 	enum State
 	{
-		NONE    = 1 << 0,
-		CROUCH  = 1 << 1,
-		JUMP    = 1 << 2
+		NONE      = 1 << 0,
+		CROUCH    = 1 << 1,
+		JUMP      = 1 << 2
 	}
 }
