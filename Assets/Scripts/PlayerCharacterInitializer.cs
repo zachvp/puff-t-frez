@@ -20,12 +20,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var bodyCollider = bodyEntity.GetComponent<BoxCollider2D>();
 		var bodyRigidBody = bodyEntity.GetComponent<Rigidbody2D>();
 
-		// TODO: Think only the body motor should care about the engine - try to init it there.
-		var bodyEngine = new CharacterController2D(bodyEntity, bodyCollider, bodyRigidBody);
-		var bodyMotor = new PlayerMotor(bodyEntity, transform, bodyEngine);
-
-		// TODO: This should look up an available input controller from the
-		// connection manager/registry (yet to be created).
+		var bodyMotor = new PlayerMotor(bodyEntity, transform);
 
 		// Spawn the limbs
 		var handEntity = Instantiate(handTemplate, bodyEntity.handAnchorRight.position, Quaternion.identity);
@@ -44,8 +39,10 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var skeleton = new PlayerSkeleton(bodyMotor, handMotor, footMotor, grenadeMotor);
 		var marionette = new PlayerMarionette(skeleton);
 
-		// TODO: this is a convenience hack for now
-		if (InputManager.Devices.Count > 0)
+        // TODO: This should look up an available input controller from the
+        // connection manager/registry (yet to be created).
+        // This is a convenience hack for now
+        if (InputManager.Devices.Count > 0)
 		{
 			var gamepadBody = new PlayerInputControllerGamepad(marionette, buffer);
 			var gamepadGrenade = new PlayerGrenadeInputControllerGamepad(marionette, grenadeBuffer);

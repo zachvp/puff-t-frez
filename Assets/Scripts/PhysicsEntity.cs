@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 public class PhysicsEntity : Entity
@@ -23,8 +24,12 @@ public class PhysicsEntity : Entity
         }
     }
 
+    [NonSerialized]
+    new public Collider2D collider;
+
     private Rigidbody2D body;
 
+    // todo: could probably separate this into its own class
     private LinkedList<CollisionState2D> collisionBuffer;
 
     // Monobehaviour methods
@@ -35,12 +40,18 @@ public class PhysicsEntity : Entity
         collision = new PhysicsContextSnapshot<CollisionContext>();
         trigger = new PhysicsContextSnapshot<PhysicsContext>();
         collisionBuffer = new LinkedList<CollisionState2D>();
+        collider = GetComponent<Collider2D>();
 
         body = GetComponent<Rigidbody2D>();
 
         FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
 
         OnActivationChange += HandleActivationChange;
+
+        var c = new Collider2D[4];
+
+        var b = body.GetAttachedColliders(c);
+        Debug.LogFormat("body.GetAttachedColliders: {0}", body.GetAttachedColliders(c));
     }
 
     // public methods
@@ -88,7 +99,8 @@ public class PhysicsEntity : Entity
         ContactFilter2D filter = new ContactFilter2D();
         var results = new RaycastHit2D[1];
 
-        filter.layerMask = Constants.Layers.OBSTACLE;
+        // todo: this should be a param
+        filter.layerMask = LayerMask.NameToLayer("Obstacle");
 
         body.Cast(direction.Vector, filter, results, distance);
 

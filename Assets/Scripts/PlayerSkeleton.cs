@@ -93,7 +93,6 @@ public class PlayerSkeleton
 	{
 		FlagsHelper.Set(ref existing, limb);
 		SetActive(limb, true);
-		entity.SetAffinity(Affinity.PLAYER);
 		Events.Raise(OnLimbAttached, existing, limb);
 
 		return this;

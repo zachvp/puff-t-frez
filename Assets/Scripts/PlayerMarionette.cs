@@ -22,7 +22,19 @@ public class PlayerMarionette :
 		skeleton.OnLimbAttached += HandleLimbAttached;
 
 		skeleton.SetActive(Limb.GRENADE, false);
-	}
+
+        FrameCounter.Instance.OnUpdate += HandleUpdate;
+    }
+
+    public void HandleUpdate(long count, float deltaTime)
+    {
+        if (skeleton.body.entity.trigger.current.IsColliding(Affinity.PLAYER))
+        {
+            skeleton.hand.entity.SetPosition(skeleton.grenade.entity.Position);
+            skeleton.SetActive(Limb.HAND, true);
+            skeleton.SetActive(Limb.GRENADE, false);
+        }
+    }
 
 	public void ApplyInput(InputSnapshot<PlayerInput> input)
 	{

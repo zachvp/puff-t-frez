@@ -9,12 +9,8 @@ public class PlayerCharacterEntity : PhysicsEntity
 	public Transform footAnchorRight;
 	public Transform footAnchorLeft;
 
-    new public BoxCollider2D collider;
-
     public override void Awake()
     {
         base.Awake();
-
-        collider = GetComponent<BoxCollider2D>();
     }
 }

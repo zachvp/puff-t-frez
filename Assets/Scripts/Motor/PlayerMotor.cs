@@ -20,10 +20,8 @@ public class PlayerMotor :
     
 	private State state;
 
-    // todo: remove e param    
     public PlayerMotor(PlayerCharacterEntity pc,
-	                   Transform t,
-	                   CharacterController2D e)
+	                   Transform t)
 		: base(pc, t)
 	{
 		input = new InputSnapshot<PlayerInput>();
@@ -98,7 +96,8 @@ public class PlayerMotor :
                 newBounds.y *= data.boundsMultiplierCrouchY;
                 crouchPosition.y -= entity.LocalScale.y;
 
-                var sizeOffset = CoreUtilities.GetWorldSpaceSize(newBounds, entity.collider, 0.5f).x;
+                // todo: fix cast
+                var sizeOffset = CoreUtilities.GetWorldSpaceSize(newBounds, entity.collider as BoxCollider2D, 0.5f).x;
                 var checkDistance = newBounds.x;
                 var hitLeft = entity.Check(Constants.Directions.LEFT, checkDistance);
                 var hitRight = entity.Check(Constants.Directions.RIGHT, checkDistance);
@@ -204,6 +203,10 @@ public class PlayerMotor :
                 entity.SetLocalScale(newBounds);
                 entity.SetPosition(crouchPosition);
                 FlagsHelper.Unset(ref state, State.CROUCH);
+            }
+            else
+            {
+                Debug.Log("detected something above");
             }
         }
 	}
