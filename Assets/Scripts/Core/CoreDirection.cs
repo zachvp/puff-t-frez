@@ -110,6 +110,16 @@ public class CoreDirection
         return Flags == Direction2D.NONE;
     }
 
+    public bool IsEmptyHorizontal()
+	{
+		return !FlagsHelper.IsSet(Flags, Direction2D.HORIZONTAL, Logical.AND);
+	}
+
+    public bool IsEmptyVertical()
+	{
+		return !FlagsHelper.IsSet(Flags, Direction2D.VERTICAL, Logical.AND);
+	}
+
     public bool IsSimultaneousHorizontal()
     {
         return FlagsHelper.IsSet(Flags, Direction2D.HORIZONTAL, Logical.AND);
@@ -123,22 +133,22 @@ public class CoreDirection
     // Public static
     public static bool IsOppositeHorizontal(CoreDirection lhs, CoreDirection rhs)
     {
-        return lhs.Vector.x + rhs.Vector.x == 0;
+        return (int) lhs.Vector.x + (int) rhs.Vector.x == 0;
     }
 
     public static bool IsOppositeVertical(CoreDirection lhs, CoreDirection rhs)
     {
-        return lhs.Vector.y + rhs.Vector.y == 0;
+        return (int) lhs.Vector.y + (int) rhs.Vector.y == 0;
     }
 
     public static bool IsSameHorizontal(CoreDirection lhs, CoreDirection rhs)
     {
-        return lhs.Vector.x == rhs.Vector.x;
+        return (int) lhs.Vector.x == (int) rhs.Vector.x;
     }
 
     public static bool IsSameVertical(CoreDirection lhs, CoreDirection rhs)
     {
-        return lhs.Vector.y == rhs.Vector.y;
+        return (int) lhs.Vector.y == (int) rhs.Vector.y;
     }
 
     // Overrides

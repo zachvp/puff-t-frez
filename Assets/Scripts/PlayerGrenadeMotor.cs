@@ -11,14 +11,12 @@ public class PlayerGrenadeMotor : Motor<PlayerGrenadeMotorData, PhysicsEntity>
     }
 
     // Public methods
-	public void Launch(Vector2 baseVelocity, CoreDirection d)
+	public void Launch(Vector2 additionalVelocity, CoreDirection d)
     {
-		var v = d.Vector * data.speed;
+		var v = d.Vector * data.baseVelocity;
 
-		v.y = 1200;
-		v += baseVelocity * 0.5f;
-
-		v.y = Mathf.Max(1200, v.y);
+		v += additionalVelocity * 0.5f;
+		v.y = Mathf.Max(data.baseVelocity.y, v.y);
 
 		entity.SetVelocity(v);
         
