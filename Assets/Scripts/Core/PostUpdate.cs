@@ -2,7 +2,8 @@
 {
     public EventHandler OnUpdate;
 
-	public void Update() {
+	public void Update()
+	{
         Events.Raise(OnUpdate);
 	}
 }

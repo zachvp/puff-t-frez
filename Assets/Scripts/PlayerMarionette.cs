@@ -3,7 +3,6 @@
 // Responsible for
 //    Passing input to limbs
 //    Enabling/disabling limbs
-// todo: this should detect collisions between entities and call approp methods in entities based on that
 public class PlayerMarionette :
     ICoreInput<HandGrenadeInput>,
     ICoreInput<PlayerInput>
@@ -11,7 +10,6 @@ public class PlayerMarionette :
 	private readonly PlayerSkeleton skeleton;
 
 	private Vector2 footTick;
-	private float t = 200000;
     
 	public PlayerMarionette() { }
 
@@ -72,13 +70,6 @@ public class PlayerMarionette :
 			{
 				var deltaPos = skeleton.foot.entity.Position - 
 		                       skeleton.body.entity.footAnchorRight.position;
-
-				//Debug.LogFormat("delta pos mag: {0}", deltaPos.magnitude);
-
-				if (deltaPos.magnitude > 0)
-				{
-					t = Mathf.Min(t, deltaPos.magnitude);
-				}
                                 
 				var footPos = skeleton.body.entity.footAnchorRight.position;
                 
