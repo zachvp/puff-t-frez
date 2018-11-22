@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 public class PlayerSkeleton
 {
@@ -24,7 +25,7 @@ public class PlayerSkeleton
 		AttachBody(playerMotor)
 		.AttachHand(handMotor)
 		.AttachFoot(footMotor)
-		.AttachGrenade(grenadeMotor);
+		.AttachGrenade(grenadeMotor);       
 	}
 
 	public PlayerSkeleton AttachBody(PlayerMotor motor)

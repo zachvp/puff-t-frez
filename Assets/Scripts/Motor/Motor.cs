@@ -5,7 +5,7 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
 	public readonly U entity;
 	public Transform root { get; protected set; }
 
-	protected CoreDirection direction;
+	public CoreDirection direction { get; protected set; }
 
 	protected T data;
 

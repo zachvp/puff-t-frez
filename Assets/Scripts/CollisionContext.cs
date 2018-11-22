@@ -80,7 +80,7 @@ public class PhysicsContext
 			else
 			{
 				Add(Affinity.NONE);
-				Add(c.gameObject.layer);
+				Add(1 << c.gameObject.layer);
 			}
 
 			colliders.Add(c);

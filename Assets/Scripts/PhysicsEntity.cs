@@ -9,7 +9,7 @@ public class PhysicsEntity : Entity
 
     public int Layer
     {
-        get { return gameObject.layer; }
+        get { return 1 << gameObject.layer; }
     }
 
     public Vector2 velocity
@@ -32,6 +32,8 @@ public class PhysicsEntity : Entity
     // todo: could probably separate this into its own class
     private LinkedList<CollisionState2D> collisionBuffer;
 
+	public Queue<Callback> tasks;
+
     // Monobehaviour methods
     public override void Awake()
     {
@@ -40,19 +42,26 @@ public class PhysicsEntity : Entity
         collision = new PhysicsContextSnapshot<CollisionContext>();
         trigger = new PhysicsContextSnapshot<PhysicsContext>();
         collisionBuffer = new LinkedList<CollisionState2D>();
-        collider = GetComponent<Collider2D>();
+		tasks = new Queue<Callback>();
 
+		collider = GetComponent<Collider2D>();
         body = GetComponent<Rigidbody2D>();
 
         FrameCounter.Instance.OnLateUpdate += HandleLateUpdate;
+		FrameCounter.Instance.OnFixedUpdate += HandleFixedUpdate;
 
         OnActivationChange += HandleActivationChange;
-
-        var c = new Collider2D[4];
-
-        var b = body.GetAttachedColliders(c);
-        Debug.LogFormat("body.GetAttachedColliders: {0}", body.GetAttachedColliders(c));
     }
+
+    public void HandleFixedUpdate(float deltaTime)
+	{        
+		foreach (Callback c in tasks)
+		{
+			c.Fire();
+		}
+
+		tasks.Clear();
+	}
 
     // public methods
     public void AddVelocity(Vector2 v)
@@ -69,7 +78,7 @@ public class PhysicsEntity : Entity
 
     public void SetVelocity(Vector2 v)
     {
-        velocity = v;
+		velocity = v;
     }
 
     public void SetVelocity(float x, float y)
@@ -88,6 +97,8 @@ public class PhysicsEntity : Entity
 
     public override void SetPosition(Vector3 p)
     {
+		// Update base transform so the entity at least visually moves to the
+        // new location. Body might be a frame or two after.
         base.SetPosition(p);
 
         body.position = p;

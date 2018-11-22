@@ -84,19 +84,17 @@ public class PlayerMotor :
         // Horizontal movement.
         resolvedVelocity.x = movement.x * data.velocityHorizontalGroundMax;
 
-        // todo: may want to have dedicated crouch collider
         if (!FlagsHelper.IsSet(state, State.CROUCH))
         {
             if (input.held.crouch)
             {
-                var newBounds = entity.LocalScale;
+				var newBounds = entity.LocalScale;
                 var crouchPosition = entity.Position;
 
                 newBounds.x *= data.boundsMultiplierCrouchX;
                 newBounds.y *= data.boundsMultiplierCrouchY;
                 crouchPosition.y -= entity.LocalScale.y;
 
-                // todo: fix cast
                 var sizeOffset = CoreUtilities.GetWorldSpaceSize(newBounds, entity.collider as BoxCollider2D, 0.5f).x;
                 var checkDistance = newBounds.x;
                 var hitLeft = entity.Check(Constants.Directions.LEFT, checkDistance);
@@ -113,7 +111,8 @@ public class PlayerMotor :
 
                 entity.SetLocalScale(newBounds);
                 entity.SetPosition(crouchPosition);
-                FlagsHelper.Set(ref state, State.CROUCH);
+                
+				FlagsHelper.Set(ref state, State.CROUCH);
             }
         }
 

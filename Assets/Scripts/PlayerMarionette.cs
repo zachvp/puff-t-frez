@@ -12,8 +12,7 @@ public class PlayerMarionette :
 
 	private Vector2 footTick;
 	private float t = 200000;
-	float u = 0;
-        
+    
 	public PlayerMarionette() { }
 
 	public PlayerMarionette(PlayerSkeleton playerSkeleton)
@@ -28,8 +27,10 @@ public class PlayerMarionette :
 
     public void HandleUpdate(long count, float deltaTime)
     {
-        if (skeleton.body.entity.trigger.current.IsColliding(Affinity.PLAYER))
+		if (skeleton.grenade.isGrabbable &&
+			skeleton.body.entity.trigger.current.IsColliding(skeleton.grenade.entity))
         {
+			skeleton.grenade.Grab();
             skeleton.hand.entity.SetPosition(skeleton.grenade.entity.Position);
             skeleton.SetActive(Limb.HAND, true);
             skeleton.SetActive(Limb.GRENADE, false);
@@ -78,9 +79,7 @@ public class PlayerMarionette :
 				{
 					t = Mathf.Min(t, deltaPos.magnitude);
 				}
-
-				u = Mathf.Max(u, deltaPos.magnitude);
-                
+                                
 				var footPos = skeleton.body.entity.footAnchorRight.position;
                 
                 footPos = skeleton.foot.entity.Position;
@@ -115,11 +114,14 @@ public class PlayerMarionette :
 	{
 		if (input.pressed.launch && !skeleton.IsActive(Limb.GRENADE))
 		{
-            skeleton.grenade.ApplyInput(input);
-            skeleton.grenade.entity.SetPosition(skeleton.hand.entity.Position);
+			skeleton.grenade.entity.SetPosition(skeleton.hand.entity.Position);
 
             skeleton.SetActive(Limb.GRENADE, true);
             skeleton.SetActive(Limb.HAND, false);
+
+			Physics2D.IgnoreCollision(skeleton.body.entity.collider, skeleton.grenade.entity.collider);
+
+			skeleton.grenade.Launch(skeleton.body.entity.velocity, skeleton.body.direction);
         }
 	}
 

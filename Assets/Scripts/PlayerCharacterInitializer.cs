@@ -39,6 +39,13 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var skeleton = new PlayerSkeleton(bodyMotor, handMotor, footMotor, grenadeMotor);
 		var marionette = new PlayerMarionette(skeleton);
 
+
+        // Set affinity for all limbs
+		bodyEntity.SetAffinity(Affinity.PLAYER);
+		handEntity.SetAffinity(Affinity.PLAYER);
+		grenadeEntity.SetAffinity(Affinity.PLAYER);
+		footEntity.SetAffinity(Affinity.PLAYER);
+        
         // TODO: This should look up an available input controller from the
         // connection manager/registry (yet to be created).
         // This is a convenience hack for now
