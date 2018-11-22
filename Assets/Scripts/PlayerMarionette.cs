@@ -121,7 +121,10 @@ public class PlayerMarionette :
 
 			Physics2D.IgnoreCollision(skeleton.body.entity.collider, skeleton.grenade.entity.collider);
 
-			skeleton.grenade.Launch(skeleton.body.entity.velocity, skeleton.body.direction);
+			var grenadeDirection = new CoreDirection(skeleton.body.direction);
+
+			grenadeDirection.ClearVertical();
+			skeleton.grenade.Launch(skeleton.body.entity.velocity, grenadeDirection);
         }
 	}
 

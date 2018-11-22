@@ -15,9 +15,12 @@ public class PlayerGrenadeMotor : Motor<PlayerGrenadeMotorData, PhysicsEntity>
     {
 		var v = d.Vector * data.speed;
 
-		entity.tasks.Enqueue(new Callback(delegate {
-			entity.SetVelocity(new Vector2(1800, 900));
-		}));
+		v.y = 1200;
+		v += baseVelocity * 0.5f;
+
+		v.y = Mathf.Max(1200, v.y);
+
+		entity.SetVelocity(v);
         
         Debug.LogFormat("pressed launch; vel: {0}", v);
     }
