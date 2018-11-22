@@ -2,6 +2,5 @@
 
 public class EnemyMotorData : ScriptableObject
 {
-    public int speed = 300;
-    public int gravity = 200;
+	public Vector2 baseVelocity = new Vector2(200, 1200);
 }

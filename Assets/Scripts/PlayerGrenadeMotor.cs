@@ -15,12 +15,10 @@ public class PlayerGrenadeMotor : Motor<PlayerGrenadeMotorData, PhysicsEntity>
     {
 		var v = d.Vector * data.baseVelocity;
 
-		v += additionalVelocity * 0.5f;
+		v += additionalVelocity * data.lobVelocityCoefficient;
 		v.y = Mathf.Max(data.baseVelocity.y, v.y);
 
-		entity.SetVelocity(v);
-        
-        Debug.LogFormat("pressed launch; vel: {0}", v);
+		entity.SetVelocity(v);        
     }
 
     // Handlers
@@ -29,7 +27,6 @@ public class PlayerGrenadeMotor : Motor<PlayerGrenadeMotorData, PhysicsEntity>
     {
 		if (entity.collision.current.IsColliding(Constants.Layers.OBSTACLE))
 		{
-			Debug.Log("collide with obstacle");
 			isGrabbable = true;
 		}
 

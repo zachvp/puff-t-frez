@@ -2,21 +2,37 @@
 
 public class EnemyMotor : Motor<EnemyMotorData, PhysicsEntity>
 {
+	private CoreDirection targetDirection;
+
     public EnemyMotor(PhysicsEntity e, Transform t)
         : base(e, t)
     {
-        FrameCounter.Instance.OnFixedUpdate += HandleFixedUpdate;
+		targetDirection = new CoreDirection(Direction2D.RIGHT);
+
+		FrameCounter.Instance.OnUpdate += HandleUpdate;
     }
 
-    public void HandleFixedUpdate(float deltaTime)
+	public void HandleUpdate(long count, float deltaTime)
     {
-        if (entity.collision.current.state.Below)
+		var collision = entity.collision.current;
+
+        if (collision.state.Below)
         {
-            var v = new Vector2(-200, 1200);
+			var v = data.baseVelocity;
+
+			v.x *= targetDirection.Vector.x;
 
             entity.SetVelocity(v);
         }
+		if (!collision.state.direction.IsEmptyHorizontal())
+		{
+			// Hit something on the left or right
+			if (CoreDirection.IsSameHorizontal(targetDirection, collision.state.direction))
+			{
+				targetDirection.FlipHorizontal();
+			}
+		}
 
-        //Debug.LogFormat("enemy collision: {0}", entity.collision.current.state);
+		ComputeDirection(entity.velocity);
     }
 }

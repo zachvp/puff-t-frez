@@ -28,7 +28,7 @@ public class Motor<T, U> where T : ScriptableObject where U : Entity
 		root = t;
 	}
 
-    protected void ComputeDirection(Vector3 v)
+    protected void ComputeDirection(Vector2 v)
     {
         var result = direction.Vector;
 

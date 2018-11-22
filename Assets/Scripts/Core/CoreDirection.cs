@@ -54,11 +54,7 @@ public class CoreDirection
 
     public void Subtract(Direction2D d)
     {
-        var f = Flags;
-
-        FlagsHelper.Unset(ref f, d);
-
-        Update(f);
+		Update(d, false);
     }
 
     public void Update(Direction2D d, bool isSet)
@@ -72,6 +68,24 @@ public class CoreDirection
         varFlags = f;
         Vector = Convert(f);
     }
+
+    public void FlipHorizontal()
+	{
+		var v = Vector;
+
+		v.x = -v.x;
+
+		Update(v);
+	}
+
+    public void FlipVertical()
+	{
+		var v = Vector;
+
+		v.y = -v.y;
+
+		Update(v);
+	}
 
     public void Clear()
     {
@@ -112,12 +126,12 @@ public class CoreDirection
 
     public bool IsEmptyHorizontal()
 	{
-		return !FlagsHelper.IsSet(Flags, Direction2D.HORIZONTAL, Logical.AND);
+		return (int) Vector.x == 0;
 	}
 
     public bool IsEmptyVertical()
 	{
-		return !FlagsHelper.IsSet(Flags, Direction2D.VERTICAL, Logical.AND);
+		return (int) Vector.y == 0;
 	}
 
     public bool IsSimultaneousHorizontal()
