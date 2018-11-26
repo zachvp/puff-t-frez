@@ -38,6 +38,6 @@ public class PlayerInputControllerGamepad : InputController<PlayerInput, PlayerM
         input.crouch = leftStick.y < -crouchThreshold || dPad.y < 0;
         input.jump = device.Action1.IsPressed;
 
-        Debug.LogFormat("jump pressed: {0}", device.Action1.IsPressed);
+		input.direction.ClearConcurrent();
     }
 }

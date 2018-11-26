@@ -16,6 +16,8 @@ public class PlayerGrenadeInputControllerGamepad : InputController<HandGrenadeIn
             input.launch = device.RightBumper.IsPressed;
 
             input.direction.CardinalizeVector();
+
+			input.direction.ClearConcurrent();
         }
     }
 }

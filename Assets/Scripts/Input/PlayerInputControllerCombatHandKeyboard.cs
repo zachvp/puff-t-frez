@@ -17,5 +17,7 @@ public class PlayerInputControllerCombatHand : InputController<CombatHandInput, 
         input.direction.Update(Direction2D.DOWN, Input.GetKey(KeyCode.S));
 
 		input.grab = Input.GetKey(KeyCode.R);
+
+		input.direction.ClearConcurrent();
 	}
 }

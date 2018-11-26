@@ -2,13 +2,8 @@
 
 public class CoreInput
 {
-	// TODO: Add event to signal when direction has changed (pass old dir, new dir)
-	// todo: this field should only be present in subclasses that need it
-	public CoreDirection direction;
-
 	public CoreInput()
 	{
-		direction = new CoreDirection();
 	}
 
     // Released
@@ -110,21 +105,6 @@ public class CoreInput
 
         return result;
     }
-
-	protected void Construct(CoreInput input)
-	{
-		direction = input.direction;
-	}
-
-	protected void Release(CoreInput oldInput)
-	{
-		direction = GetInputReleased(oldInput.direction, direction);
-	}
-
-	protected void Press(CoreInput oldInput)
-	{
-		direction = GetInputPressed(oldInput.direction, direction);
-	}
 }
 
 // Represents a snapshot of input in a single frame.

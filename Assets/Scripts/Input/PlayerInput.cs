@@ -1,13 +1,17 @@
 ﻿public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 {
+	public CoreDirection direction;
     public bool jump;
 	public bool crouch;
     
-	public PlayerInput() { }
+	public PlayerInput()
+	{
+		direction = new CoreDirection();
+	}
 
 	public PlayerInput(PlayerInput input)
 	{
-		Construct(input);
+		direction = new CoreDirection(input.direction);
         jump = input.jump;
 		crouch = input.crouch;
     }
@@ -22,7 +26,7 @@
 	{
 		var copy = Clone();
 
-		copy.Release(oldInput);
+		copy.direction = GetInputReleased(oldInput.direction, direction);
 		copy.jump = GetInputReleased(oldInput.jump, jump);
 		copy.crouch = GetInputReleased(oldInput.crouch, crouch);
 
@@ -33,7 +37,7 @@
 	{
 		var copy = Clone();
 
-		copy.Press(oldInput);
+		copy.direction = GetInputPressed(oldInput.direction, direction);
 		copy.jump = GetInputPressed(oldInput.jump, jump);
 		copy.crouch = GetInputPressed(oldInput.crouch, crouch);
 
@@ -43,16 +47,17 @@
 
 public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 {
+	public CoreDirection direction;
 	public bool launch;
 
 	public HandGrenadeInput()
 	{
-		Construct(this);
+		direction = new CoreDirection();
 	}
 
 	public HandGrenadeInput(HandGrenadeInput input)
 	{
-		Construct(input);
+		direction = new CoreDirection(input.direction);
 		launch = input.launch;
 	}
 
@@ -66,7 +71,7 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 	{
 		var c = Clone();
 
-		c.Release(oldInput);
+		c.direction = GetInputReleased(oldInput.direction, direction);
 		c.launch = GetInputReleased(oldInput.launch, launch);
 
 		return c;
@@ -76,7 +81,7 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 	{
 		var c = Clone();
 
-		c.Press(oldInput);
+		c.direction = GetInputPressed(oldInput.direction, direction);
 		c.launch = GetInputPressed(oldInput.launch, launch);
 
 		return c;
@@ -85,16 +90,17 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 
 public class CombatHandInput : CoreInput, IFactoryInput<CombatHandInput>
 {
+	public CoreDirection direction;
 	public bool grab;
 
 	public CombatHandInput()
 	{
-		Construct(this);
+		direction = new CoreDirection();
 	}
 
 	public CombatHandInput(CombatHandInput input)
 	{
-		Construct(input);
+		direction = new CoreDirection(input.direction);
 		grab = input.grab;
 	}
 
@@ -108,7 +114,7 @@ public class CombatHandInput : CoreInput, IFactoryInput<CombatHandInput>
 	{
 		var c = Clone();
 
-		c.Release(oldInput);
+		c.direction = GetInputReleased(oldInput.direction, direction);
 		c.grab = GetInputReleased(oldInput.grab, grab);
 
 		return c;
@@ -118,7 +124,7 @@ public class CombatHandInput : CoreInput, IFactoryInput<CombatHandInput>
 	{
 		var c = Clone();
 
-		c.Press(oldInput);
+		c.direction = GetInputPressed(oldInput.direction, direction);
 		c.grab = GetInputPressed(oldInput.grab, grab);
 
 		return c;

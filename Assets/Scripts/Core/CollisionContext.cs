@@ -66,7 +66,6 @@ public class PhysicsContext
         Add(c.collider);
 	}
 
-    // todo: shouldn't have all this implicit stuff smh
 	public void Add(Collider2D c)
 	{
 		if (!colliders.Contains(c))

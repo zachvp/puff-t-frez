@@ -14,5 +14,7 @@ public class PlayerGrenadeInputControllerKeyboard : InputController<HandGrenadeI
         input.direction.Update(Direction2D.LEFT, Input.GetKey(KeyCode.A));
 
         input.launch = Input.GetKey(KeyCode.E);
+
+		input.direction.ClearConcurrent();
     }
 }
