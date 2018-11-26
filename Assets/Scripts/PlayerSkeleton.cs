@@ -10,30 +10,18 @@ public class PlayerSkeleton
 	public IdleLimbMotor hand { get; private set; }
 	public IdleLimbMotor foot { get; private set; }
 	public PlayerGrenadeMotor grenade { get; private set; }
-
-	public PlayerMotor body;
+	public PlayerMotor body { get; private set; }
+	public PlayerHandMotor combatHand { get; private set; }
 
 	private Limb existing;
     private Limb active;
-
-
-	public PlayerSkeleton(PlayerMotor playerMotor,
-	                      IdleLimbMotor handMotor,
-	                      IdleLimbMotor footMotor,
-	                      PlayerGrenadeMotor grenadeMotor)
-	{
-		AttachBody(playerMotor)
-		.AttachHand(handMotor)
-		.AttachFoot(footMotor)
-		.AttachGrenade(grenadeMotor);       
-	}
 
 	public PlayerSkeleton AttachBody(PlayerMotor motor)
 	{
 		body = motor;
 		body.entity.OnActivationChange += HandleBodyActivationChange;
 
-		AttachLimb(Limb.BODY, body.entity);
+		AttachLimb(Limb.BODY);
 
 		return this;
 	}
@@ -43,7 +31,7 @@ public class PlayerSkeleton
 		hand = motor;
         hand.entity.OnActivationChange += HandleHandActivationChange;
 
-		AttachLimb(Limb.HAND, hand.entity);
+		AttachLimb(Limb.HAND);
 
 		return this;
 	}
@@ -53,7 +41,7 @@ public class PlayerSkeleton
         foot = motor;
         foot.entity.OnActivationChange += HandleFootActivationChange;
 
-		AttachLimb(Limb.FOOT, foot.entity);
+		AttachLimb(Limb.FOOT);
 
         return this;
     }
@@ -63,10 +51,24 @@ public class PlayerSkeleton
         grenade = motor;
         grenade.entity.OnActivationChange += HandleGrenadeActivationChange;
 
-		AttachLimb(Limb.GRENADE, grenade.entity);
+		AttachLimb(Limb.GRENADE);
 
         return this;
     }
+
+	public PlayerSkeleton AttachCombatHand(PlayerHandMotor motor)
+	{
+		combatHand = motor;
+		// todo: use anonymous delegates
+		combatHand.entity.OnActivationChange += delegate(bool isActive)
+		{
+			HandleLimbActivationChange(isActive, Limb.COMBAT_HAND);
+		};
+
+		AttachLimb(Limb.COMBAT_HAND);
+
+		return this;
+	}
 
 	// Handlers
     public void HandleBodyActivationChange(bool isActive)
@@ -89,8 +91,13 @@ public class PlayerSkeleton
         HandleLimbActivationChange(isActive, Limb.FOOT);
     }
 
+	public void HandleCombatHandActivationChange(bool isActive)
+	{
+		
+	}
+
     // Private
-	private PlayerSkeleton AttachLimb(Limb limb, Entity entity)
+	private PlayerSkeleton AttachLimb(Limb limb)
 	{
 		FlagsHelper.Set(ref existing, limb);
 		SetActive(limb, true);
@@ -111,6 +118,7 @@ public class PlayerSkeleton
         }
     }
 
+	// todo: optimize so that new case isn't needed for every new limb
     public void SetActive(Limb limbs, bool isActive)
     {
         if (FlagsHelper.IsSet(limbs, Limb.BODY))
@@ -129,8 +137,13 @@ public class PlayerSkeleton
         {
             grenade.entity.SetActive(isActive);
         }
+		if (FlagsHelper.IsSet(limbs, Limb.COMBAT_HAND))
+		{
+			combatHand.entity.SetActive(isActive);
+		}
     }
 
+	// todo: this seems suboptimal
     public bool IsActive(Limb limbs)
     {
         var result = false;
@@ -151,6 +164,10 @@ public class PlayerSkeleton
         {
             result |= FlagsHelper.IsSet(active, Limb.GRENADE);
         }
+		if (FlagsHelper.IsSet(limbs, Limb.COMBAT_HAND))
+		{
+			result |= FlagsHelper.IsSet(active, Limb.COMBAT_HAND);
+		}
 
         return result;
     }
@@ -163,5 +180,6 @@ public enum Limb
     BODY = 1 << 0,
     HAND = 1 << 1,
     FOOT = 1 << 2,
-    GRENADE = 1 << 3
+    GRENADE = 1 << 3,
+    COMBAT_HAND = 1 << 4
 }

@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
+﻿public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 {
     public bool jump;
 	public bool crouch;
@@ -43,68 +41,6 @@ public class PlayerInput : CoreInput, IFactoryInput<PlayerInput>
 	}
 }
 
-// TODO: Move this class to a different file
-public class MotorData
-{
-	public CoreDirection direction;
-	public Vector3 velocity;
-
-	public MotorData()
-	{
-		direction = new CoreDirection();
-	}
-
-	public MotorData(CoreDirection d, Vector3 v)
-	{
-		direction = new CoreDirection(d);
-		velocity = v;
-	}
-
-	public MotorData(MotorData other)
-	{
-		direction = new CoreDirection(other.direction);
-		velocity = other.velocity;
-	}
-}
-
-public class HandInput : CoreInput, IFactoryInput<HandInput>
-{
-	public HandInput()
-	{
-		Construct(this);
-	}
-
-	public HandInput(HandInput input)
-	{
-		Construct(input);
-	}
-
-	// IFactoryInput
-	public HandInput Clone()
-	{
-		return new HandInput(this);
-	}
-
-	public HandInput Released(HandInput oldInput)
-	{
-		var c = Clone();
-
-		c.Release(oldInput);
-
-		return c;
-	}
-
-	public HandInput Pressed(HandInput oldInput)
-	{
-		var c = Clone();
-
-		c.Press(oldInput);
-
-        return c;
-	}
-
-}
-
 public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 {
 	public bool launch;
@@ -131,7 +67,6 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 		var c = Clone();
 
 		c.Release(oldInput);
-		c.direction = GetInputReleased(oldInput.direction, direction);
 		c.launch = GetInputReleased(oldInput.launch, launch);
 
 		return c;
@@ -142,8 +77,49 @@ public class HandGrenadeInput : CoreInput, IFactoryInput<HandGrenadeInput>
 		var c = Clone();
 
 		c.Press(oldInput);
-		c.direction = GetInputPressed(oldInput.direction, direction);
 		c.launch = GetInputPressed(oldInput.launch, launch);
+
+		return c;
+	}
+}
+
+public class CombatHandInput : CoreInput, IFactoryInput<CombatHandInput>
+{
+	public bool grab;
+
+	public CombatHandInput()
+	{
+		Construct(this);
+	}
+
+	public CombatHandInput(CombatHandInput input)
+	{
+		Construct(input);
+		grab = input.grab;
+	}
+
+	// IFactoryInput
+	public CombatHandInput Clone()
+	{
+		return new CombatHandInput(this);
+	}
+
+	public CombatHandInput Released(CombatHandInput oldInput)
+	{
+		var c = Clone();
+
+		c.Release(oldInput);
+		c.grab = GetInputReleased(oldInput.grab, grab);
+
+		return c;
+	}
+
+	public CombatHandInput Pressed(CombatHandInput oldInput)
+	{
+		var c = Clone();
+
+		c.Press(oldInput);
+		c.grab = GetInputPressed(oldInput.grab, grab);
 
 		return c;
 	}

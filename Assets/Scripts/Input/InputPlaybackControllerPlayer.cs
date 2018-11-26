@@ -34,7 +34,7 @@ public class InputPlaybackControllerPlayer
 
 	public void HandleUpdate(long currentFrame, float deltaTime)
 	{
-        if (Input.GetKeyDown(KeyCode.R)) {
+        if (Input.GetKeyDown(KeyCode.Y)) {
 			Events.Raise(OnPlaybackStarted);
 
 			finalPosition = entity.Position;

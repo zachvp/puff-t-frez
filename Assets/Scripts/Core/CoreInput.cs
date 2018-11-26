@@ -3,6 +3,7 @@
 public class CoreInput
 {
 	// TODO: Add event to signal when direction has changed (pass old dir, new dir)
+	// todo: this field should only be present in subclasses that need it
 	public CoreDirection direction;
 
 	public CoreInput()

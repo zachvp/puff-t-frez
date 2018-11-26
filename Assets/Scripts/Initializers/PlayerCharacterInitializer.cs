@@ -14,7 +14,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 	{
 		var buffer = new InputBuffer<InputSnapshot<PlayerInput>>();
 		var grenadeBuffer = new InputBuffer<InputSnapshot<HandGrenadeInput>>();
-		var handBuffer = new InputBuffer<InputSnapshot<HandInput>>();
+		var combatHandBuffer = new InputBuffer<InputSnapshot<CombatHandInput>>();
         
 		var bodyEntity = Instantiate(bodyTemplate, transform.position, Quaternion.identity);
 		var bodyCollider = bodyEntity.GetComponent<BoxCollider2D>();
@@ -23,11 +23,14 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var bodyMotor = new PlayerMotor(bodyEntity, transform);
 
 		// Spawn the limbs
+		// todo: rename to 'idleHandEntity'
 		var handEntity = Instantiate(handTemplate, bodyEntity.handAnchorRight.position, Quaternion.identity);
-		var handMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchorRight);
+		var idleHandMotor = new IdleLimbMotor(handEntity, bodyEntity.handAnchorRight);
 
 		var grenadeEntity = Instantiate(handGrenadeTemplate, handEntity.Position, handEntity.Rotation);
 		var grenadeMotor = new PlayerGrenadeMotor(grenadeEntity, handEntity.transform);
+
+		var handCombatMotor = new PlayerHandMotor(grenadeEntity, handEntity.transform);
 
 		var footEntity = Instantiate(footTemplate, bodyEntity.footAnchorRight.position, Quaternion.identity);
 		var footMotor = new IdleLimbMotor(footEntity, bodyEntity.footAnchorRight);
@@ -36,9 +39,16 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		var playback = new InputPlaybackControllerPlayer(bodyMotor, bodyEntity, buffer);
 
         // Create the skeleton
-		var skeleton = new PlayerSkeleton(bodyMotor, handMotor, footMotor, grenadeMotor);
-		var marionette = new PlayerMarionette(skeleton);
+		var skeleton = new PlayerSkeleton();
+		skeleton.AttachBody(bodyMotor)
+                .AttachHand(idleHandMotor)
+                .AttachFoot(footMotor)
+                .AttachGrenade(grenadeMotor)
+		        .AttachCombatHand(handCombatMotor);
 
+		skeleton.SetActive(Limb.COMBAT_HAND, false);
+
+		var marionette = new PlayerMarionette(skeleton);
 
         // Set affinity for all limbs
 		bodyEntity.SetAffinity(Affinity.PLAYER);
@@ -58,6 +68,7 @@ public class PlayerCharacterInitializer : MonoBehaviour
 		{
 			var keyboardBody = new PlayerInputControllerKeyboard(marionette, buffer);
 			var keyboardGrenade = new PlayerGrenadeInputControllerKeyboard(marionette, grenadeBuffer);
+			var keyboardCombatHand = new PlayerInputControllerCombatHand(marionette, combatHandBuffer);
 		}
 	}
 }

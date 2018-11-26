@@ -5,7 +5,8 @@
 //    Enabling/disabling limbs
 public class PlayerMarionette :
     ICoreInput<HandGrenadeInput>,
-    ICoreInput<PlayerInput>
+    ICoreInput<PlayerInput>,
+    ICoreInput<CombatHandInput>
 {
 	private readonly PlayerSkeleton skeleton;
 
@@ -124,6 +125,14 @@ public class PlayerMarionette :
 
 			skeleton.grenade.Launch(skeleton.body.entity.velocity, grenadeDirection);
         }
+	}
+
+	public void ApplyInput(InputSnapshot<CombatHandInput> input)
+	{
+		if (input.pressed.grab)
+		{
+			skeleton.combatHand.Punch(input.held.direction);
+		}
 	}
 
     // Handlers
