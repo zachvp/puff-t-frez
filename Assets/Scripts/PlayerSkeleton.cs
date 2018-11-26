@@ -130,32 +130,9 @@ public class PlayerSkeleton
     }
 
 	// todo: this seems suboptimal
-    public bool IsActive(Limb limbs)
+	public bool IsActive(Limb limbs, Logical mode)
     {
-        var result = false;
-
-        if (FlagsHelper.IsSet(limbs, Limb.BODY))
-        {
-            result |= FlagsHelper.IsSet(active, Limb.BODY);
-        }
-        if (FlagsHelper.IsSet(limbs, Limb.FOOT))
-        {
-            result |= FlagsHelper.IsSet(active, Limb.FOOT);
-        }
-        if (FlagsHelper.IsSet(limbs, Limb.HAND))
-        {
-            result |= FlagsHelper.IsSet(active, Limb.HAND);
-        }
-        if (FlagsHelper.IsSet(limbs, Limb.GRENADE))
-        {
-            result |= FlagsHelper.IsSet(active, Limb.GRENADE);
-        }
-		if (FlagsHelper.IsSet(limbs, Limb.COMBAT_HAND))
-		{
-			result |= FlagsHelper.IsSet(active, Limb.COMBAT_HAND);
-		}
-
-        return result;
+		return FlagsHelper.IsSet(active, limbs, mode);
     }
 }
 

@@ -104,7 +104,7 @@ public class PlayerMarionette :
 
 	public void ApplyInput(InputSnapshot<HandGrenadeInput> input)
 	{
-		if (input.pressed.launch && !skeleton.IsActive(Limb.GRENADE))
+		if (input.pressed.launch && !skeleton.IsActive(Limb.GRENADE, Logical.AND))
 		{
 			skeleton.grenade.entity.SetPosition(skeleton.hand.entity.Position);
 
