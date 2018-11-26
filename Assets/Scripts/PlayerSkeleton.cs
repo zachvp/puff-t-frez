@@ -19,7 +19,10 @@ public class PlayerSkeleton
 	public PlayerSkeleton AttachBody(PlayerMotor motor)
 	{
 		body = motor;
-		body.entity.OnActivationChange += HandleBodyActivationChange;
+		body.entity.OnActivationChange += delegate(bool isActive)
+		{
+			HandleLimbActivationChange(isActive, Limb.BODY);
+		};
 
 		AttachLimb(Limb.BODY);
 
@@ -29,7 +32,10 @@ public class PlayerSkeleton
 	public PlayerSkeleton AttachHand(IdleLimbMotor motor)
 	{
 		hand = motor;
-        hand.entity.OnActivationChange += HandleHandActivationChange;
+        hand.entity.OnActivationChange += delegate(bool isActive)
+		{
+			HandleLimbActivationChange(isActive, Limb.HAND);
+		};
 
 		AttachLimb(Limb.HAND);
 
@@ -39,8 +45,11 @@ public class PlayerSkeleton
 	public PlayerSkeleton AttachFoot(IdleLimbMotor motor)
     {
         foot = motor;
-        foot.entity.OnActivationChange += HandleFootActivationChange;
-
+        foot.entity.OnActivationChange += delegate(bool isActive)
+		{
+			HandleLimbActivationChange(isActive, Limb.FOOT);
+		};
+       
 		AttachLimb(Limb.FOOT);
 
         return this;
@@ -49,7 +58,10 @@ public class PlayerSkeleton
 	public PlayerSkeleton AttachGrenade(PlayerGrenadeMotor motor)
     {
         grenade = motor;
-        grenade.entity.OnActivationChange += HandleGrenadeActivationChange;
+        grenade.entity.OnActivationChange += delegate(bool isActive)
+		{
+			HandleLimbActivationChange(isActive, Limb.GRENADE);
+		};
 
 		AttachLimb(Limb.GRENADE);
 
@@ -68,32 +80,6 @@ public class PlayerSkeleton
 		AttachLimb(Limb.COMBAT_HAND);
 
 		return this;
-	}
-
-	// Handlers
-    public void HandleBodyActivationChange(bool isActive)
-    {
-        HandleLimbActivationChange(isActive, Limb.BODY);
-    }
-
-    public void HandleHandActivationChange(bool isActive)
-    {
-        HandleLimbActivationChange(isActive, Limb.HAND);
-    }
-
-    public void HandleGrenadeActivationChange(bool isActive)
-    {
-        HandleLimbActivationChange(isActive, Limb.GRENADE);
-    }
-
-    public void HandleFootActivationChange(bool isActive)
-    {
-        HandleLimbActivationChange(isActive, Limb.FOOT);
-    }
-
-	public void HandleCombatHandActivationChange(bool isActive)
-	{
-		
 	}
 
     // Private
